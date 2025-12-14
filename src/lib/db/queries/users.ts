@@ -28,6 +28,7 @@ export type DbUserRow = {
     created_at: string | null;
     updated_at: string | null;
     sw_admin: number;
+    onboarding_completed_at: string | null;
 };
 
 export async function updateUserById(
@@ -169,12 +170,12 @@ export async function createUser({
 export async function login({
     email,
     password,
-}: UserLogin): Promise<{ id: number; name: string, sw_admin: number, token: string, expiresAt: string }> {
+}: UserLogin): Promise<{ id: number; name: string, sw_admin: number, token: string, expiresAt: string, needsOnboarding: boolean }> {
     const db = getDb();
 
     return new Promise((resolve, reject) => {
         db.get<DbUserRow>(
-        `SELECT id, name, password, sw_admin 
+        `SELECT id, name, password, sw_admin, onboarding_completed_at
         FROM users 
         WHERE email = ?`,
         [email],
@@ -195,13 +196,16 @@ export async function login({
 
             const { token, expiresAt } = await createSession(db, row.id);
 
+            const needsOnboarding = row.onboarding_completed_at === null;
+
             // Login exitoso
             resolve({
                 id: row.id,
                 name: row.name,
                 sw_admin: row.sw_admin,
                 token: token,
-                expiresAt: expiresAt
+                expiresAt: expiresAt,
+                needsOnboarding: needsOnboarding
             });
         }
         );

@@ -35,7 +35,11 @@ export default function LogIn() {
             if(data.user.sw_admin === 1){
                 router.push("/admin/dashboard");
             }else{
-                router.push("/user/dashboard");
+                if(data.user.needsOnboarding === true){
+                    router.push("/user/onboarding");
+                }else{
+                    router.push("/user/dashboard");
+                }
             }
 
         } catch (err) {

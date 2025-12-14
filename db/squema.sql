@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TEXT NULL,
     updated_at TEXT NULL,
     sw_admin INTEGER NOT NULL DEFAULT 0
+    onboarding_completed_at TEXT NULL
 );
 
 -- =========================

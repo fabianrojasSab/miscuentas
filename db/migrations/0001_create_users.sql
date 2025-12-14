@@ -14,5 +14,6 @@ CREATE TABLE users (
     profile_photo_path TEXT,
     created_at TEXT,
     updated_at TEXT,
-    sw_admin INTEGER NOT NULL DEFAULT 0
+    sw_admin INTEGER NOT NULL DEFAULT 0,
+    onboarding_completed_at TEXT NULL
 );
