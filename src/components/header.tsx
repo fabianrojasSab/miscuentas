@@ -45,14 +45,14 @@ export const Header = () =>{
 
             {!user && (
                 <div className="flex items-center ml-auto gap-2  hover:animate-vibrate animate-in fade-in slide-in-from-right-8 duration-800">
-                    <Button href="/login/signIn" variant={"transparent"}> Iniciar sesion </Button>
-                    <Button href="/login/signUp" variant={"transparent"}> Registrarse </Button>
+                    <Button href="/auth/logIn" variant={"transparent"}> Iniciar sesion </Button>
+                    <Button href="/auth/signUp" variant={"transparent"}> Registrarse </Button>
                 </div>
             )}
 
             {user && (
                 <div className="ml-auto flex items-center gap-4">
-                <span className="font-semibold">Hola, {user.nombre} 👋</span>
+                <span className="font-semibold">Hola, {user.name} 👋</span>
 
                 <Button
                     variant="transparent"
