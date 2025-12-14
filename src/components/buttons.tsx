@@ -1,8 +1,9 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
-import { SocialIcon, socialIcons } from "./SocialIcon"
+import { SocialIcon, socialIcons } from "./SocialIcon";
 
+type SocialIconType = keyof typeof socialIcons | "none";
 
 const buttonVariants = cva(
     "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium mr-4 inline-flex items-center",
@@ -37,33 +38,40 @@ const buttonVariants = cva(
     }
 )
 
+type ButtonProps = (
+    | React.ButtonHTMLAttributes<HTMLButtonElement>
+    | React.AnchorHTMLAttributes<HTMLAnchorElement>
+    ) &
+    VariantProps<typeof buttonVariants> & {
+        href?: string;
+        iconType?: SocialIconType;
+    };
+
+
 function Button({
     className,
     variant,
     size,
     href,
-    iconType,
+    iconType = "none",
     children,
     ...props
-}: React.ComponentProps<"button"> & React.ComponentProps<"a"> &
-    VariantProps<typeof buttonVariants> & {
-        href?: string
-        iconType?: string | undefined
-    }) {
-    const Comp: "a" | "button" = href ? "a" : "button"
-
-    const Icon = iconType !== "none" ? socialIcons[iconType] : null
+}: ButtonProps) {
+    const Comp: "a" | "button" = href ? "a" : "button";
+    
+    const showIcon = iconType !== "none";
+    const IconComponent =
+    showIcon && iconType in socialIcons
+        ? socialIcons[iconType as keyof typeof socialIcons]
+        : null;
 
     return (
     <Comp
-    href={href}
-    data-slot="button"
-    className={cn(buttonVariants({ variant, size, iconType, className }))}
-    {...props}
-    >
-        {Icon &&<SocialIcon 
-                    type={iconType} 
-                />}
+        href={href}
+        data-slot="button"
+        className={cn(buttonVariants({ variant, size, iconType }), className)}
+        >
+        {IconComponent && <IconComponent className="h-4 w-4" />}
         {children}
     </Comp>
     )
