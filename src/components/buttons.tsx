@@ -38,43 +38,56 @@ const buttonVariants = cva(
     }
 )
 
-type ButtonProps = (
-    | React.ButtonHTMLAttributes<HTMLButtonElement>
-    | React.AnchorHTMLAttributes<HTMLAnchorElement>
-    ) &
-    VariantProps<typeof buttonVariants> & {
-        href?: string;
-        iconType?: SocialIconType;
-    };
+type CommonProps = VariantProps<typeof buttonVariants> & {
+    iconType?: SocialIconType;
+    className?: string;
+    children?: React.ReactNode;
+};
 
+type ButtonAsButton = CommonProps &
+    React.ButtonHTMLAttributes<HTMLButtonElement> & {
+    href?: never; // 👈 si es button, NO href
+};
 
-function Button({
-    className,
-    variant,
-    size,
-    href,
-    iconType = "none",
-    children,
-    ...props
-}: ButtonProps) {
-    const Comp: "a" | "button" = href ? "a" : "button";
+type ButtonAsAnchor = CommonProps &
+    React.AnchorHTMLAttributes<HTMLAnchorElement> & {
+    href: string; // 👈 si hay href, es anchor
+};
+
+export type ButtonProps = ButtonAsButton | ButtonAsAnchor;
+
+function Button(props: ButtonProps) {
+    const { className, variant, size, iconType = "none", children } = props;
     
     const showIcon = iconType !== "none";
     const IconComponent =
-    showIcon && iconType in socialIcons
-        ? socialIcons[iconType as keyof typeof socialIcons]
-        : null;
+        showIcon && iconType in socialIcons
+            ? socialIcons[iconType as keyof typeof socialIcons]
+            : null;
 
+    const classes = cn(buttonVariants({ variant, size, iconType }), className);
+
+    if ("href" in props) {
+        const { href, ...rest } = props;
+        return (
+        <a href={href} data-slot="button" className={classes} {...rest}>
+            {IconComponent && <IconComponent className="h-4 w-4" />}
+            {children}
+        </a>
+        );
+    }
+
+    const { ...rest } = props;
     return (
-    <Comp
-        href={href}
+        <button
         data-slot="button"
-        className={cn(buttonVariants({ variant, size, iconType }), className)}
+        className={classes}
+        {...rest}
         >
         {IconComponent && <IconComponent className="h-4 w-4" />}
         {children}
-    </Comp>
-    )
+        </button>
+    );
 }
 
 export { Button, buttonVariants }
