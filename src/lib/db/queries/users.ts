@@ -155,7 +155,7 @@ export async function createUser({
     return new Promise((resolve, reject) => {
         db.run(
         `INSERT INTO users  (name, email, password, created_at, updated_at)
-        VALUES (?, ?, ?, ?)`,
+        VALUES (?, ?, ?, ?, ?)`,
         [name, email, passwordHash, isNow(), isNow()],
         function (err) {
             if (err) return reject(err);
@@ -182,14 +182,14 @@ export async function login({
 
             // Usuario no encontrado
             if (!row) {
-            return reject(new Error("Usuario no encontrado"));
+                return reject(new Error("Usuario no encontrado"));
             }
 
             // Validar contraseña
             const passwordCorrecta = await bcrypt.compare(password, row.password);
 
             if (!passwordCorrecta) {
-            return reject(new Error("Contraseña incorrecta"));
+                return reject(new Error("Contraseña incorrecta"));
             }
 
             // Login exitoso
