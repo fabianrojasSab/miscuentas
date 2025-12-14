@@ -4,22 +4,25 @@ import Image from "next/image";
 import { Button } from "@/components/buttons";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 
 export const Header = () =>{
+    const router = useRouter();
     const [user, setUser] = useState<any>(null);
 
     useEffect(() => {
-        if (typeof window !== "undefined") {
-        const data = localStorage.getItem("user");
-        if (data) {
-            try {
-            setUser(JSON.parse(data));
-            } catch {
-            setUser(null);
-            }
-        }
-        }
+        (async () => {
+            const res = await fetch("/api/me");
+            const data = await res.json();
+            setUser(data.user);
+        })();
     }, []);
+
+    async function logout() {
+        await fetch("/api/logout", { method: "POST" });
+        setUser(null);
+        router.push("/");
+    }
 
     return(
         <div className="flex h-16 shrink-0 items-center gap-2 border-b px-4 shadow-lg">
@@ -54,13 +57,7 @@ export const Header = () =>{
                 <div className="ml-auto flex items-center gap-4">
                 <span className="font-semibold">Hola, {user.name} 👋</span>
 
-                <Button
-                    variant="transparent"
-                    onClick={() => {
-                    localStorage.removeItem("user");
-                    window.location.reload();
-                    }}
-                >
+                <Button variant="transparent" onClick={logout}>
                     Cerrar sesión
                 </Button>
                 </div>

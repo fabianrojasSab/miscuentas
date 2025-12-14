@@ -1,5 +1,7 @@
 import { login } from "@/lib/db/queries/users";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { serialize } from "cookie";
+import { SESSION_COOKIE_NAME } from "@/lib/auth";
 
 export default async function handler(
     req: NextApiRequest,
@@ -22,6 +24,17 @@ export default async function handler(
         }
 
         const user = await login({ email, password });
+
+        res.setHeader(
+            "Set-Cookie",
+            serialize(SESSION_COOKIE_NAME, user.token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                path: "/",
+                expires: new Date(user.expiresAt),
+            })
+        );
 
         return res.status(200).json({
             success: true,

@@ -32,8 +32,6 @@ export default function LogIn() {
                 return;
             }
 
-            localStorage.setItem("user", JSON.stringify(data.user));
-
             if(data.user.sw_admin === 1){
                 router.push("/admin/dashboard");
             }else{

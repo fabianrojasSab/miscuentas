@@ -1,5 +1,6 @@
 import { getDb } from "../index";
 import bcrypt from "bcryptjs";
+import { createSession } from "@/lib/auth";
 
 export type NewUser = {
     name: string;
@@ -168,7 +169,7 @@ export async function createUser({
 export async function login({
     email,
     password,
-}: UserLogin): Promise<{ id: number; name: string, sw_admin: number }> {
+}: UserLogin): Promise<{ id: number; name: string, sw_admin: number, token: string, expiresAt: string }> {
     const db = getDb();
 
     return new Promise((resolve, reject) => {
@@ -192,11 +193,15 @@ export async function login({
                 return reject(new Error("Contraseña incorrecta"));
             }
 
+            const { token, expiresAt } = await createSession(db, row.id);
+
             // Login exitoso
             resolve({
-            id: row.id,
-            name: row.name,
-            sw_admin: row.sw_admin,
+                id: row.id,
+                name: row.name,
+                sw_admin: row.sw_admin,
+                token: token,
+                expiresAt: expiresAt
             });
         }
         );
