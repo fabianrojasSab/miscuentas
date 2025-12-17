@@ -1,4 +1,4 @@
-import { getDb } from "../index";
+import { allAsync, getAsync, runAsync, getDb } from "../index";
 import bcrypt from "bcryptjs";
 import { createSession } from "@/lib/auth";
 
@@ -61,89 +61,103 @@ export async function updateUserById(
 
 export async function getAllUsers(): Promise<DbUserRow[]> {
     const db = getDb();
-    return new Promise((resolve, reject) => {
-        db.all<DbUserRow>(
-        `SELECT id,
-            name,
-            email,
-            email_verified_at,
-            password,
-            two_factor_secret,
-            two_factor_recovery_codes,
-            two_factor_confirmed_at,
-            remember_token,
-            current_team_id,
-            profile_photo_path,
-            created_at,
-            updated_at,
-            sw_admin
-        FROM users`,
-        (err, rows) => {
-            if (err) return reject(err);
-            resolve(rows);
-        }
+
+    try {
+        const allUsersResult = await allAsync<DbUserRow>(
+            db,
+            `SELECT id,
+                name,
+                email,
+                email_verified_at,
+                password,
+                two_factor_secret,
+                two_factor_recovery_codes,
+                two_factor_confirmed_at,
+                remember_token,
+                current_team_id,
+                profile_photo_path,
+                created_at,
+                updated_at,
+                sw_admin
+            FROM users`,
         );
-    });
+
+        return allUsersResult;
+    }finally {
+        db.close();
+    }   
 }
 
 export async function getUserByEmail(email: string): Promise<DbUserRow> {
     const db = getDb();
 
-    return new Promise((resolve, reject) => {
-        db.get<DbUserRow>(
-        `SELECT id, 
-            name,
-            email,
-            email_verified_at,
-            password,
-            two_factor_secret,
-            two_factor_recovery_codes,
-            two_factor_confirmed_at,
-            remember_token,
-            current_team_id,
-            profile_photo_path,
-            created_at,
-            updated_at,
-            sw_admin
-        FROM users
-        WHERE email = ?`,
-        [email],
-        (err, row) => {
-            if (err) return reject(err);
-            resolve(row || null);
-        }
+    try {
+        const userResult = await getAsync<DbUserRow>(
+            db,
+            `SELECT id, 
+                name,
+                email,
+                email_verified_at,
+                password,
+                two_factor_secret,
+                two_factor_recovery_codes,
+                two_factor_confirmed_at,
+                remember_token,
+                current_team_id,
+                profile_photo_path,
+                created_at,
+                updated_at,
+                sw_admin
+            FROM users
+            WHERE email = ?
+            LIMIT 1`,
+            [email],
         );
-    });
+
+        if (!userResult) {
+            throw new Error("Usuario no encontrado");
+        }
+
+        return userResult;
+    }finally {
+        db.close();
+    }  
 }
 
 export async function getUserById(id: number): Promise<DbUserRow> {
     const db = getDb();
 
-    return new Promise((resolve, reject) => {
-        db.get<DbUserRow>(
-        `SELECT id, 
-            name,  
-            email, 
-            email_verified_at, 
-            password, 
-            two_factor_secret, 
-            two_factor_recovery_codes, 
-            two_factor_confirmed_at, 
-            remember_token, 
-            current_team_id, 
-            profile_photo_path,
-            created_at, 
-            updated_at, 
-            sw_admin
-        FROM users
-        WHERE id = ?`,
-        [id],
-        (err, row) => {
-            if (err) return reject(err);
-            resolve(row || null);
-        }
+    try {
+        const userResult = await getAsync<DbUserRow>(
+            db,
+            `SELECT id, 
+                name,  
+                email, 
+                email_verified_at, 
+                password, 
+                two_factor_secret, 
+                two_factor_recovery_codes, 
+                two_factor_confirmed_at, 
+                remember_token, 
+                current_team_id, 
+                profile_photo_path,
+                created_at, 
+                updated_at, 
+                sw_admin
+            FROM users
+            WHERE id = ?
+            LIMIT 1`,
+            [id],
         );
-    });
+
+        if (!userResult) {
+            throw new Error("Usuario no encontrado");
+        }
+
+        return userResult;
+    }finally {
+        db.close();
+    }  
 }
 
 export async function createUser({
@@ -153,18 +167,28 @@ export async function createUser({
 }: NewUser): Promise<{ id: number }> {
     const db = getDb();
     const isNow = () => new Date().toISOString();
+    let began = false;
 
-    return new Promise((resolve, reject) => {
-        db.run(
-        `INSERT INTO users  (name, email, password, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?)`,
-        [name, email, passwordHash, isNow(), isNow()],
-        function (err) {
-            if (err) return reject(err);
-            resolve({ id: this.lastID });
-        }
+    try {
+        await runAsync(db, "BEGIN");
+        began = true;
+
+        const user = await runAsync(
+            db,
+            `INSERT INTO users  (name, email, password, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?)`,
+            [name, email, passwordHash, isNow(), isNow()],
         );
-    });
+
+        await runAsync(db, "COMMIT");
+
+        return{id: user.lastID}
+    }catch (e) {
+        if (began) await runAsync(db, "ROLLBACK");
+        throw e;
+    } finally {
+        db.close();
+    }   
 }
 
 export async function login({
@@ -173,41 +197,40 @@ export async function login({
 }: UserLogin): Promise<{ id: number; name: string, sw_admin: number, token: string, expiresAt: string, needsOnboarding: boolean }> {
     const db = getDb();
 
-    return new Promise((resolve, reject) => {
-        db.get<DbUserRow>(
-        `SELECT id, name, password, sw_admin, onboarding_completed_at
-        FROM users 
-        WHERE email = ?`,
-        [email],
-        async (err, row) => {
-            if (err) return reject(err);
-
-            // Usuario no encontrado
-            if (!row) {
-                return reject(new Error("Usuario no encontrado"));
-            }
-
-            // Validar contraseña
-            const passwordCorrecta = await bcrypt.compare(password, row.password);
-
-            if (!passwordCorrecta) {
-                return reject(new Error("Contraseña incorrecta"));
-            }
-
-            const { token, expiresAt } = await createSession(db, row.id);
-
-            const needsOnboarding = row.onboarding_completed_at === null;
-
-            // Login exitoso
-            resolve({
-                id: row.id,
-                name: row.name,
-                sw_admin: row.sw_admin,
-                token: token,
-                expiresAt: expiresAt,
-                needsOnboarding: needsOnboarding
-            });
-        }
+    try {
+        const userResult = await getAsync<DbUserRow>(
+            db,
+            `SELECT id, name, password, sw_admin, onboarding_completed_at
+            FROM users 
+            WHERE email = ?`,
+            [email],
         );
-    });
+
+        // Usuario no encontrado
+        if (!userResult) {
+            throw new Error("Usuario no encontrado");
+        }
+
+        // Validar contraseña
+        const passwordCorrecta = await bcrypt.compare(password, userResult.password);
+
+        if (!passwordCorrecta) {
+            throw new Error("Contraseña incorrecta");
+        }
+
+        const { token, expiresAt } = await createSession(userResult.id);
+
+        const needsOnboarding = userResult.onboarding_completed_at === null;
+
+        return({
+            id: userResult.id,
+            name: userResult.name,
+            sw_admin: userResult.sw_admin,
+            token: token,
+            expiresAt: expiresAt,
+            needsOnboarding: needsOnboarding
+        });
+    }finally {
+        db.close();
+    }   
 }

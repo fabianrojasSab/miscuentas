@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const token = cookies[SESSION_COOKIE_NAME];
 
         if (token) {
-        await deleteSessionByToken(db, token);
+        await deleteSessionByToken(token);
         }
 
         // borrar cookie

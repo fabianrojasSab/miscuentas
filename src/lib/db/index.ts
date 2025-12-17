@@ -9,14 +9,37 @@ export function getDb() {
     return db;
 }
 
-export function runAsync(db: sqlite3.Database, sql: string, params: any[] = []) {
-    return new Promise<void>((resolve, reject) => {
-        db.run(sql, params, (err) => (err ? reject(err) : resolve()));
+export function runAsync(
+    db: sqlite3.Database,
+    sql: string,
+    params: any[] = []
+): Promise<{ lastID: number; changes: number }> {
+    return new Promise((resolve, reject) => {
+        db.run(sql, params, function (this: sqlite3.RunResult, err) {
+        if (err) return reject(err);
+        resolve({
+            lastID: this.lastID ?? 0,
+            changes: this.changes ?? 0,
+        });
+        });
     });
 }
 
 export function getAsync<T>(db: sqlite3.Database, sql: string, params: any[] = []) {
     return new Promise<T | undefined>((resolve, reject) => {
         db.get(sql, params, (err, row) => (err ? reject(err) : resolve(row as T)));
+    });
+}
+
+export function allAsync<T>(
+    db: sqlite3.Database,
+    sql: string,
+    params: any[] = []
+): Promise<T[]> {
+    return new Promise((resolve, reject) => {
+        db.all(sql, params, (err, rows) => {
+        if (err) return reject(err);
+        resolve(rows as T[]);
+        });
     });
 }

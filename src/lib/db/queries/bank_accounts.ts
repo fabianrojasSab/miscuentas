@@ -1,4 +1,4 @@
-import { getDb } from "../index";
+import { getDb, runAsync } from "../index";
 
 export type NewBankAccount = {
     userId: number,
@@ -15,16 +15,25 @@ export async function createBankAccount({
 }: NewBankAccount): Promise<{ id: number }> {
     const db = getDb();
     const isNow = () => new Date().toISOString();
+    let began = false;
 
-    return new Promise((resolve, reject) => {
-        db.run(
-        `INSERT INTO bank_accounts (user_id, account_number, account_type, bank_name, created_at, update_at)
-        VALUES (?, ?, ?, ?, ?, ?)`,
-        [userId, account, type, bank, isNow(), isNow()],
-        function (err) {
-            if (err) return reject(err);
-            resolve({ id: this.lastID });
-        }
+    try {
+        await runAsync(db, "BEGIN");
+        began = true;
+        const bankAcount = await runAsync(
+            db,
+            `INSERT INTO bank_accounts (user_id, account_number, account_type, bank_name, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?)`,
+            [userId, account, type, bank, isNow(), isNow()]
         );
-    });
+
+        await runAsync(db, "COMMIT");
+
+        return { id: bankAcount.lastID };
+    }catch (e) {
+        if (began) await runAsync(db, "ROLLBACK");
+        throw e;
+    } finally {
+        db.close();
+    }  
 }

@@ -2,9 +2,11 @@ import { Button } from "@/components/buttons";
 import { Header } from "@/components/header";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function SignUp() {
     const [error, setError] = useState<string | null>(null);
+    const router = useRouter();
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -33,7 +35,7 @@ export default function SignUp() {
             return;
         }
 
-        window.location.href = "/auth/logIn";
+        router.push("/auth/logIn");
     }
 
     return (

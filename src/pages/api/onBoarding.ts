@@ -2,7 +2,6 @@ import { createConfigInit } from "@/lib/db/queries/onboarding";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { parse } from "cookie";
 import { getUserBySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
-import { getDb } from "@/lib/db";
 
 type BankAccountForm = {
     account: number;
@@ -20,7 +19,6 @@ export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
 ) {
-    const db = getDb();
     if (req.method !== "POST") {
         return res.status(405).json({ error: "Método no permitido" });
     }
@@ -42,7 +40,7 @@ export default async function handler(
         const token = cookies[SESSION_COOKIE_NAME];
         if (!token) return res.status(401).json({ error: "No auth" });
 
-        const user = await getUserBySessionToken(db, token);
+        const user = await getUserBySessionToken(token);
         if (!user) return res.status(401).json({ error: "No auth" });
 
         const newData = {

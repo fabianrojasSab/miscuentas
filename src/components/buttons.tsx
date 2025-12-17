@@ -2,6 +2,7 @@ import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 import { SocialIcon, socialIcons } from "./SocialIcon";
+import Link from "next/link";
 
 type SocialIconType = keyof typeof socialIcons | "none";
 
@@ -70,10 +71,10 @@ function Button(props: ButtonProps) {
     if ("href" in props) {
         const { href, ...rest } = props;
         return (
-        <a href={href} data-slot="button" className={classes} {...rest}>
+        <Link href={href} data-slot="button" className={classes} {...rest}>
             {IconComponent && <IconComponent className="h-4 w-4" />}
             {children}
-        </a>
+        </Link>
         );
     }
 

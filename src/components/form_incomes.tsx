@@ -29,6 +29,7 @@ export const Income = ({ onChange }: Props) =>{
         };
 
         onChange(body)
+        form.reset();
     }
 
     return(

@@ -21,9 +21,11 @@ export async function createConfigInit({
 }: NewData): Promise<{ ok: boolean }> {
     const db = getDb();
     const isNow = () => new Date().toISOString();
+    let began = false;
 
     try {
         await runAsync(db, "BEGIN");
+        began = true;
 
         const accResult = await runAsync(
             db,
@@ -49,7 +51,7 @@ export async function createConfigInit({
 
         return { ok:true };
     }catch (e) {
-        await runAsync(db, "ROLLBACK");
+        if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
         db.close();

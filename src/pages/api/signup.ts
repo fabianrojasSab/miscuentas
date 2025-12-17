@@ -34,9 +34,9 @@ export default async function handler(
 
         await createUser({ name, email, passwordHash });
 
-        // Redirige al login después de registrarse
-        // res.writeHead(302, { Location: "/auth/logIn" });
-        // res.end();
+        return res.status(200).json({
+            success: true,
+        });
     } catch (err: any) {
         if (err.code === "SQLLITE_ERROR") {
             return res.status(500).json({ error: err.message });
