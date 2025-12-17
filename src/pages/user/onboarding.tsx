@@ -3,7 +3,7 @@ import { BankAccounts } from "@/components/form_bank_accounts";
 import { Income } from "@/components/form_incomes";
 import { Header } from "@/components/header";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 
 type BankAccountForm = {
     account: number;

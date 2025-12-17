@@ -2,7 +2,7 @@ import { Button } from "@/components/buttons";
 import { Header } from "@/components/header";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 
 export default function SignUp() {
     const [error, setError] = useState<string | null>(null);
