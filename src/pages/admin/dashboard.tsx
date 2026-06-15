@@ -1,5 +1,14 @@
-export default function Dasboard () {
+import { Button } from "@/components/buttons";
+import { Header } from "@/components/header";
+
+export default function Dashboard () {
     return (
-        <div>dashboarda de administrador</div>
+        <div>
+            <Header/>
+            dashboard de administrador
+            <Button href="/admin/incomes">Administrar Ingresos</Button>
+            <Button href="/admin/expenses">Administrar gastos</Button>
+        </div>
+        
     )
 }

@@ -1,7 +1,8 @@
-import { createIncomes, getAllIncomesByUser } from "@/lib/db/queries/incomes";
+import { createIncomes, getAllIncomes, getAllIncomesByUser, deleteIncomes, updateIncomes } from "@/lib/db/queries/incomes";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { parse } from "cookie";
 import { getUserBySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
+import { get } from "http";
 
 type IncomeForm = {
     amount: number;
@@ -51,10 +52,49 @@ export default async function handler(
             });
         }
         case "GET": {
-            const incomes = await getAllIncomesByUser(user.id);
+            const incomes =
+                user.sw_admin === 0
+                    ? await getAllIncomesByUser(user.id)
+                    : await getAllIncomes();
 
             return res.status(200).json({ incomes });
+        }
+        case "DELETE": {
+            const { id } = req.body as {
+                id: number,
+            };
 
+            if (!id ) {
+                return res
+                .status(400)
+                .json({ error: "Faltan campos obligatorios" + id });
+            }
+
+            const incomeDelete = await deleteIncomes(id);
+
+            return res.status(200).json({
+                success: true,
+                id: incomeDelete.id
+            });
+        }
+        case "PUT": {
+            const { id, Income } = req.body as {
+                id: number,
+                Income: IncomeForm
+            };
+
+            if (!id || !Income ) {
+                return res
+                .status(400)
+                .json({ error: "Faltan campos obligatorios"});
+            }
+
+            const incomeDelete = await updateIncomes(id, Income);
+
+            return res.status(200).json({
+                success: true,
+                id: incomeDelete.id
+            });
         }
         default:
             return res.status(405).json({ error: "Método no permitido" });

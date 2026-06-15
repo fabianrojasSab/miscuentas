@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "./buttons"
 import { Input } from "./ui/input"
 
@@ -8,12 +8,29 @@ type IncomesForm = {
     description: string;
 };
 
-type Props = {
-    onChange: (income: IncomesForm) => void;
+type IncomeRow = {
+    id: number,
+    user_id: number,
+    amount: number,
+    income_date: string,
+    description: string,
+    created_at: string,
+    updated_at: string,
+    deleted_at: string,
+    user_name?: string,
 };
 
-export const Income = ({ onChange }: Props) =>{
+type Props = {
+    createIncome: (income: IncomesForm) => void;
+    incomeToEdit: IncomeRow | null;
+    UpdateIncome: (income: IncomesForm) => void;
+};
+
+
+
+export const Income = ({ createIncome, incomeToEdit, UpdateIncome }: Props) =>{
     const [error, setError] = useState<string | null>(null);
+    const [income, setIncome] = useState<IncomesForm | null>(null);
 
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -28,22 +45,72 @@ export const Income = ({ onChange }: Props) =>{
             description: form.description.value,
         };
 
-        onChange(body)
+        if (incomeToEdit) {
+            UpdateIncome(body);
+        } else {
+            createIncome(body);
+        }
+        
         form.reset();
     }
+
+    useEffect(() => {
+        if (incomeToEdit) {
+            setIncome({
+                amount: incomeToEdit.amount,
+                date: incomeToEdit.income_date,
+                description: incomeToEdit.description ?? "",
+            });
+        }
+    }, [incomeToEdit]);
 
     return(
         <div>
             <form onSubmit={handleSubmit}>
-                <Input type="number" name="amount" placeholder="Ingreso" className="mb-4"/>
-                <Input type="text" name="date" placeholder="Fecha de pago (YYYY-MM-DD)" className="mb-4"/>
-                <Input type="text" name="description" placeholder="Descripcion" className="mb-4"/>
+                <Input
+                    className="mb-4"
+                    type="number"
+                    name="amount"
+                    value={income?.amount ?? ""}
+                    onChange={(e) =>
+                        setIncome(prev => ({
+                            ...prev!,
+                            amount: Number(e.target.value)
+                        }))
+                    }
+                />
+                <Input
+                    className="mb-4"
+                    type="text"
+                    name="date"
+                    value={income?.date ?? ""}
+                    onChange={(e) =>
+                        setIncome(prev => ({
+                            ...prev!,
+                            date: e.target.value
+                        }))
+                    }
+                />
+                <Input
+                    className="mb-4"
+                    type="text"
+                    name="description"
+                    value={income?.description ?? ""}
+                    onChange={(e) =>
+                        setIncome(prev => ({
+                            ...prev!,
+                            description: e.target.value
+                        }))
+                    }
+                />
                 
                 {error && (
                     <p className="text-red-600 text-center">{error}</p>
                 )}
         
-                <Button type="submit">Crear ingreso</Button>
+                <Button type="submit">
+                    {incomeToEdit ? "Actualizar ingreso" : "Crear ingreso"}
+                </Button>
                 
             </form>
         </div>
