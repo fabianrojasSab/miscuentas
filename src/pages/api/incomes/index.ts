@@ -6,7 +6,7 @@ import { get } from "http";
 
 type IncomeForm = {
     amount: number;
-    date: string;
+    income_date: string;
     description: string;
 }
 
@@ -40,7 +40,7 @@ export default async function handler(
             const newData = {
                 userId: id,
                 amount: Income.amount,
-                date: Income.date,
+                income_date: Income.income_date,
                 description: Income.description
             }
 

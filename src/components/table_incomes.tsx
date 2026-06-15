@@ -14,7 +14,7 @@ type IncomeRow = {
 
 type IncomesForm = {
     amount: number;
-    date: string;
+    income_date: string;
     description: string;
 };
 
@@ -148,7 +148,7 @@ export const TableAllIncomes = ({ onEdit, reload }: Props) => {
     async function handleUpdateIncome(income: IncomeRow){
         const incomeToUpdate : IncomesForm = {
             amount: income.amount,
-            date: income.income_date,
+            income_date: income.income_date,
             description: income.description,
         };
 

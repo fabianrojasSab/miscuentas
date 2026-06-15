@@ -1,9 +1,9 @@
 import { allAsync, getDb, runAsync } from "../index";
 
-export type NewBankAccount = {
+export type BdNewIncomeRow = {
     userId: number,
     amount: number,
-    date: string,
+    income_date: string,
     description: string
 };
 
@@ -20,17 +20,16 @@ export type DbIncomeRow = {
 
 export type DbUpdateincomeRow = {
     amount: number,
-    date: string,
+    income_date: string,
     description: string,
-    updated_at: string,
 }
 
 export async function createIncomes({
     userId,
     amount,
-    date,
+    income_date,
     description
-}: NewBankAccount): Promise<{ id: number }> {
+}: BdNewIncomeRow): Promise<{ id: number }> {
     const db = getDb();
     const isNow = () => new Date().toISOString();
     let began = false;
@@ -43,7 +42,7 @@ export async function createIncomes({
             db,
             `INSERT INTO incomes (user_id, amount, income_date, description, created_at, updated_at)
             VALUES (?, ?, ?, ?, ?, ?)`,
-            [userId, amount, date, description, isNow(), isNow()],
+            [userId, amount, income_date, description, isNow(), isNow()],
         );
         await runAsync(db, "COMMIT");
         
@@ -150,7 +149,7 @@ export async function updateIncomes(id: number, data: DbUpdateincomeRow): Promis
             `UPDATE incomes SET
             (amount, income_date, description, updated_at) = (?, ?, ?, ?)
             WHERE id = ?`,
-            [data.amount, data.date, data.description, isNow(), id],
+            [data.amount, data.income_date, data.description, isNow(), id],
         );
         await runAsync(db, "COMMIT");
 

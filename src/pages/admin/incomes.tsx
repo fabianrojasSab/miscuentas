@@ -11,7 +11,7 @@ type BankAccountForm = {
 
 type IncomeForm = {
     amount: number;
-    date: string;
+    income_date: string;
     description: string;
 }
 

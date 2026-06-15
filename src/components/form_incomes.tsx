@@ -4,7 +4,7 @@ import { Input } from "./ui/input"
 
 type IncomesForm = {
     amount: number;
-    date: string;
+    income_date: string;
     description: string;
 };
 
@@ -41,7 +41,7 @@ export const Income = ({ createIncome, incomeToEdit, UpdateIncome }: Props) =>{
 
         const body : IncomesForm = {
             amount: form.amount.value,
-            date: form.date.value,
+            income_date: form.date.value,
             description: form.description.value,
         };
 
@@ -58,7 +58,7 @@ export const Income = ({ createIncome, incomeToEdit, UpdateIncome }: Props) =>{
         if (incomeToEdit) {
             setIncome({
                 amount: incomeToEdit.amount,
-                date: incomeToEdit.income_date,
+                income_date: incomeToEdit.income_date,
                 description: incomeToEdit.description ?? "",
             });
         }
@@ -83,11 +83,11 @@ export const Income = ({ createIncome, incomeToEdit, UpdateIncome }: Props) =>{
                     className="mb-4"
                     type="text"
                     name="date"
-                    value={income?.date ?? ""}
+                    value={income?.income_date ?? ""}
                     onChange={(e) =>
                         setIncome(prev => ({
                             ...prev!,
-                            date: e.target.value
+                            income_date: e.target.value
                         }))
                     }
                 />
