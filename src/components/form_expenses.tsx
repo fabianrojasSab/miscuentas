@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "./buttons"
 import { Input } from "./ui/input"
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "./ui/select";
 
 type ExpensesForm = {
     expense_category_id: number;
@@ -24,18 +25,49 @@ type ExpensesRow = {
     user_name?: string,
 };
 
+type CategoryRow = {
+    id: number,
+    name: string,
+    category_type: number,
+    description: string,
+    created_at: string,
+    updated_at: string,
+};
+
 type Props = {
     createExpense: (expense: ExpensesForm) => void;
     expenseToEdit: ExpensesRow | null;
     UpdateExpense: (expense: ExpensesForm) => void;
 };
 
-
-
 export const FormExpenses = ({ createExpense, expenseToEdit, UpdateExpense }: Props) =>{
     const [error, setError] = useState<string | null>(null);
     const [expenses, setExpenses] = useState<ExpensesForm | null>(null);
+    const [categories, setCategories] = useState<CategoryRow[]>([]);
 
+    async function handleLoadCategories(){
+        setError(null);
+        // setLoading(true);
+        try {
+            const res = await fetch("/api/categories", {
+                method: "GET",
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data.error);
+                return;
+            }
+
+            setCategories(data.categories ?? []);
+        } catch (err) {
+            setError("!Informacion de ingresos vacia¡");
+            console.log(err);
+            setTimeout(() => setError(null), 5000);
+        }finally {
+            // setLoading(false);
+        }
+    }
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -56,11 +88,12 @@ export const FormExpenses = ({ createExpense, expenseToEdit, UpdateExpense }: Pr
         } else {
             createExpense(body);
         }
-        
-        form.reset();
+
+        setExpenses(null);
     }
 
     useEffect(() => {
+        handleLoadCategories()
         if (expenseToEdit) {
             setExpenses({
                 name: expenseToEdit.name,
@@ -76,7 +109,7 @@ export const FormExpenses = ({ createExpense, expenseToEdit, UpdateExpense }: Pr
         <div>
             <form onSubmit={handleSubmit}>
                 <label>Categoria</label>
-                <Input
+                {/* <Input
                     className="mb-4"
                     type="number"
                     name="expense_category_id"
@@ -87,7 +120,21 @@ export const FormExpenses = ({ createExpense, expenseToEdit, UpdateExpense }: Pr
                             expense_category_id: Number(e.target.value)
                         }))
                     }
-                />
+                /> */}
+                <Select name="expense_category_id">
+                    <SelectTrigger>
+                        <SelectValue placeholder="Selecciona una Categoria" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectGroup>
+                        <SelectLabel>Categoria</SelectLabel>
+                        {categories.map((inc) => (
+                            <SelectItem key={inc.id} value={inc.id}>{inc.name}</SelectItem>
+                        ))}
+                        </SelectGroup>
+                    </SelectContent>
+                </Select>
+
                 <label>Nombre</label>
                 <Input
                     className="mb-4"

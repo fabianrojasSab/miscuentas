@@ -2,7 +2,7 @@ import { FormExpenses } from "@/components/form_expenses";
 import { Header } from "@/components/header";
 import { TableExpensesByUser } from "@/components/table_expenses";
 import { useState } from "react";
-//falta  actualizar la tabla cuando se crea un registro 
+
 type ExpensesForm = {
     expense_category_id: number;
     name: string;

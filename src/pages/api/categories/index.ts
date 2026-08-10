@@ -55,10 +55,7 @@ export default async function handler(
             });
         }
         case "GET": {
-            const categories =
-                user.sw_admin === 0
-                    ? await getAllCategoriesByUser(user.id)
-                    : await getAllCategories();
+            const categories = await getAllCategories();
 
             return res.status(200).json({ categories });
         }

@@ -88,8 +88,6 @@ export const TableExpensesByUser = ({ onEdit, reload }: Props) =>{
                     <th className="border p-2">Descripción</th>
                     <th className="border p-2">Creado en</th>
                     <th className="border p-2">Actualizado en</th>
-                    <th className="border p-2">Eliminado en</th>
-                    <th className="border p-2">Usuario</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -100,8 +98,6 @@ export const TableExpensesByUser = ({ onEdit, reload }: Props) =>{
                         <td className="border p-2">{inc.description ?? "-"}</td>
                         <td className="border p-2">{inc.created_at}</td>
                         <td className="border p-2">{inc.updated_at}</td>
-                        <td className="border p-2">{inc.deleted_at}</td>
-                        <td className="border p-2">{inc.user_name}</td>
                     </tr>
                     ))}
                 </tbody>
