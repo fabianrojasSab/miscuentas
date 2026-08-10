@@ -81,8 +81,10 @@ export async function getAllExpenses(): Promise<BdNewExpenseRow[]> {
         const allExpensesResult = await allAsync<BdNewExpenseRow>(
             db,
             `SELECT
-                i.*
-            FROM expenses i`,
+                i.*,
+                u.name as user_name
+            FROM expenses i
+            INNER JOIN users u ON i.user_id = u.id`,
         );
 
         if(!allExpensesResult){

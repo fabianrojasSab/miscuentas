@@ -44,6 +44,7 @@ export const FormExpenses = ({ createExpense, expenseToEdit, UpdateExpense }: Pr
     const [error, setError] = useState<string | null>(null);
     const [expenses, setExpenses] = useState<ExpensesForm | null>(null);
     const [categories, setCategories] = useState<CategoryRow[]>([]);
+    const [category, setCategory] = useState("");
 
     async function handleLoadCategories(){
         setError(null);
@@ -121,7 +122,11 @@ export const FormExpenses = ({ createExpense, expenseToEdit, UpdateExpense }: Pr
                         }))
                     }
                 /> */}
-                <Select name="expense_category_id">
+                <Select
+                    name="expense_category_id"
+                    value={category}
+                    onValueChange={setCategory}
+                >
                     <SelectTrigger>
                         <SelectValue placeholder="Selecciona una Categoria" />
                     </SelectTrigger>
@@ -129,7 +134,12 @@ export const FormExpenses = ({ createExpense, expenseToEdit, UpdateExpense }: Pr
                         <SelectGroup>
                         <SelectLabel>Categoria</SelectLabel>
                         {categories.map((inc) => (
-                            <SelectItem key={inc.id} value={inc.id}>{inc.name}</SelectItem>
+                            <SelectItem
+                                key={inc.id}
+                                value={String(inc.id)}
+                            >
+                                {inc.name}
+                            </SelectItem>
                         ))}
                         </SelectGroup>
                     </SelectContent>
