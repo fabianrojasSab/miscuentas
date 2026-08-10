@@ -8,6 +8,7 @@ export default function Dashboard () {
             dashboard de administrador
             <Button href="/admin/incomes">Administrar Ingresos</Button>
             <Button href="/admin/expenses">Administrar gastos</Button>
+            <Button href="/admin/categories">Administrar categorias</Button>
         </div>
         
     )

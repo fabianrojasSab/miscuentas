@@ -1,30 +1,25 @@
 import { allAsync, getDb, runAsync } from "../index";
 
-export type BdNewExpenseRow = {
-    userId: number,
-    category: number,
+type BdNewCategoryRow = {
+    id: number,
     name: string,
+    category_type: number,
     description: string,
-    date: string,
-    amount:number
+    created_at: string,
+    updated_at: string,
 };
 
-export type DbUpdateExpenseRow = {
-    expense_category_id: number,
-    name: string,
-    description: string,
-    income_date: string,
-    amount:number
-}
+type DbUpdateCategoryRow = {
+    name_category: string,
+    category_type: number,
+    description: string
+};
 
-export async function createExpenses({
-    userId,
-    category,
+export async function createCategory({
     name,
+    category_type,
     description,
-    date,
-    amount
-}: BdNewExpenseRow): Promise<{ id: number }> {
+}: BdNewCategoryRow): Promise<{ id: number }> {
     const db = getDb();
     const isNow = () => new Date().toISOString();
     let began = false;
@@ -35,9 +30,9 @@ export async function createExpenses({
 
         const expenses = await runAsync(
             db,
-            `INSERT INTO expenses (user_id, expense_category_id, name, description, income_date, amount, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-            [userId, category, name, description, date, amount, isNow(), isNow()],
+            `INSERT INTO expense_categories (name, category_type, description, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?)`,
+            [ name, category_type, description, isNow(), isNow()],
         );
 
         await runAsync(db, "COMMIT");
@@ -51,51 +46,51 @@ export async function createExpenses({
     }  
 }
 
-export async function getAllExpensesByUser(id: number): Promise<BdNewExpenseRow[]> {
+export async function getAllCategoriesByUser(id: number): Promise<BdNewCategoryRow[]> {
     const db = getDb();
 
     try {
-        const allExpensesResult = await allAsync<BdNewExpenseRow>(
+        const allCategoriesResult = await allAsync<BdNewCategoryRow>(
             db,
             `SELECT
                 *
-            FROM expenses
+            FROM expense_categories
             WHERE user_id = ?`,
             [id],
         );
 
-        if(!allExpensesResult){
+        if(!allCategoriesResult){
             throw new Error("No hay gastos registrados")
         }
 
-        return allExpensesResult;
+        return allCategoriesResult;
     }finally {
         db.close();
     }   
 }
 
-export async function getAllExpenses(): Promise<BdNewExpenseRow[]> {
+export async function getAllCategories(): Promise<BdNewCategoryRow[]> {
     const db = getDb();
 
     try {
-        const allExpensesResult = await allAsync<BdNewExpenseRow>(
+        const allCategoriesResult = await allAsync<BdNewCategoryRow>(
             db,
             `SELECT
                 i.*
-            FROM expenses i`,
+            FROM expense_categories i`,
         );
 
-        if(!allExpensesResult){
-            throw new Error("No hay gastos registrados")
+        if(!allCategoriesResult){
+            throw new Error("No hay categorias registradas")
         }
 
-        return allExpensesResult;
+        return allCategoriesResult;
     }finally {
         db.close();
     }   
 }
 
-export async function deleteExpense(id: number): Promise<{ id: number }> {
+export async function deleteCategory(id: number): Promise<{ id: number }> {
     const db = getDb();
     let began = false;
 
@@ -105,13 +100,13 @@ export async function deleteExpense(id: number): Promise<{ id: number }> {
 
         const deleteResult = await runAsync(
             db,
-            `DELETE FROM expenses WHERE id = ?`,
+            `DELETE FROM expense_categories WHERE id = ?`,
             [id],
         );
         await runAsync(db, "COMMIT");
         
         if(deleteResult.changes === 0){
-            throw new Error("No se encontró el gasto a eliminar");
+            throw new Error("No se encontró la categoria a eliminar");
         }
         return {id};
     }catch (e) {
@@ -122,7 +117,7 @@ export async function deleteExpense(id: number): Promise<{ id: number }> {
     }  
 }
 
-export async function updateExpense(id: number, data: DbUpdateExpenseRow): Promise<{ id: number }> {
+export async function updateCategory(id: number, data: DbUpdateCategoryRow): Promise<{ id: number }> {
     const db = getDb();
     const isNow = () => new Date().toISOString();
     let began = false;
@@ -133,15 +128,15 @@ export async function updateExpense(id: number, data: DbUpdateExpenseRow): Promi
 
         const updateResult = await runAsync(
             db,
-            `UPDATE expenses SET
-            (expense_category_id, name, description, income_date, amount, updated_at) = (?, ?, ?, ?, ?, ?)
+            `UPDATE expense_categories SET
+            (name, category_type, description, updated_at) = (?, ?, ?, ?)
             WHERE id = ?`,
-            [data.expense_category_id, data.name, data.description, data.income_date, data.amount, isNow(), id],
+            [data.name_category, data.category_type, data.description,  isNow(), id],
         );
         await runAsync(db, "COMMIT");
 
         if(updateResult.changes === 0){
-            throw new Error("No se encontró el gasto a actualizar");
+            throw new Error("No se encontró la categoria a actualizar");
         }
         return {id};
     }catch (e) {

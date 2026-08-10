@@ -1,61 +1,56 @@
-import { Income } from "@/components/form_incomes";
+import { FormExpenses } from "@/components/form_expenses";
 import { Header } from "@/components/header";
-import { TableIncomesByUser } from "@/components/table_incomes";
+import { TableAllExpenses } from "@/components/table_expenses";
 import { useState } from "react";
 
-type BankAccountForm = {
-    account: number;
-    type: string;
-    bank: string;
+
+type ExpensesForm = {
+    expense_category_id: number;
+    name: string;
+    description: string;
+    income_date: string;
+    amount: number;
 };
 
-type IncomeForm = {
-    amount: number;
-    income_date: string;
-    description: string;
-}
 
 type OnboardingData = {
-    bankAccount: BankAccountForm | null;
-    income: IncomeForm | null;
-    expenses: {
-        name: string;
-        amount: number;
-        category_id: number;
-        date: string;
-    }[];
+    // bankAccount: BankAccountForm | null;
+    // income: IncomeForm | null;
+    expenses: ExpensesForm | null;
 };
 
-type IncomeRow = {
+type ExpenseRow = {
     id: number,
     user_id: number,
-    amount: number,
-    income_date: string,
+    expense_category_id: number,
+    name: string,
     description: string,
+    income_date: string,
+    amount: number,
     created_at: string,
     updated_at: string,
     deleted_at: string,
-    user_name?: string,
 };
 
-export default function Incomes(){
+export default function Expenses(){
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
-    const [incomeToEdit, setIncomeToEdit] = useState<IncomeRow | null>(null);
     const [reloadTable, setReloadTable] = useState(false);
+    const [expenseToEdit, setExpenseToEdit] = useState<ExpenseRow | null>(null);
+    
 
-    async function handleSubmit(income: OnboardingData["income"]) {
+    async function handleCreateExpense(expenses: OnboardingData["expenses"]) {
 
         const res = await fetch("/api/me");
         const dataUser = await res.json();
 
         const body = {
             id: dataUser.user.id,
-            Income: income
+            Expense: expenses
         };
 
         try {
-            const res = await fetch("/api/incomes", {
+            const res = await fetch("/api/expenses", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -79,15 +74,15 @@ export default function Incomes(){
         }
     }
 
-    async function handleUpdateIncome(income: OnboardingData["income"]) {
+    async function handleUpdateExpense(expense: OnboardingData["expenses"]) {
 
         const body = {
-            id: incomeToEdit?.id,
-            Income: income
+            id: expenseToEdit?.id,
+            Expense: expense
         };
 
         try {
-            const res = await fetch("/api/incomes", {
+            const res = await fetch("/api/expenses", {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -111,11 +106,12 @@ export default function Incomes(){
         }
     }
 
-    return(
+    return (
         <div>
             <Header/>
-            Registro de ingreso
-            <Income createIncome={handleSubmit} incomeToEdit={incomeToEdit} UpdateIncome={handleUpdateIncome}/>
+            Administracion de Gastos
+            <br />
+            <FormExpenses createExpense={handleCreateExpense} expenseToEdit={expenseToEdit} UpdateExpense={handleUpdateExpense}/>
             {error && (
                 <p className="text-red-600 text-center">{error}</p>
             )}
@@ -123,8 +119,7 @@ export default function Incomes(){
                 <p className="text-green-600 text-center">Ingreso con ID {success} registrado</p>
             )}
             <br />
-            <TableIncomesByUser onEdit={setIncomeToEdit} reload={reloadTable}/>
-            <br />
+            <TableAllExpenses onEdit={setExpenseToEdit} reload={reloadTable}/>
         </div>
     )
 }

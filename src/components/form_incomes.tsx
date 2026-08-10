@@ -67,6 +67,7 @@ export const Income = ({ createIncome, incomeToEdit, UpdateIncome }: Props) =>{
     return(
         <div>
             <form onSubmit={handleSubmit}>
+                <label>Valor</label>
                 <Input
                     className="mb-4"
                     type="number"
@@ -79,6 +80,7 @@ export const Income = ({ createIncome, incomeToEdit, UpdateIncome }: Props) =>{
                         }))
                     }
                 />
+                <label>fecha de ingreso</label>
                 <Input
                     className="mb-4"
                     type="text"
@@ -91,6 +93,7 @@ export const Income = ({ createIncome, incomeToEdit, UpdateIncome }: Props) =>{
                         }))
                     }
                 />
+                <label>Descripcion</label>
                 <Input
                     className="mb-4"
                     type="text"

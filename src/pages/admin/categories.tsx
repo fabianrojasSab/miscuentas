@@ -1,23 +1,23 @@
-import { Income } from "@/components/form_incomes";
+import { Category } from "@/components/form_categories";
 import { Header } from "@/components/header";
-import { TableIncomesByUser } from "@/components/table_incomes";
+import { TableAllCategories } from "@/components/table_categories";
 import { useState } from "react";
-
+//hace falta que reinicie los datos del formulario cuando se envien los datos
 type BankAccountForm = {
     account: number;
     type: string;
     bank: string;
 };
 
-type IncomeForm = {
-    amount: number;
-    income_date: string;
+type CategoryForm = {
+    name_category: string;
+    category_type: string;
     description: string;
-}
+};
 
 type OnboardingData = {
     bankAccount: BankAccountForm | null;
-    income: IncomeForm | null;
+    category: CategoryForm | null;
     expenses: {
         name: string;
         amount: number;
@@ -26,36 +26,33 @@ type OnboardingData = {
     }[];
 };
 
-type IncomeRow = {
+type CategoryRow = {
     id: number,
-    user_id: number,
-    amount: number,
-    income_date: string,
+    name: string,
+    category_type: number,
     description: string,
     created_at: string,
     updated_at: string,
-    deleted_at: string,
-    user_name?: string,
 };
 
-export default function Incomes(){
+export default function Categories(){
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
-    const [incomeToEdit, setIncomeToEdit] = useState<IncomeRow | null>(null);
+    const [incomeToEdit, setIncomeToEdit] = useState<CategoryRow | null>(null);
     const [reloadTable, setReloadTable] = useState(false);
 
-    async function handleSubmit(income: OnboardingData["income"]) {
+    async function handleCreateCategory(category: OnboardingData["category"]) {
 
         const res = await fetch("/api/me");
         const dataUser = await res.json();
 
         const body = {
             id: dataUser.user.id,
-            Income: income
+            Category: category
         };
 
         try {
-            const res = await fetch("/api/incomes", {
+            const res = await fetch("/api/categories", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -79,15 +76,15 @@ export default function Incomes(){
         }
     }
 
-    async function handleUpdateIncome(income: OnboardingData["income"]) {
+    async function handleUpdateCategory(category: OnboardingData["category"]) {
 
         const body = {
             id: incomeToEdit?.id,
-            Income: income
+            Income: category
         };
 
         try {
-            const res = await fetch("/api/incomes", {
+            const res = await fetch("/api/categories", {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -114,8 +111,9 @@ export default function Incomes(){
     return(
         <div>
             <Header/>
-            Registro de ingreso
-            <Income createIncome={handleSubmit} incomeToEdit={incomeToEdit} UpdateIncome={handleUpdateIncome}/>
+                Administracion de categorias
+            <br />
+            <Category createCategory={handleCreateCategory} categoryToEdit={incomeToEdit} UpdateCategory={handleUpdateCategory}/>
             {error && (
                 <p className="text-red-600 text-center">{error}</p>
             )}
@@ -123,8 +121,7 @@ export default function Incomes(){
                 <p className="text-green-600 text-center">Ingreso con ID {success} registrado</p>
             )}
             <br />
-            <TableIncomesByUser onEdit={setIncomeToEdit} reload={reloadTable}/>
-            <br />
+            <TableAllCategories onEdit={setIncomeToEdit} reload={reloadTable}/>
         </div>
     )
 }

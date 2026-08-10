@@ -3,12 +3,15 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { parse } from "cookie";
 import { getUserBySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { get } from "http";
+import { createExpenses } from "@/lib/db/queries/expenses";
+import { createCategory, deleteCategory, getAllCategories, getAllCategoriesByUser, updateCategory } from "@/lib/db/queries/categories";
+import { getAllExpenseCategories } from "@/lib/db/queries/expense_categories";
 
-type IncomeForm = {
-    amount: number;
-    income_date: string;
+type CategoryForm = {
+    name_category: string;
+    category_type: number;
     description: string;
-}
+};
 
 export default async function handler(
     req: NextApiRequest,
@@ -26,38 +29,38 @@ export default async function handler(
         switch (req.method) {
         case "POST": {
 
-            const { id, Income} = req.body as {
+            const { id, Category} = req.body as {
                 id: number,
-                Income: IncomeForm
+                Category: CategoryForm
             };
 
-            if (!id || !Income) {
+            if (!id || !Category) {
                 return res
                 .status(400)
-                .json({ error: "Faltan campos obligatorios" + id + Income});
+                .json({ error: "Faltan campos obligatorios" + id + Category});
             }
 
             const newData = {
                 userId: id,
-                amount: Income.amount,
-                income_date: Income.income_date,
-                description: Income.description
+                name: Category.name_category ?? "",
+                category_type: Category.category_type,
+                description: Category.description,
             }
 
-            const incomeResult = await createIncomes(newData);
+            const expenseResult = await createCategory(newData);
 
             return res.status(200).json({
                 success: true,
-                id: incomeResult.id
+                id: expenseResult.id
             });
         }
         case "GET": {
-            const incomes =
+            const categories =
                 user.sw_admin === 0
-                    ? await getAllIncomesByUser(user.id)
-                    : await getAllIncomes();
+                    ? await getAllCategoriesByUser(user.id)
+                    : await getAllCategories();
 
-            return res.status(200).json({ incomes });
+            return res.status(200).json({ categories });
         }
         case "DELETE": {
             const { id } = req.body as {
@@ -70,30 +73,30 @@ export default async function handler(
                 .json({ error: "Faltan campos obligatorios" + id });
             }
 
-            const incomeDeleted = await deleteIncomes(id);
+            const categoryDelete = await deleteCategory(id);
 
             return res.status(200).json({
                 success: true,
-                id: incomeDeleted.id
+                id: categoryDelete.id
             });
         }
         case "PUT": {
-            const { id, Income } = req.body as {
+            const { id, Category } = req.body as {
                 id: number,
-                Income: IncomeForm
+                Category: CategoryForm
             };
 
-            if (!id || !Income ) {
+            if (!id || !Category ) {
                 return res
                 .status(400)
                 .json({ error: "Faltan campos obligatorios"});
             }
 
-            const incomeUpdated = await updateIncomes(id, Income);
+            const categoryUpdated = await updateCategory(id, Category);
 
             return res.status(200).json({
                 success: true,
-                id: incomeUpdated.id
+                id: categoryUpdated.id
             });
         }
         default:

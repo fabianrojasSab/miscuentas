@@ -18,7 +18,7 @@ export type DbIncomeRow = {
     deleted_at: string,
 };
 
-export type DbUpdateincomeRow = {
+export type DbUpdateIncomeRow = {
     amount: number,
     income_date: string,
     description: string,
@@ -135,7 +135,7 @@ export async function deleteIncomes(id: number): Promise<{ id: number }> {
     }  
 }
 
-export async function updateIncomes(id: number, data: DbUpdateincomeRow): Promise<{ id: number }> {
+export async function updateIncomes(id: number, data: DbUpdateIncomeRow): Promise<{ id: number }> {
     const db = getDb();
     const isNow = () => new Date().toISOString();
     let began = false;
