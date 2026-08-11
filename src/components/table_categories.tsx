@@ -1,3 +1,4 @@
+import { ExpenseCategoryType } from "@/emuns/ExpenseCategoryType";
 import { useEffect, useState } from "react";
 
 type CategoryRow = {
@@ -25,6 +26,21 @@ export const TableAllCategories = ({ onEdit, reload }: Props) => {
     const [categories, setCategories] = useState<CategoryRow[]>([]);
     const [loading, setLoading] = useState(true);
 
+    function getCategoryTypeLabel(type: ExpenseCategoryType): string {
+        switch (type) {
+            case ExpenseCategoryType.FIXED:
+                return "Fijo";
+
+            case ExpenseCategoryType.VARIABLE:
+                return "Variable";
+
+            case ExpenseCategoryType.SAVINGS:
+                return "Ahorro";
+
+            default:
+                return "Desconocido";
+        }
+    }
 
     async function handleLoadCategories(){
         setError(null);
@@ -110,7 +126,7 @@ export const TableAllCategories = ({ onEdit, reload }: Props) => {
                     {categories.map((inc) => (
                     <tr key={inc.id}>
                         <td className="border p-2">{inc.name}</td>
-                        <td className="border p-2">{inc.category_type}</td>
+                        <td className="border p-2">{getCategoryTypeLabel(inc.category_type)}</td>
                         <td className="border p-2">{inc.description}</td>
                         <td className="border p-2">
                             <button className="bg-blue-500 text-white px-2 py-1 rounded mr-2" onClick={() => handleUpdateIncome(inc)}>Editar</button>

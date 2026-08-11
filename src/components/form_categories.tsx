@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { Button } from "./buttons"
 import { Input } from "./ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { ExpenseCategoryType } from "@/emuns/ExpenseCategoryType";
 
 type CategoryForm = {
     name_category: string;
-    category_type: number;
+    category_type: number; //se sugiere hacer el cambio a ExpenseCategoryType
     description: string;
 };
 
@@ -23,11 +25,11 @@ type Props = {
     UpdateCategory: (category: CategoryForm) => void;
 };
 
+
 export const Category = ({ createCategory, categoryToEdit, UpdateCategory }: Props) =>{
     const [error, setError] = useState<string | null>(null);
     const [category, setCategory] = useState<CategoryForm | null>(null);
-
-
+    
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         setError(null);
@@ -76,18 +78,34 @@ export const Category = ({ createCategory, categoryToEdit, UpdateCategory }: Pro
                     }
                 />
                 <label>Tipo de categoria</label>
-                <Input
-                    className="mb-4"
-                    type="number"
+                <Select
                     name="category_type"
-                    value={category?.category_type ?? ""}
-                    onChange={(e) =>
+                    value={
+                        category?.category_type != null
+                            ? String(category.category_type)
+                            : ""
+                    }
+                    onValueChange={(value) =>
                         setCategory(prev => ({
                             ...prev!,
-                            category_type: Number(e.target.value)
+                            category_type: Number(value)
                         }))
                     }
-                />
+                >
+                    <SelectTrigger>
+                        <SelectValue placeholder="Selecciona un tipo" />
+                    </SelectTrigger>
+
+                    <SelectContent>
+                        <SelectItem value={String(ExpenseCategoryType.FIXED)}>
+                            Fijo
+                        </SelectItem>
+
+                        <SelectItem value={String(ExpenseCategoryType.VARIABLE)}>
+                            Variable
+                        </SelectItem>
+                    </SelectContent>
+                </Select>
                 <label>Description</label>
                 <Input
                     className="mb-4"
