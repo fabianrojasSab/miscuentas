@@ -9,6 +9,7 @@ export default function Dashboard () {
             <Button href="/admin/incomes">Administrar Ingresos</Button>
             <Button href="/admin/expenses">Administrar gastos</Button>
             <Button href="/admin/categories">Administrar categorias</Button>
+            <Button href="/admin/periods">Administrar periodos</Button>
         </div>
         
     )
