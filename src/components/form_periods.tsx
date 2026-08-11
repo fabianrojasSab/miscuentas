@@ -13,7 +13,7 @@ type PeriodForm = {
 
 type PeriodRow = {
     id: number,
-    name_period: string,
+    name: string,
     description: string,
     period_type: number,
     year: number,
@@ -28,9 +28,10 @@ type PeriodRow = {
 type props = {
     createPeriod: (period: PeriodForm) => void;
     periodToEdit: PeriodRow | null;
+    UpdatePeriod: (period: PeriodForm) => void;
 }
 
-export const FormPeriods = ({createPeriod, periodToEdit}: props) =>{
+export const FormPeriods = ({createPeriod, periodToEdit, UpdatePeriod}: props) =>{
     const [period, setPeriod] = useState<PeriodForm | null>();
     const [error, setError] = useState<string | null>()
 
@@ -42,13 +43,13 @@ export const FormPeriods = ({createPeriod, periodToEdit}: props) =>{
 
         const body : PeriodForm = {
             name_period: form.name_period.value,
-            description: form.name_period.value,
-            period_type: form.name_period.value,
-            period_value: form.name_period.value,
+            description: form.description.value,
+            period_type: form.period_type.value,
+            period_value: form.period_value.value,
         };
 
         if (periodToEdit) {
-            UpdateIncome(body);
+            UpdatePeriod(body);
         } else {
             createPeriod(body);
         }
@@ -62,8 +63,8 @@ export const FormPeriods = ({createPeriod, periodToEdit}: props) =>{
                 <label>Nombre</label>
                 <Input
                     className="mb-4"
-                    type="number"
-                    name="amount"
+                    type="text"
+                    name="name_period"
                     value={period?.name_period ?? ""}
                     onChange={(e) =>
                         setPeriod(prev => ({
@@ -76,7 +77,7 @@ export const FormPeriods = ({createPeriod, periodToEdit}: props) =>{
                 <Input
                     className="mb-4"
                     type="text"
-                    name="date"
+                    name="description"
                     value={period?.description ?? ""}
                     onChange={(e) =>
                         setPeriod(prev => ({
@@ -87,7 +88,7 @@ export const FormPeriods = ({createPeriod, periodToEdit}: props) =>{
                 />
                 <label>Tipo</label>
                 <Select
-                    name="category_type"
+                    name="period_type"
                     value={
                         period?.period_type != null
                             ? String(period.period_type)
@@ -126,7 +127,7 @@ export const FormPeriods = ({createPeriod, periodToEdit}: props) =>{
                 <Input
                     className="mb-4"
                     type="text"
-                    name="date"
+                    name="period_value"
                     value={period?.period_value ?? ""}
                     onChange={(e) =>
                         setPeriod(prev => ({

@@ -3,6 +3,8 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { parse } from "cookie";
 import { getUserBySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { get } from "http";
+import { PeriodType } from "@/emuns/PeriodType";
+import { createPeriod, deletePeriod, getAllPeriods, getPeriodByYear, updatePeriod } from "@/lib/db/queries/periods";
 
 type PeriodForm = {
     name_period: string,
@@ -27,38 +29,119 @@ export default async function handler(
         switch (req.method) {
         case "POST": {
 
-            const { id, Period} = req.body as {
-                id: number,
-                Period: PeriodForm
+            const { id, Period } = req.body as {
+                id: number;
+                Period: PeriodForm;
             };
 
             if (!id || !Period) {
-                return res
-                .status(400)
-                .json({ error: "Faltan campos obligatorios" + id + Period});
+                return res.status(400).json({
+                    error: "Faltan campos obligatorios"
+                });
+            }
+
+            const periodType = Number(Period.period_type);
+
+            if (!Object.values(PeriodType).includes(periodType)) {
+                return res.status(400).json({
+                    error: "Tipo de período inválido"
+                });
+            }
+
+            let year: number | null = null;
+            let month: number | null = null;
+            let week: number | null = null;
+            let day: number | null = null;
+
+            switch (periodType) {
+
+                case PeriodType.YEARLY:
+                    if (!Period.period_value) {
+                        return res.status(400).json({
+                            error: "El año es obligatorio"
+                        });
+                    }
+
+                    year = Period.period_value;
+                    break;
+
+                case PeriodType.MONTHLY:
+                    if (!Period.period_value || !Period.period_value) {
+                        return res.status(400).json({
+                            error: "El año y el mes son obligatorios"
+                        });
+                    }
+
+                    year = Period.period_value;
+                    month = Period.period_value;
+                    break;
+
+                case PeriodType.WEEKLY:
+                    if (!Period.period_value || !Period.period_value) {
+                        return res.status(400).json({
+                            error: "El año y la semana son obligatorios"
+                        });
+                    }
+
+                    year = Period.period_value;
+                    week = Period.period_value;
+                    break;
+
+                case PeriodType.DAILY:
+                    if (!Period.period_value || !Period.period_value || !Period.period_value) {
+                        return res.status(400).json({
+                            error: "El año, mes y día son obligatorios"
+                        });
+                    }
+
+                    year = Period.period_value;
+                    month = Period.period_value;
+                    day = Period.period_value;
+                    break;
             }
 
             const newData = {
-                userId: id,
-                amount: Period.amount,
-                income_date: Period.income_date,
-                description: Period.description
-            }
+                name: Period.name_period,
+                description: Period.description,
+                period_type: periodType,
+                year: year,
+                month: month,
+                week: week,
+                day: day,
+            };
 
-            const incomeResult = await createIncomes(newData);
+            const periodResult = await createPeriod(newData);
 
             return res.status(200).json({
                 success: true,
-                id: incomeResult.id
+                id: periodResult.id
             });
         }
         case "GET": {
-            const incomes =
-                user.sw_admin === 0
-                    ? await getAllIncomesByUser(user.id)
-                    : await getAllIncomes();
 
-            return res.status(200).json({ incomes });
+            const { year, period_type, month } = req.query;
+
+            let periods;
+
+            if (year && period_type && month) {
+
+                // periods = await getPeriods({
+                //     year: Number(year),
+                //     period_type: Number(period_type),
+                //     month: Number(month),
+                // });
+
+            } else if (year) {
+
+                periods = await getPeriodByYear(Number(year));
+
+            } else {
+
+                periods = await getAllPeriods();
+
+            }
+
+            return res.status(200).json({ periods });
         }
         case "DELETE": {
             const { id } = req.body as {
@@ -71,30 +154,100 @@ export default async function handler(
                 .json({ error: "Faltan campos obligatorios" + id });
             }
 
-            const incomeDeleted = await deleteIncomes(id);
+            const periodDeleted = await deletePeriod(id);
 
             return res.status(200).json({
                 success: true,
-                id: incomeDeleted.id
+                id: periodDeleted.id
             });
         }
         case "PUT": {
-            const { id, Income } = req.body as {
+            const { id, Period } = req.body as {
                 id: number,
-                Income: IncomeForm
+                Period: PeriodForm
             };
 
-            if (!id || !Income ) {
+            if (!id || !Period ) {
                 return res
                 .status(400)
                 .json({ error: "Faltan campos obligatorios"});
             }
 
-            const incomeUpdated = await updateIncomes(id, Income);
+            const periodType = Number(Period.period_type);
+
+            if (!Object.values(PeriodType).includes(periodType)) {
+                return res.status(400).json({
+                    error: "Tipo de período inválido"
+                });
+            }
+
+            let year: number | null = null;
+            let month: number | null = null;
+            let week: number | null = null;
+            let day: number | null = null;
+
+            switch (periodType) {
+
+                case PeriodType.YEARLY:
+                    if (!Period.period_value) {
+                        return res.status(400).json({
+                            error: "El año es obligatorio"
+                        });
+                    }
+
+                    year = Period.period_value;
+                    break;
+
+                case PeriodType.MONTHLY:
+                    if (!Period.period_value || !Period.period_value) {
+                        return res.status(400).json({
+                            error: "El año y el mes son obligatorios"
+                        });
+                    }
+
+                    year = Period.period_value;
+                    month = Period.period_value;
+                    break;
+
+                case PeriodType.WEEKLY:
+                    if (!Period.period_value || !Period.period_value) {
+                        return res.status(400).json({
+                            error: "El año y la semana son obligatorios"
+                        });
+                    }
+
+                    year = Period.period_value;
+                    week = Period.period_value;
+                    break;
+
+                case PeriodType.DAILY:
+                    if (!Period.period_value || !Period.period_value || !Period.period_value) {
+                        return res.status(400).json({
+                            error: "El año, mes y día son obligatorios"
+                        });
+                    }
+
+                    year = Period.period_value;
+                    month = Period.period_value;
+                    day = Period.period_value;
+                    break;
+            }
+
+            const updateData = {
+                name: Period.name_period,
+                description: Period.description,
+                period_type: periodType,
+                year: year,
+                month: month,
+                week: week,
+                day: day,
+            };
+
+            const periodUpdated = await updatePeriod(id, updateData);
 
             return res.status(200).json({
                 success: true,
-                id: incomeUpdated.id
+                id: periodUpdated.id
             });
         }
         default:
