@@ -80,7 +80,7 @@ export default function Categories(){
 
         const body = {
             id: incomeToEdit?.id,
-            Income: category
+            Category: category
         };
 
         try {
