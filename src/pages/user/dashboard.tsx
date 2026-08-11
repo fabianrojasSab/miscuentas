@@ -1,5 +1,6 @@
 import { Button } from "@/components/buttons";
 import { Header } from "@/components/header";
+import { TableExpensesByUser } from "@/components/table_expenses";
 import { useEffect, useState } from "react";
 
 type PeriodRow = {
@@ -16,10 +17,25 @@ type PeriodRow = {
     updated_at: string,
 }
 
+type ExpenseRow = {
+    id: number,
+    user_id: number,
+    expense_category_id: number,
+    name: string,
+    description: string,
+    income_date: string,
+    amount: number,
+    created_at: string,
+    updated_at: string,
+    deleted_at: string,
+};
+
 export default function Dasboard () {
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [period, setPeriod] = useState<PeriodRow |null>();
+    const [expenseToEdit, setExpenseToEdit] = useState<ExpenseRow | null>(null);
+    const [reloadTable, setReloadTable] = useState(false);
 
     async function handleSearchPeriod () {
         setError(null);
@@ -60,6 +76,7 @@ export default function Dasboard () {
             <Button href="/user/incomes">Registrar Ingreso</Button>
             <Button href="/user/expenses">Registrar gasto</Button>
             {period ? (<div>Datos del: {period?.name}</div>) : (<div> No hay periodo creado</div>)}
+            <TableExpensesByUser onEdit={setExpenseToEdit} reload={reloadTable}/>
         </div>
     )
 }

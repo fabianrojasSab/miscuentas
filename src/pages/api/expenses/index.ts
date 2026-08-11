@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { parse } from "cookie";
 import { getUserBySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { get } from "http";
-import { createExpenses, deleteExpense, getAllExpenses, getAllExpensesByUser, updateExpense } from "@/lib/db/queries/expenses";
+import { createExpenses, deleteExpense, getAllExpenses, getAllExpensesByUser, getExpensesByUser, updateExpense } from "@/lib/db/queries/expenses";
 
 type ExpensesForm = {
     expense_category_id: number;
@@ -56,6 +56,15 @@ export default async function handler(
             });
         }
         case "GET": {
+            const { type } = req.query;
+
+            if (type === "dashboard") {
+
+                const expenses = await getExpensesByUser(user.id);
+
+                return res.status(200).json({ expenses });
+            }
+
             const expenses =
                 user.sw_admin === 0
                     ? await getAllExpensesByUser(user.id)

@@ -1,6 +1,6 @@
 import { FormExpenses } from "@/components/form_expenses";
 import { Header } from "@/components/header";
-import { TableExpensesByUser } from "@/components/table_expenses";
+import { TableAllExpensesByUser, TableExpensesByUser } from "@/components/table_expenses";
 import { useState } from "react";
 
 type ExpensesForm = {
@@ -115,7 +115,7 @@ export default function Expenses(){
             )}
             <br />
             Gastos
-            <TableExpensesByUser onEdit={setExpenseToEdit} reload={reloadTable}/>
+            <TableAllExpensesByUser onEdit={setExpenseToEdit} reload={reloadTable}/>
         </div>
     )
 }
