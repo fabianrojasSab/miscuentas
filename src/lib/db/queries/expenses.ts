@@ -100,7 +100,7 @@ export async function getExpensesByUser(id: number): Promise<BdExpenseRow[]> {
                 e.amount
             FROM expenses e
             INNER JOIN expense_categories ec ON e.expense_category_id = ec.id
-            WHERE e.user_id = ?`,
+            WHERE e.user_id = ? and ec.category_type = 1`,
             [id],
         );
 

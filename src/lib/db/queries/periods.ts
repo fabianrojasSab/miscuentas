@@ -116,6 +116,28 @@ export async function getPeriodByYear(year: number): Promise<DbPeriodRow> {
     }   
 }
 
+export async function getPeriodByMonth(year: number): Promise<DbPeriodRow> {
+    const db = getDb();
+
+    try {
+        const periodsResult = await getAsync<DbPeriodRow>(
+            db,
+            `SELECT
+                i.*
+            FROM periods i
+            WHERE period_type = 2`,
+        );
+
+        if(!periodsResult){
+            throw new Error("No hay periodos registrados")
+        }
+
+        return periodsResult;
+    }finally {
+        db.close();
+    }   
+}
+
 export async function deletePeriod(id: number): Promise<{ id: number }> {
     const db = getDb();
     let began = false;

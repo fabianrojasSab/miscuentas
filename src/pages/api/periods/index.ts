@@ -4,7 +4,7 @@ import { parse } from "cookie";
 import { getUserBySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { get } from "http";
 import { PeriodType } from "@/emuns/PeriodType";
-import { createPeriod, deletePeriod, getAllPeriods, getPeriodByYear, updatePeriod } from "@/lib/db/queries/periods";
+import { createPeriod, deletePeriod, getAllPeriods, getPeriodByMonth, getPeriodByYear, updatePeriod } from "@/lib/db/queries/periods";
 
 type PeriodForm = {
     name_period: string,
@@ -123,13 +123,9 @@ export default async function handler(
 
             let periods;
 
-            if (year && period_type && month) {
+            if (month) {
 
-                // periods = await getPeriods({
-                //     year: Number(year),
-                //     period_type: Number(period_type),
-                //     month: Number(month),
-                // });
+                periods = await getPeriodByMonth(Number(year));
 
             } else if (year) {
 
