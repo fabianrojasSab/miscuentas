@@ -18,13 +18,7 @@ export type BdPeriodExpensesRow = {
     state: string,
 }
 
-export async function createPeriodExpenses({
-    period_id,
-    expense_id,
-    expense_date,
-    amount,
-    expense_state_id,
-}: BdNewPeriodExpenseRow): Promise<{ id: number }> {
+export async function createPeriodExpenses(periodExpenses): Promise<{ inserted: number }>  {
     const db = getDb();
     const isNow = () => new Date().toISOString();
     let began = false;
@@ -33,16 +27,37 @@ export async function createPeriodExpenses({
         await runAsync(db, "BEGIN");
         began = true;
 
-        const periodexpenses = await runAsync(
-            db,
-            `INSERT INTO period_expenses (period_id, expense_id, expense_date, amount, expense_state_id, created_at)
-            VALUES (?, ?, ?, ?, ?, ?)`,
-            [period_id, expense_id, expense_date, amount, expense_state_id, isNow()],
-        );
+        for (const periodExpense of periodExpenses) {
+
+            await runAsync(
+                db,
+                `INSERT INTO period_expenses
+                (
+                    period_id,
+                    expense_id,
+                    expense_date,
+                    amount,
+                    expense_state_id,
+                    created_at
+                )
+                VALUES (?, ?, ?, ?, ?, ?)`,
+                [
+                    periodExpense.period_id,
+                    periodExpense.expense_id,
+                    periodExpense.expense_date,
+                    periodExpense.amount,
+                    periodExpense.expense_state_id,
+                    isNow()
+                ]
+            );
+        }
 
         await runAsync(db, "COMMIT");
 
-        return {id: periodexpenses.lastID};
+        return {
+            inserted: periodExpenses.length
+        };
+
     }catch (e) {
         if (began) await runAsync(db, "ROLLBACK");
         throw e;

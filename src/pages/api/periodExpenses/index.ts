@@ -3,12 +3,20 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { parse } from "cookie";
 import { getUserBySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { get } from "http";
-import { getPeriodExpensesByUser } from "@/lib/db/queries/period_expenses";
+import { createPeriodExpenses, getPeriodExpensesByUser } from "@/lib/db/queries/period_expenses";
 
 type IncomeForm = {
     amount: number;
     income_date: string;
     description: string;
+}
+
+type BdNewPeriodExpenseRow = {
+    period_id: number,
+    expense_id: number,
+    expense_date: string,
+    amount: number,
+    expense_state_id: number,
 }
 
 export default async function handler(
@@ -27,34 +35,27 @@ export default async function handler(
         switch (req.method) {
         case "POST": {
 
-            const { id, Income} = req.body as {
-                id: number,
-                Income: IncomeForm
-            };
+            const { periodId, expenses} = req.body;
 
-            if (!id || !Income) {
-                return res
-                .status(400)
-                .json({ error: "Faltan campos obligatorios" + id + Income});
+            if (!periodId || !expenses) {
+                return res.status(400).json({
+                    error: "Datos inválidos"
+                });
             }
 
-            const newData = {
-                period_id: number,
-                expense_id: number,
-                expense_date: string,
-                amount: number,
-                expense_state_id: number,
-                userId: id,
-                amount: Income.amount,
-                income_date: Income.income_date,
-                description: Income.description
-            }
+            const periodExpenses = expenses.map((expense) => ({
+                period_id: periodId,
+                expense_id: expense.id,
+                expense_date: expense.income_date,
+                amount: expense.amount,
+                expense_state_id: 1,
+            }));
 
-            const incomeResult = await createPeriodExpenses(newData);
+            const periodExpenseResult = await createPeriodExpenses(periodExpenses);
 
             return res.status(200).json({
                 success: true,
-                id: incomeResult.id
+                id: periodExpenseResult.inserted
             });
         }
         case "GET": {

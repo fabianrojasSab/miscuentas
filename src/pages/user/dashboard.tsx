@@ -31,6 +31,16 @@ type ExpenseRow = {
     deleted_at: string,
 };
 
+export type BdPeriodExpensesRow = {
+    id: number,
+    month: number
+    name: string,
+    category_name: string,
+    expense_date: string,
+    amount: number,
+    state: string,
+}
+
 export default function Dasboard () {
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
@@ -38,6 +48,7 @@ export default function Dasboard () {
     const [periodMonth, setPeriodMonth] = useState<PeriodRow |null>();
     const [expenseToEdit, setExpenseToEdit] = useState<ExpenseRow | null>(null);
     const [reloadTable, setReloadTable] = useState(false);
+    const [periodExpenses, setPeriodExpenses] = useState<BdPeriodExpensesRow[]>([]);
 
     async function handleSearchPeriod () {
         setError(null);
@@ -46,6 +57,7 @@ export default function Dasboard () {
         let year = date.getFullYear();
 
         try { 
+            //realiza consulta y valida si hay un periodo del año actual, creado
             const res = await fetch(`/api/periods?year=${year}`, {
                 method: "GET",
             });
@@ -55,44 +67,43 @@ export default function Dasboard () {
                 setError(data.error);
                 return;
             }
-
             setPeriodYear(data.periods);
-            if(data.periods){
+            if(Object.keys(data).length != 0){
+
+                //consulta y valida si hay un periodo del mes actual, arreglar para que valide con el mes actual
                 const res = await fetch(`/api/periods?month=${year}`, {
                     method: "GET",
                 });
-                const data = await res.json();
+                const dataPeriodsMonth = await res.json();
 
                 if (!res.ok) {
-                    setError(data.error);
+                    setError(dataPeriodsMonth.error);
                     return;
                 }
+                setPeriodMonth(dataPeriodsMonth.periods);
+                if(Object.keys(dataPeriodsMonth).length != 0){
 
-                setPeriodMonth(data.periods);
-                if(data.periods){
+                    //consulta y valida si tiene gastos del periodo actual creados
                     const res = await fetch(`/api/periodExpenses`, {
                         method: "GET",
                     });
-                    const data = await res.json();
+                    const dataPeriodExpenses = await res.json();
 
-                    if(data.periodExpenses.length == 0){
+                    //si no tiene gastos del periodos creados consulta los gastos configurados por el usuario y los crea en los gastos del periodo actual
+                    if(dataPeriodExpenses.periodExpenses.length == 0){
                         const res = await fetch(`/api/expenses?type=dashboard`, {
                             method: "GET",
                         });
-                        const data = await res.json();
+                        const dataExpenses = await res.json();
 
-                        if (!res.ok) {
-                            setError(data.error);
-                            return;
-                        }
-
-                        if(data.expenses){
-
+                        if(dataExpenses.expenses.length > 0){
+                            //recopila la data para realizar la creacion de los gastos del periodo actual
                             const dataToSend = {
-                                periodMonth: periodMonth,
-                                expenses: data.expeneses,
+                                periodId: dataPeriodsMonth.periods.id,
+                                expenses: dataExpenses.expenses,
                             }
 
+                            //crea los gastos del periodo con los gastos consultados
                             const res = await fetch(`/api/periodExpenses`, {
                                 method: "POST",
                                 headers: {
@@ -102,7 +113,8 @@ export default function Dasboard () {
                             });
                             const data = await res.json();
                         }
-
+                    }else{
+                        setPeriodExpenses(dataPeriodExpenses.periodExpenses ?? []);
                     }
                 }
             }
@@ -128,6 +140,15 @@ export default function Dasboard () {
             <Button href="/user/expenses">Registrar gasto</Button>
             {periodYear ? (<div>Datos del: {periodYear?.name}</div>) : (<div> No hay periodo creado</div>)}
             <TableExpensesByUser onEdit={setExpenseToEdit} reload={reloadTable}/>
+
+                    {periodExpenses.map((inc) => (
+                    <tr key={inc.id}>
+                        <td className="border p-2">{inc.name}</td>
+                        <td className="border p-2">{inc.month}</td>
+                        <td className="border p-2">{inc.category_name}</td>
+                        <td className="border p-2">{inc.amount}</td>
+                    </tr>
+                    ))}
         </div>
     )
 }
