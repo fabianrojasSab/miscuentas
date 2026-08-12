@@ -134,11 +134,13 @@ export default async function handler(
 
             if (month) {
 
-                periods = await getPeriodByMonth(Number(year));
+                let periodBymonth = await getPeriodByMonth(Number(month), Number(year));
+                return res.status(200).json({ periodBymonth });
 
             } else if (year) {
 
-                periods = await getPeriodByYear(Number(year));
+                let periodsByYear = await getPeriodByYear(Number(year));
+                return res.status(200).json({ periodsByYear });
 
             } else {
 

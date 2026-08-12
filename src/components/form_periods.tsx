@@ -3,7 +3,7 @@ import { Button } from "./buttons"
 import { Input } from "./ui/input"
 import { PeriodType } from "@/emuns/PeriodType"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
-
+//QUEDA PENDIENTE QUE SE LE ASIGNE EL ID PADRE CUANDO SE CREA EL MES, LAS SEMANAS Y LOS DIAS
 type PeriodForm = {
     name_period: string,
     description: string,
@@ -55,7 +55,7 @@ export const FormPeriods = ({createPeriod, periodToEdit, UpdatePeriod}: props) =
                 setError(data.error);
                 return;
             }
-console.log(data.periodsyearly);
+
             setPeriodsYearly(data.periodsyearly ?? []);
         } catch (err) {
             setError("!Informacion de ingresos vacia¡");

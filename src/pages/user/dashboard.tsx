@@ -55,6 +55,7 @@ export default function Dasboard () {
         setLoading(true);
         let date = new Date();
         let year = date.getFullYear();
+        let month = date.getMonth() + 1;
 
         try { 
             //realiza consulta y valida si hay un periodo del año actual, creado
@@ -67,11 +68,11 @@ export default function Dasboard () {
                 setError(data.error);
                 return;
             }
-            setPeriodYear(data.periods);
+            setPeriodYear(data.periodsByYear);
             if(Object.keys(data).length != 0){
 
                 //consulta y valida si hay un periodo del mes actual, arreglar para que valide con el mes actual
-                const res = await fetch(`/api/periods?month=${year}`, {
+                const res = await fetch(`/api/periods?month=${month}&year=${year}`, {
                     method: "GET",
                 });
                 const dataPeriodsMonth = await res.json();
@@ -80,7 +81,7 @@ export default function Dasboard () {
                     setError(dataPeriodsMonth.error);
                     return;
                 }
-                setPeriodMonth(dataPeriodsMonth.periods);
+                setPeriodMonth(dataPeriodsMonth.periodBymonth);
                 if(Object.keys(dataPeriodsMonth).length != 0){
 
                     //consulta y valida si tiene gastos del periodo actual creados
@@ -99,7 +100,7 @@ export default function Dasboard () {
                         if(dataExpenses.expenses.length > 0){
                             //recopila la data para realizar la creacion de los gastos del periodo actual
                             const dataToSend = {
-                                periodId: dataPeriodsMonth.periods.id,
+                                periodId: dataPeriodsMonth.periodBymonth.id,
                                 expenses: dataExpenses.expenses,
                             }
 

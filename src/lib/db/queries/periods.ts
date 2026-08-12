@@ -116,7 +116,7 @@ export async function getPeriodByYear(year: number): Promise<DbPeriodRow> {
     }   
 }
 
-export async function getPeriodByMonth(year: number): Promise<DbPeriodRow> {
+export async function getPeriodByMonth(month: number, year: number): Promise<DbPeriodRow> {
     const db = getDb();
 
     try {
@@ -125,7 +125,8 @@ export async function getPeriodByMonth(year: number): Promise<DbPeriodRow> {
             `SELECT
                 i.*
             FROM periods i
-            WHERE period_type = 2`,
+            WHERE period_type = 2 and month = ? and year = ?`,
+            [month, year]
         );
 
         if(!periodsResult){
