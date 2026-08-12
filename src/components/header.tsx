@@ -26,7 +26,7 @@ export const Header = () =>{
 
     return(
         <div className="flex h-16 shrink-0 items-center gap-2 border-b px-4 shadow-lg">
-            <div className="font-bold max-sm:text-xs hidden sm:block text-foreground">
+            {/* <div className="font-bold max-sm:text-xs hidden sm:block text-foreground">
                 <Image
                     src="/Logo.svg"
                     alt="Logo"
@@ -61,7 +61,7 @@ export const Header = () =>{
                     Cerrar sesión
                 </Button>
                 </div>
-            )}
+            )} */}
         </div>
     )
 }

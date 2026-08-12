@@ -9,6 +9,10 @@ type PeriodForm = {
     description: string,
     period_type: number,
     period_value: number,
+    year: number,
+    month: number,
+    week: number,
+    day: number,
 }
 
 type PeriodRow = {
@@ -33,7 +37,34 @@ type props = {
 
 export const FormPeriods = ({createPeriod, periodToEdit, UpdatePeriod}: props) =>{
     const [period, setPeriod] = useState<PeriodForm | null>();
-    const [error, setError] = useState<string | null>()
+    const [periodsYearly, setPeriodsYearly] = useState<PeriodForm [] | null>();
+    const [error, setError] = useState<string | null>();
+    const [loading, setLoading] =useState<boolean>(false);
+
+    async function handleGetPeriodsYearly() {
+        setError(null);
+        setLoading(true);
+
+        try {
+            const res = await fetch(`/api/periods?yearly=true`, {
+                method: "GET",
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data.error);
+                return;
+            }
+console.log(data.periodsyearly);
+            setPeriodsYearly(data.periodsyearly ?? []);
+        } catch (err) {
+            setError("!Informacion de ingresos vacia¡");
+            console.log(err);
+            setTimeout(() => setError(null), 5000);
+        }finally {
+            setLoading(false);
+        }
+    }
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -46,6 +77,10 @@ export const FormPeriods = ({createPeriod, periodToEdit, UpdatePeriod}: props) =
             description: form.description.value,
             period_type: form.period_type.value,
             period_value: form.period_value.value,
+            year: form.year?.value ?? "",
+            // month: number,
+            // week: number,
+            // day: number,
         };
 
         if (periodToEdit) {
@@ -94,11 +129,13 @@ export const FormPeriods = ({createPeriod, periodToEdit, UpdatePeriod}: props) =
                             ? String(period.period_type)
                             : ""
                     }
-                    onValueChange={(value) =>
+                    onValueChange={(value) => {
                         setPeriod(prev => ({
                             ...prev!,
                             period_type: Number(value)
                         }))
+                        if( Number(value) === 2){handleGetPeriodsYearly() }else{setPeriodsYearly(null)}
+                        }
                     }
                 >
                     <SelectTrigger>
@@ -123,6 +160,39 @@ export const FormPeriods = ({createPeriod, periodToEdit, UpdatePeriod}: props) =
                         </SelectItem>
                     </SelectContent>
                 </Select>
+                {periodsYearly && (
+                    <div>
+                        <label>Año</label>
+                        <Select
+                            name="year"
+                            value={
+                                period?.year != null
+                                    ? String(period.year)
+                                    : ""
+                            }
+                            onValueChange={(value) =>
+                                setPeriod(prev => ({
+                                    ...prev!,
+                                    year: Number(value)
+                                }))
+                            }
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="Selecciona un tipo" />
+                            </SelectTrigger>
+
+                            <SelectContent>
+                                {periodsYearly.map( period =>{
+                                    return(
+                                        <SelectItem value={String(period.year)}>
+                                            {period.year}
+                                        </SelectItem>
+                                    )})
+                                }
+                            </SelectContent>
+                        </Select>
+                    </div>
+                )}
                 <label>Periodo</label>
                 <Input
                     className="mb-4"

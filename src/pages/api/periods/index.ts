@@ -4,13 +4,17 @@ import { parse } from "cookie";
 import { getUserBySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { get } from "http";
 import { PeriodType } from "@/emuns/PeriodType";
-import { createPeriod, deletePeriod, getAllPeriods, getPeriodByMonth, getPeriodByYear, updatePeriod } from "@/lib/db/queries/periods";
+import { createPeriod, deletePeriod, getAllPeriods, getPeriodByMonth, getPeriodByYear, getPeriodsYearly, updatePeriod } from "@/lib/db/queries/periods";
 
 type PeriodForm = {
     name_period: string,
     description: string,
     period_type: number,
     period_value: number,
+    year: number,
+    month: number,
+    week: number,
+    day: number,
 }
 
 export default async function handler(
@@ -72,7 +76,7 @@ export default async function handler(
                         });
                     }
 
-                    year = Period.period_value;
+                    year = Period.year;
                     month = Period.period_value;
                     break;
 
@@ -119,9 +123,14 @@ export default async function handler(
         }
         case "GET": {
 
-            const { year, period_type, month } = req.query;
+            const { year, period_type, month, yearly } = req.query;
 
             let periods;
+
+            if(yearly){
+                let periodsyearly = await getPeriodsYearly();
+                return res.status(200).json({ periodsyearly });
+            }
 
             if (month) {
 

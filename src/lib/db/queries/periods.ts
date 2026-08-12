@@ -201,3 +201,25 @@ export async function updatePeriod(id: number, data: DbUpdateIncomeRow): Promise
         db.close();
     }  
 }
+
+export async function getPeriodsYearly(): Promise<DbPeriodRow[]> {
+    const db = getDb();
+
+    try {
+        const periodsResult = await allAsync<DbPeriodRow>(
+            db,
+            `SELECT
+                i.*
+            FROM periods i
+            WHERE period_type = 1`,
+        );
+
+        if(!periodsResult){
+            throw new Error("No hay periodos registrados")
+        }
+
+        return periodsResult;
+    }finally {
+        db.close();
+    }   
+}
