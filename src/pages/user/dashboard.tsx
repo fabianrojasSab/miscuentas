@@ -139,8 +139,8 @@ export default function Dasboard () {
             dashboard de usuario
             <Button href="/user/incomes">Registrar Ingreso</Button>
             <Button href="/user/expenses">Registrar gasto</Button>
-            {periodYear ? (<div>Datos del: {periodYear?.name}</div>) : (<div> No hay periodo creado</div>)}
-            <TableExpensesByUser onEdit={setExpenseToEdit} reload={reloadTable}/>
+            {periodYear ? (<div>Datos del: {periodYear?.name} {periodMonth?.name}</div>) : (<div> No hay periodo creado</div>)}
+            {/* <TableExpensesByUser onEdit={setExpenseToEdit} reload={reloadTable}/> */}
 
                     {periodExpenses.map((inc) => (
                     <tr key={inc.id}>
@@ -148,6 +148,7 @@ export default function Dasboard () {
                         <td className="border p-2">{inc.month}</td>
                         <td className="border p-2">{inc.category_name}</td>
                         <td className="border p-2">{inc.amount}</td>
+                        <td className="border p-2">{inc.state}</td>
                     </tr>
                     ))}
         </div>
