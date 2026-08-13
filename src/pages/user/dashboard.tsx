@@ -1,6 +1,7 @@
 import { Button } from "@/components/buttons";
 import { Header } from "@/components/header";
 import { TableExpensesByUser } from "@/components/table_expenses";
+import { ExpenseCategoryType } from "@/emuns/ExpenseCategoryType";
 import { useEffect, useState } from "react";
 import { GiConsoleController } from "react-icons/gi";
 //ARREGLAR EL FORMULARIO DE LOS PERIODOS AL MOMENTO DE CREAR LOS MESES
@@ -39,6 +40,7 @@ export type BdPeriodExpensesRow = {
     expense_date: string,
     amount: number,
     state: string,
+    category_type: number,
 }
 
 export default function Dasboard () {
@@ -49,6 +51,82 @@ export default function Dasboard () {
     const [expenseToEdit, setExpenseToEdit] = useState<ExpenseRow | null>(null);
     const [reloadTable, setReloadTable] = useState(false);
     const [periodExpenses, setPeriodExpenses] = useState<BdPeriodExpensesRow[]>([]);
+
+    function getCategoryTypeLabel(type: ExpenseCategoryType): string {
+        switch (type) {
+            case ExpenseCategoryType.FIXED:
+                return "Fijo";
+
+            case ExpenseCategoryType.VARIABLE:
+                return "Variable";
+
+            case ExpenseCategoryType.SAVINGS:
+                return "Ahorro";
+
+            default:
+                return "Desconocido";
+        }
+    }
+
+    async function handleCheckpay(expense: BdPeriodExpensesRow){
+        try {
+
+            const expenseToPay = {
+                expense_date: expense.expense_date,
+                amount: expense.amount,
+                expense_state_id: 2,
+            }
+
+            const body = {
+                id: expense.id,
+                periodExpense: expenseToPay
+            }
+
+            const res = await fetch("/api/periodExpenses", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(body),
+            });
+
+            if (!res.ok) {
+                throw new Error();
+            }
+
+            await handleLoadPeriodExpenses();
+        } catch (err) {
+            setError("!Error al eliminar ingreso¡");
+            console.log(err);
+            setTimeout(() => setError(null), 5000);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function handleLoadPeriodExpenses(){
+        setError(null);
+        setLoading(true);
+        try {
+            const res = await fetch(`/api/periodExpenses`, {
+                method: "GET",
+            });
+            const dataPeriodExpenses = await res.json();
+
+            if (!res.ok) {
+                setError(dataPeriodExpenses.error);
+                return;
+            }
+
+            setPeriodExpenses(dataPeriodExpenses.periodExpenses ?? []);
+        } catch (err) {
+            setError("!Informacion de ingresos vacia¡");
+            console.log(err);
+            setTimeout(() => setError(null), 5000);
+        }finally {
+            setLoading(false);
+        }
+    }
 
     async function handleSearchPeriod () {
         setError(null);
@@ -129,16 +207,13 @@ export default function Dasboard () {
 
     }
 
-    useEffect(() => {
-        handleSearchPeriod()
-    }, [])
-
     return (
         <div>
             <Header/>
             dashboard de usuario
             <Button href="/user/incomes">Registrar Ingreso</Button>
             <Button href="/user/expenses">Registrar gasto</Button>
+            <Button onClick={handleSearchPeriod}>ver</Button>
             {periodYear ? (<div>Datos del: {periodYear?.name} {periodMonth?.name}</div>) : (<div> No hay periodo creado</div>)}
             {/* <TableExpensesByUser onEdit={setExpenseToEdit} reload={reloadTable}/> */}
 
@@ -149,6 +224,11 @@ export default function Dasboard () {
                         <td className="border p-2">{inc.category_name}</td>
                         <td className="border p-2">{inc.amount}</td>
                         <td className="border p-2">{inc.state}</td>
+                        <td className="border p-2">{getCategoryTypeLabel(inc.category_type)}</td>
+                        {inc.state === "Pendiente" && (
+                            <td className="border p-2"><Button onClick={() => handleCheckpay(inc)}>Pagar</Button></td>
+
+                        )}
                     </tr>
                     ))}
         </div>

@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { parse } from "cookie";
 import { getUserBySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { get } from "http";
-import { createPeriodExpenses, getPeriodExpensesByUser } from "@/lib/db/queries/period_expenses";
+import { createPeriodExpenses, getPeriodExpensesByUser, updatePeriodExpense } from "@/lib/db/queries/period_expenses";
 
 type IncomeForm = {
     amount: number;
@@ -12,6 +12,14 @@ type IncomeForm = {
 }
 
 type BdNewPeriodExpenseRow = {
+    period_id: number,
+    expense_id: number,
+    expense_date: string,
+    amount: number,
+    expense_state_id: number,
+}
+
+export type DbUpdatePeriodExpenseRow = {
     period_id: number,
     expense_id: number,
     expense_date: string,
@@ -83,18 +91,18 @@ export default async function handler(
             });
         }
         case "PUT": {
-            const { id, Income } = req.body as {
+            const { id, periodExpense } = req.body as {
                 id: number,
-                Income: IncomeForm
+                periodExpense: DbUpdatePeriodExpenseRow
             };
 
-            if (!id || !Income ) {
+            if (!id || !periodExpense ) {
                 return res
                 .status(400)
                 .json({ error: "Faltan campos obligatorios"});
             }
 
-            const incomeUpdated = await updateIncomes(id, Income);
+            const incomeUpdated = await updatePeriodExpense(id, periodExpense);
 
             return res.status(200).json({
                 success: true,
