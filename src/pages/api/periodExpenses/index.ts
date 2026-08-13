@@ -12,7 +12,7 @@ type IncomeForm = {
 }
 
 type BdNewPeriodExpenseRow = {
-    period_id: number,
+    id: number,
     expense_id: number,
     expense_date: string,
     amount: number,
@@ -43,7 +43,10 @@ export default async function handler(
         switch (req.method) {
         case "POST": {
 
-            const { periodId, expenses} = req.body;
+            const { periodId, expenses} = req.body as {
+                periodId: number,
+                expenses: BdNewPeriodExpenseRow[]
+            };
 
             if (!periodId || !expenses) {
                 return res.status(400).json({
@@ -54,7 +57,7 @@ export default async function handler(
             const periodExpenses = expenses.map((expense) => ({
                 period_id: periodId,
                 expense_id: expense.id,
-                expense_date: expense.income_date,
+                expense_date: expense.expense_date,
                 amount: expense.amount,
                 expense_state_id: 1,
             }));

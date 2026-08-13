@@ -27,7 +27,7 @@ export type BdPeriodExpensesRow = {
     category_type: number,
 }
 
-export async function createPeriodExpenses(periodExpenses): Promise<{ inserted: number }>  {
+export async function createPeriodExpenses(periodExpenses: BdNewPeriodExpenseRow[]): Promise<{ inserted: number }>  {
     const db = getDb();
     const isNow = () => new Date().toISOString();
     let began = false;

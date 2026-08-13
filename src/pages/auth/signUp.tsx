@@ -15,7 +15,7 @@ export default function SignUp() {
         const form = e.currentTarget;
 
         const body = {
-            name: form.name.value,
+            name: form.user_name.value,
             email: form.email.value,
             password: form.password.value,
             passwordConfirm: form.passwordConfirm.value,
@@ -44,7 +44,7 @@ export default function SignUp() {
             <div className="relative z-10 w-[45%] flex flex-col justify-center items-center px-16">
                 <h1 className="text-5xl font-bold text-gray-900 mb-10">Registrarse</h1>
                 <form onSubmit={handleSubmit}>
-                    <Input type="text" name="name" placeholder="Nombre completo" className="mb-4"/>
+                    <Input type="text" name="user_name" placeholder="Nombre completo" className="mb-4"/>
                     <Input type="email" name="email" placeholder="Correo electronico" className="mb-4"/>
                     <Input type="password" name="password" placeholder="Contraseña" className="mb-4"/>
                     <Input type="password" name="passwordConfirm" placeholder="Confirmar contraseña" className="mb-4"/>
