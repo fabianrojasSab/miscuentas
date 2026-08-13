@@ -17,6 +17,16 @@ export type DbUpdateExpenseRow = {
     amount:number
 }
 
+export type BdExpenseRow = {
+    id: number,
+    userId: number
+    category_name: string,
+    category_type: number,
+    name: string,
+    income_date: string,
+    amount: number,
+}
+
 export async function createExpenses({
     userId,
     category,
@@ -61,6 +71,36 @@ export async function getAllExpensesByUser(id: number): Promise<BdNewExpenseRow[
                 *
             FROM expenses
             WHERE user_id = ?`,
+            [id],
+        );
+
+        if(!allExpensesResult){
+            throw new Error("No hay gastos registrados")
+        }
+
+        return allExpensesResult;
+    }finally {
+        db.close();
+    }   
+}
+
+export async function getExpensesByUser(id: number): Promise<BdExpenseRow[]> {
+    const db = getDb();
+//modificar la columna income_date esta mal nombrada
+    try {
+        const allExpensesResult = await allAsync<BdExpenseRow>(
+            db,
+            `SELECT
+                e.id,
+                e.user_id,
+                ec.name as category_name,
+                ec.category_type,
+                e.name,
+                e.income_date,
+                e.amount
+            FROM expenses e
+            INNER JOIN expense_categories ec ON e.expense_category_id = ec.id
+            WHERE e.user_id = ?`,
             [id],
         );
 

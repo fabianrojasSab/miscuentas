@@ -1,12 +1,9 @@
 import { allAsync, getDb, runAsync } from "../index";
 
 type BdNewCategoryRow = {
-    id: number,
     name: string,
     category_type: number,
     description: string,
-    created_at: string,
-    updated_at: string,
 };
 
 type DbUpdateCategoryRow = {

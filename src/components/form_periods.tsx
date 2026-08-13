@@ -1,19 +1,24 @@
 import { useState } from "react"
-import { Button } from "./buttons"
-import { Input } from "./ui/input"
+import { Button } from "@/components/buttons"
+import { Input } from "@/components/ui/input"
 import { PeriodType } from "@/emuns/PeriodType"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
-
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+//QUEDA PENDIENTE QUE SE LE ASIGNE EL ID PADRE CUANDO SE CREA EL MES, LAS SEMANAS Y LOS DIAS
 type PeriodForm = {
     name_period: string,
     description: string,
     period_type: number,
     period_value: number,
+    year: number | null,
+    month: number | null,
+    week: number | null,
+    day: number | null,
+    parent_id: number | null,
 }
 
 type PeriodRow = {
     id: number,
-    name_period: string,
+    name: string,
     description: string,
     period_type: number,
     year: number,
@@ -28,12 +33,42 @@ type PeriodRow = {
 type props = {
     createPeriod: (period: PeriodForm) => void;
     periodToEdit: PeriodRow | null;
+    UpdatePeriod: (period: PeriodForm) => void;
 }
 
-export const FormPeriods = ({createPeriod, periodToEdit}: props) =>{
+export const FormPeriods = ({createPeriod, periodToEdit, UpdatePeriod}: props) =>{
     const [period, setPeriod] = useState<PeriodForm | null>();
-    const [error, setError] = useState<string | null>()
+    const [periodsYearly, setPeriodsYearly] = useState<PeriodRow [] | null>();
+    const [error, setError] = useState<string | null>();
+    const [loading, setLoading] =useState<boolean>(false);
 
+    //Funcion para obtener todos los periodos anuales
+    async function handleGetPeriodsYearly() {
+        setError(null);
+        setLoading(true);
+
+        try {
+            const res = await fetch(`/api/periods?yearly=true`, {
+                method: "GET",
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data.error);
+                return;
+            }
+
+            setPeriodsYearly(data.periodsyearly ?? []);
+        } catch (err) {
+            setError("!Informacion de periodos vacia¡");
+            console.log(err);
+            setTimeout(() => setError(null), 5000);
+        }finally {
+            setLoading(false);
+        }
+    }
+
+    //Controlador para crear o actualizar el periodo
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         setError(null);
@@ -42,18 +77,22 @@ export const FormPeriods = ({createPeriod, periodToEdit}: props) =>{
 
         const body : PeriodForm = {
             name_period: form.name_period.value,
-            description: form.name_period.value,
-            period_type: form.name_period.value,
-            period_value: form.name_period.value,
+            description: form.description.value,
+            period_type: form.period_type.value,
+            period_value: form.period_value.value,
+            year: form.year?.value ?? null,
+            month: form.month?.value ?? null,
+            week: form.week?.value ?? null,
+            day: form.day?.value ?? null,
+            parent_id: period?.parent_id ?? null,
         };
 
         if (periodToEdit) {
-            UpdateIncome(body);
+            UpdatePeriod(body);
         } else {
             createPeriod(body);
         }
-        
-        form.reset();
+        setPeriod(null);
     }
 
     return(
@@ -62,8 +101,8 @@ export const FormPeriods = ({createPeriod, periodToEdit}: props) =>{
                 <label>Nombre</label>
                 <Input
                     className="mb-4"
-                    type="number"
-                    name="amount"
+                    type="text"
+                    name="name_period"
                     value={period?.name_period ?? ""}
                     onChange={(e) =>
                         setPeriod(prev => ({
@@ -76,7 +115,7 @@ export const FormPeriods = ({createPeriod, periodToEdit}: props) =>{
                 <Input
                     className="mb-4"
                     type="text"
-                    name="date"
+                    name="description"
                     value={period?.description ?? ""}
                     onChange={(e) =>
                         setPeriod(prev => ({
@@ -87,17 +126,19 @@ export const FormPeriods = ({createPeriod, periodToEdit}: props) =>{
                 />
                 <label>Tipo</label>
                 <Select
-                    name="category_type"
+                    name="period_type"
                     value={
                         period?.period_type != null
                             ? String(period.period_type)
                             : ""
                     }
-                    onValueChange={(value) =>
+                    onValueChange={(value) => {
                         setPeriod(prev => ({
                             ...prev!,
                             period_type: Number(value)
                         }))
+                        if( Number(value) === 2){handleGetPeriodsYearly() }else{setPeriodsYearly(null)}
+                        }
                     }
                 >
                     <SelectTrigger>
@@ -122,11 +163,51 @@ export const FormPeriods = ({createPeriod, periodToEdit}: props) =>{
                         </SelectItem>
                     </SelectContent>
                 </Select>
+                {periodsYearly && (
+                    <div>
+                        <label>Año</label>
+                        <Select
+                            name="year"
+                            value={
+                                period?.year != null
+                                    ? String(period.year)
+                                    : ""
+                            }
+                            onValueChange={(value) => {
+                                const selectedPeriod = periodsYearly.find(
+                                    (item) => String(item.year) === value
+                                );
+
+                                if (!selectedPeriod) return;
+
+                                setPeriod(prev => ({
+                                    ...prev!,
+                                    parent_id: selectedPeriod.id,
+                                    year: selectedPeriod.year,
+                                }));
+                            }}
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="Selecciona un tipo" />
+                            </SelectTrigger>
+
+                            <SelectContent>
+                                {periodsYearly.map( period =>{
+                                    return(
+                                        <SelectItem value={String(period.year)} key={period.id}>
+                                            {period.year}
+                                        </SelectItem>
+                                    )})
+                                }
+                            </SelectContent>
+                        </Select>
+                    </div>
+                )}
                 <label>Periodo</label>
                 <Input
                     className="mb-4"
                     type="text"
-                    name="date"
+                    name="period_value"
                     value={period?.period_value ?? ""}
                     onChange={(e) =>
                         setPeriod(prev => ({
@@ -142,7 +223,6 @@ export const FormPeriods = ({createPeriod, periodToEdit}: props) =>{
                 <Button type="submit">
                     {periodToEdit ? "Actualizar periodo" : "Crear periodo"}
                 </Button>
-                
             </form>
         </div>
     )

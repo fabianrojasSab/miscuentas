@@ -1,3 +1,4 @@
+import { ExpenseCategoryType } from "@/emuns/ExpenseCategoryType";
 import { useEffect, useState } from "react";
 
 type ExpensesRow = {
@@ -22,26 +23,113 @@ type ExpensesForm = {
     amount: number;
 };
 
+export type BdExpenseRow = {
+    id: number,
+    userId: number
+    category_name: string,
+    category_type: number,
+    name: string,
+    income_date: string,
+    amount: number,
+}
+
 type Props = {
     onEdit: (expense: ExpensesRow) => void;
     reload: boolean;
 };
 
-export const TableExpensesByUser = ({ onEdit, reload }: Props) =>{
+//Componente especifico para traer los gastos del periodo del usuario
+export const TableExpensesByUser = ({ reload }: Props) =>{
+    const [error, setError] = useState<string | null>(null);
+    const [expenses, setExpenses] = useState<BdExpenseRow[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    //Funcion auxiliar para obtener el tipo de categoria
+    function getCategoryTypeLabel(type: ExpenseCategoryType): string {
+        switch (type) {
+            case ExpenseCategoryType.FIXED:
+                return "Fijo";
+
+            case ExpenseCategoryType.VARIABLE:
+                return "Variable";
+
+            case ExpenseCategoryType.SAVINGS:
+                return "Ahorro";
+
+            default:
+                return "Desconocido";
+        }
+    }
+
+    //Funcion que carga los gastos
+    async function loadExpenses(){
+        setError(null);
+        setLoading(true);
+        try {
+            const res = await fetch("/api/expenses?type=dashboard", {
+                method: "GET",
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data.error);
+                return;
+            }
+
+        setExpenses(data.expenses ?? []);
+        } catch (err) {
+            setError("!Informacion de gastos vacia¡");
+            console.log(err);
+            setTimeout(() => setError(null), 5000);
+        }finally {
+        setLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        loadExpenses();
+    }, [reload]);
+
+    return(
+        <div>
+            {error && <p className="text-red-600">{error}</p>}
+            {loading ? (
+                <p>Cargando...</p>
+            ) : expenses.length === 0 ? (
+                <p>No hay gastos registrados.</p>
+            ) : (
+                <table className="w-full border">
+                    <thead>
+                        <tr>
+                        <th className="border p-2">Nombre</th>
+                        <th className="border p-2">Categoria</th>
+                        <th className="border p-2">Tipo</th>
+                        <th className="border p-2">Fecha</th>
+                        <th className="border p-2">Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {expenses.map((inc) => (
+                        <tr key={inc.id}>
+                            <td className="border p-2">{inc.name}</td>
+                            <td className="border p-2">{inc.category_name}</td>
+                            <td className="border p-2">{getCategoryTypeLabel(inc.category_type)}</td>
+                            <td className="border p-2">{inc.income_date}</td>
+                            <td className="border p-2">{inc.amount}</td>
+                        </tr>
+                        ))}
+                    </tbody>
+                </table>
+            )}
+        </div>
+    )
+}
+
+//componente que muestra todos los gastos del usuario sin filtros
+export const TableAllExpensesByUser = ({ reload }: Props) =>{
     const [error, setError] = useState<string | null>(null);
     const [expenses, setExpenses] = useState<ExpensesRow[]>([]);
     const [loading, setLoading] = useState(true);
-
-    //debemos crear propiedades independientes para cada funcion
-    async function handleUpdateIncome(expense: ExpensesRow){
-        const expenseToUpdate : ExpensesForm = {
-            amount: expense.amount,
-            income_date: expense.income_date,
-            description: expense.description,
-        };
-
-        onEdit(expense)
-    }
 
     async function loadExpenses(){
         setError(null);
@@ -59,7 +147,7 @@ export const TableExpensesByUser = ({ onEdit, reload }: Props) =>{
 
         setExpenses(data.expenses ?? []);
         } catch (err) {
-            setError("!Informacion de ingresos vacia¡");
+            setError("!Informacion de gastos vacia¡");
             console.log(err);
             setTimeout(() => setError(null), 5000);
         }finally {
@@ -70,7 +158,6 @@ export const TableExpensesByUser = ({ onEdit, reload }: Props) =>{
     useEffect(() => {
         loadExpenses();
     }, [reload]);
-    
 
     return(
         <div>
@@ -107,12 +194,13 @@ export const TableExpensesByUser = ({ onEdit, reload }: Props) =>{
     )
 }
 
+//Componente que traer todos los gastos en general, usado para la gestion de gastos por el admin
 export const TableAllExpenses = ({ onEdit, reload }: Props) => {
     const [error, setError] = useState<string | null>(null);
     const [expenses, setExpenses] = useState<ExpensesRow[]>([]);
     const [loading, setLoading] = useState(true);
 
-
+    //Funcion para cargar los gastos
     async function handleLoadExpenses(){
         setError(null);
         setLoading(true);
@@ -137,6 +225,7 @@ export const TableAllExpenses = ({ onEdit, reload }: Props) => {
         }
     }
 
+    //Funcion para eliminar un gasto
     async function handleDeleteExpense(id: number){
         setError(null);
         setLoading(true);
@@ -155,7 +244,7 @@ export const TableAllExpenses = ({ onEdit, reload }: Props) => {
 
             await handleLoadExpenses();
         } catch (err) {
-            setError("!Error al eliminar ingreso¡");
+            setError("!Error al eliminar el gasto");
             console.log(err);
             setTimeout(() => setError(null), 5000);
         } finally {
@@ -163,13 +252,8 @@ export const TableAllExpenses = ({ onEdit, reload }: Props) => {
         }
     }
 
-    async function handleUpdateIncome(expense: ExpensesRow){
-        const expenseToUpdate : ExpensesForm = {
-            amount: expense.amount,
-            income_date: expense.income_date,
-            description: expense.description,
-        };
-
+    //Controlador para actualizar un gasto (Se envia a la funcion del padre)
+    async function handleUpdateExpense(expense: ExpensesRow){
         onEdit(expense)
     }
 
@@ -186,35 +270,35 @@ export const TableAllExpenses = ({ onEdit, reload }: Props) => {
                 <p>No hay gastos registrados.</p>
             ) : (
                 <table className="w-full border">
-                <thead>
-                    <tr>
-                    <th className="border p-2">Fecha</th>
-                    <th className="border p-2">Monto</th>
-                    <th className="border p-2">Descripción</th>
-                    <th className="border p-2">Creado en</th>
-                    <th className="border p-2">Actualizado en</th>
-                    <th className="border p-2">Eliminado en</th>
-                    <th className="border p-2">Usuario</th>
-                    <th className="border p-2">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {expenses.map((inc) => (
-                    <tr key={inc.id}>
-                        <td className="border p-2">{inc.income_date}</td>
-                        <td className="border p-2">{inc.amount}</td>
-                        <td className="border p-2">{inc.description ?? "-"}</td>
-                        <td className="border p-2">{inc.created_at}</td>
-                        <td className="border p-2">{inc.updated_at}</td>
-                        <td className="border p-2">{inc.deleted_at}</td>
-                        <td className="border p-2">{inc.user_name}</td>
-                        <td className="border p-2">
-                            <button className="bg-blue-500 text-white px-2 py-1 rounded mr-2" onClick={() => handleUpdateIncome(inc)}>Editar</button>
-                            <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => handleDeleteExpense(inc.id)}>Eliminar</button>
-                        </td>
-                    </tr>
-                    ))}
-                </tbody>
+                    <thead>
+                        <tr>
+                        <th className="border p-2">Fecha</th>
+                        <th className="border p-2">Monto</th>
+                        <th className="border p-2">Descripción</th>
+                        <th className="border p-2">Creado en</th>
+                        <th className="border p-2">Actualizado en</th>
+                        <th className="border p-2">Eliminado en</th>
+                        <th className="border p-2">Usuario</th>
+                        <th className="border p-2">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {expenses.map((inc) => (
+                        <tr key={inc.id}>
+                            <td className="border p-2">{inc.income_date}</td>
+                            <td className="border p-2">{inc.amount}</td>
+                            <td className="border p-2">{inc.description ?? "-"}</td>
+                            <td className="border p-2">{inc.created_at}</td>
+                            <td className="border p-2">{inc.updated_at}</td>
+                            <td className="border p-2">{inc.deleted_at}</td>
+                            <td className="border p-2">{inc.user_name}</td>
+                            <td className="border p-2">
+                                <button className="bg-blue-500 text-white px-2 py-1 rounded mr-2" onClick={() => handleUpdateExpense(inc)}>Editar</button>
+                                <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => handleDeleteExpense(inc.id)}>Eliminar</button>
+                            </td>
+                        </tr>
+                        ))}
+                    </tbody>
                 </table>
             )}
         </div>

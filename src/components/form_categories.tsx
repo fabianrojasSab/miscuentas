@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react";
-import { Button } from "./buttons"
-import { Input } from "./ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { useState } from "react";
+import { Button } from "@/components/buttons"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ExpenseCategoryType } from "@/emuns/ExpenseCategoryType";
 
 type CategoryForm = {
     name_category: string;
-    category_type: number; //se sugiere hacer el cambio a ExpenseCategoryType
+    category_type: number;
     description: string;
 };
 
@@ -25,11 +25,11 @@ type Props = {
     UpdateCategory: (category: CategoryForm) => void;
 };
 
-
-export const Category = ({ createCategory, categoryToEdit, UpdateCategory }: Props) =>{
+export const FormCategory = ({ createCategory, categoryToEdit, UpdateCategory }: Props) =>{
     const [error, setError] = useState<string | null>(null);
     const [category, setCategory] = useState<CategoryForm | null>(null);
-    
+
+    //Funcion para crear o actualizar la categoria (la envia al componente padre)
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         setError(null);
@@ -48,18 +48,8 @@ export const Category = ({ createCategory, categoryToEdit, UpdateCategory }: Pro
             createCategory(body);
         }
         
-        form.reset();
+        setCategory(null); //limpia el formulario
     }
-
-    useEffect(() => {
-        if (categoryToEdit) {
-            setCategory({
-                name_category: categoryToEdit.name,
-                category_type: categoryToEdit.category_type,
-                description: categoryToEdit.description,
-            });
-        }
-    }, [categoryToEdit]);
 
     return(
         <div>
@@ -69,7 +59,7 @@ export const Category = ({ createCategory, categoryToEdit, UpdateCategory }: Pro
                     className="mb-4"
                     type="text"
                     name="name_category"
-                    value={category?.name_category ?? ""}
+                    value={categoryToEdit?.name ?? category?.name_category}
                     onChange={(e) =>
                         setCategory(prev => ({
                             ...prev!,
@@ -80,11 +70,11 @@ export const Category = ({ createCategory, categoryToEdit, UpdateCategory }: Pro
                 <label>Tipo de categoria</label>
                 <Select
                     name="category_type"
-                    value={
-                        category?.category_type != null
-                            ? String(category.category_type)
-                            : ""
-                    }
+                    value={String(
+                        categoryToEdit?.category_type ??
+                        category?.category_type ??
+                        ""
+                    )}
                     onValueChange={(value) =>
                         setCategory(prev => ({
                             ...prev!,
@@ -111,7 +101,7 @@ export const Category = ({ createCategory, categoryToEdit, UpdateCategory }: Pro
                     className="mb-4"
                     type="text"
                     name="description"
-                    value={category?.description ?? ""}
+                    value={categoryToEdit?.description ?? category?.description}
                     onChange={(e) =>
                         setCategory(prev => ({
                             ...prev!,
@@ -126,7 +116,6 @@ export const Category = ({ createCategory, categoryToEdit, UpdateCategory }: Pro
                 <Button type="submit">
                     {categoryToEdit ? "Actualizar categoria" : "Crear categoria"}
                 </Button>
-                
             </form>
         </div>
     )

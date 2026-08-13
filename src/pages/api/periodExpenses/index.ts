@@ -3,11 +3,28 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { parse } from "cookie";
 import { getUserBySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { get } from "http";
+import { createPeriodExpenses, getPeriodExpensesByUser, updatePeriodExpense } from "@/lib/db/queries/period_expenses";
 
 type IncomeForm = {
     amount: number;
     income_date: string;
     description: string;
+}
+
+type BdNewPeriodExpenseRow = {
+    id: number,
+    expense_id: number,
+    expense_date: string,
+    amount: number,
+    expense_state_id: number,
+}
+
+export type DbUpdatePeriodExpenseRow = {
+    period_id: number,
+    expense_id: number,
+    expense_date: string,
+    amount: number,
+    expense_state_id: number,
 }
 
 export default async function handler(
@@ -26,38 +43,37 @@ export default async function handler(
         switch (req.method) {
         case "POST": {
 
-            const { id, income} = req.body as {
-                id: number,
-                income: IncomeForm
+            const { periodId, expenses} = req.body as {
+                periodId: number,
+                expenses: BdNewPeriodExpenseRow[]
             };
 
-            if (!id || !income) {
-                return res
-                .status(400)
-                .json({ error: "Faltan campos obligatorios" + id + income});
+            if (!periodId || !expenses) {
+                return res.status(400).json({
+                    error: "Datos inválidos"
+                });
             }
 
-            const newData = {
-                userId: id,
-                amount: income.amount,
-                income_date: income.income_date,
-                description: income.description
-            }
+            const periodExpenses = expenses.map((expense) => ({
+                period_id: periodId,
+                expense_id: expense.id,
+                expense_date: expense.expense_date,
+                amount: expense.amount,
+                expense_state_id: 1,
+            }));
 
-            const incomeResult = await createIncomes(newData);
+            const periodExpenseResult = await createPeriodExpenses(periodExpenses);
 
             return res.status(200).json({
                 success: true,
-                id: incomeResult.id
+                id: periodExpenseResult.inserted
             });
         }
         case "GET": {
-            const incomes =
-                user.sw_admin === 0
-                    ? await getAllIncomesByUser(user.id)
-                    : await getAllIncomes();
+            const periodExpenses =  await getPeriodExpensesByUser(user.id)
 
-            return res.status(200).json({ incomes });
+
+            return res.status(200).json({ periodExpenses });
         }
         case "DELETE": {
             const { id } = req.body as {
@@ -78,18 +94,18 @@ export default async function handler(
             });
         }
         case "PUT": {
-            const { id, income } = req.body as {
+            const { id, periodExpense } = req.body as {
                 id: number,
-                income: IncomeForm
+                periodExpense: DbUpdatePeriodExpenseRow
             };
 
-            if (!id || !income ) {
+            if (!id || !periodExpense ) {
                 return res
                 .status(400)
                 .json({ error: "Faltan campos obligatorios"});
             }
 
-            const incomeUpdated = await updateIncomes(id, income);
+            const incomeUpdated = await updatePeriodExpense(id, periodExpense);
 
             return res.status(200).json({
                 success: true,
@@ -99,16 +115,15 @@ export default async function handler(
         default:
             return res.status(405).json({ error: "Método no permitido" });
         }
-    } catch (err: unknown) {
-
-        if (err instanceof Error) {
-            return res.status(500).json({
-                error: err.message
-            });
+    } catch (err: any) {
+        if (err.code === "SQLLITE_ERROR") {
+            return res.status(500).json({ error: err.message });
         }
 
-        return res.status(500).json({
-            error: "Ocurrió un error desconocido"
-        });
+        if (!err.code) {
+            return res.status(401).json({ error: err.message });
+        }
+
+        return res.status(500).json({ error: err.message });
     }
 }

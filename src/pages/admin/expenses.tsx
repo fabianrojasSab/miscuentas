@@ -3,20 +3,12 @@ import { Header } from "@/components/header";
 import { TableAllExpenses } from "@/components/table_expenses";
 import { useState } from "react";
 
-
 type ExpensesForm = {
     expense_category_id: number;
     name: string;
     description: string;
     income_date: string;
     amount: number;
-};
-
-
-type OnboardingData = {
-    // bankAccount: BankAccountForm | null;
-    // income: IncomeForm | null;
-    expenses: ExpensesForm | null;
 };
 
 type ExpenseRow = {
@@ -37,16 +29,15 @@ export default function Expenses(){
     const [success, setSuccess] = useState<string | null>(null);
     const [reloadTable, setReloadTable] = useState(false);
     const [expenseToEdit, setExpenseToEdit] = useState<ExpenseRow | null>(null);
-    
 
-    async function handleCreateExpense(expenses: OnboardingData["expenses"]) {
-
+    //Funcion para crear los gastos
+    async function handleCreateExpense(expenses: ExpensesForm) {
         const res = await fetch("/api/me");
         const dataUser = await res.json();
 
         const body = {
             id: dataUser.user.id,
-            Expense: expenses
+            expenses: expenses
         };
 
         try {
@@ -74,11 +65,11 @@ export default function Expenses(){
         }
     }
 
-    async function handleUpdateExpense(expense: OnboardingData["expenses"]) {
-
+    //Funcion para actualizar el gasto
+    async function handleUpdateExpense(expense: ExpensesForm) {
         const body = {
             id: expenseToEdit?.id,
-            Expense: expense
+            expense: expense
         };
 
         try {
@@ -116,7 +107,7 @@ export default function Expenses(){
                 <p className="text-red-600 text-center">{error}</p>
             )}
             {success && (
-                <p className="text-green-600 text-center">Ingreso con ID {success} registrado</p>
+                <p className="text-green-600 text-center">Gasto con ID {success} registrado</p>
             )}
             <br />
             <TableAllExpenses onEdit={setExpenseToEdit} reload={reloadTable}/>

@@ -26,6 +26,7 @@ export const TableAllCategories = ({ onEdit, reload }: Props) => {
     const [categories, setCategories] = useState<CategoryRow[]>([]);
     const [loading, setLoading] = useState(true);
 
+    //Funcion auxiliar para obtener el tipo de categoria
     function getCategoryTypeLabel(type: ExpenseCategoryType): string {
         switch (type) {
             case ExpenseCategoryType.FIXED:
@@ -42,6 +43,7 @@ export const TableAllCategories = ({ onEdit, reload }: Props) => {
         }
     }
 
+    //Funcion para cargar las categorias
     async function handleLoadCategories(){
         setError(null);
         setLoading(true);
@@ -58,7 +60,7 @@ export const TableAllCategories = ({ onEdit, reload }: Props) => {
 
             setCategories(data.categories ?? []);
         } catch (err) {
-            setError("!Informacion de ingresos vacia¡");
+            setError("!Informacion de categorias vacia¡");
             console.log(err);
             setTimeout(() => setError(null), 5000);
         }finally {
@@ -93,11 +95,6 @@ export const TableAllCategories = ({ onEdit, reload }: Props) => {
     }
 
     async function handleUpdateIncome(income: CategoryRow){
-        const incomeToUpdate : CategoryForm = {
-            name_category: income.name,
-            category_type: income.category_type,
-        };
-
         onEdit(income)
     }
 
@@ -115,26 +112,26 @@ export const TableAllCategories = ({ onEdit, reload }: Props) => {
                 <p>No hay categorias registradas.</p>
             ) : (
                 <table className="w-full border">
-                <thead>
-                    <tr>
-                    <th className="border p-2">nombre de categoria</th>
-                    <th className="border p-2">Tipo de categoria</th>
-                    <th className="border p-2">Descripcion</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {categories.map((inc) => (
-                    <tr key={inc.id}>
-                        <td className="border p-2">{inc.name}</td>
-                        <td className="border p-2">{getCategoryTypeLabel(inc.category_type)}</td>
-                        <td className="border p-2">{inc.description}</td>
-                        <td className="border p-2">
-                            <button className="bg-blue-500 text-white px-2 py-1 rounded mr-2" onClick={() => handleUpdateIncome(inc)}>Editar</button>
-                            <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => handleDeleteIncome(inc.id)}>Eliminar</button>
-                        </td>
-                    </tr>
-                    ))}
-                </tbody>
+                    <thead>
+                        <tr>
+                        <th className="border p-2">nombre de categoria</th>
+                        <th className="border p-2">Tipo de categoria</th>
+                        <th className="border p-2">Descripcion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {categories.map((inc) => (
+                        <tr key={inc.id}>
+                            <td className="border p-2">{inc.name}</td>
+                            <td className="border p-2">{getCategoryTypeLabel(inc.category_type)}</td>
+                            <td className="border p-2">{inc.description}</td>
+                            <td className="border p-2">
+                                <button className="bg-blue-500 text-white px-2 py-1 rounded mr-2" onClick={() => handleUpdateIncome(inc)}>Editar</button>
+                                <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => handleDeleteIncome(inc.id)}>Eliminar</button>
+                            </td>
+                        </tr>
+                        ))}
+                    </tbody>
                 </table>
             )}
         </div>

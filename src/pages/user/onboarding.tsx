@@ -1,6 +1,6 @@
 import { Button } from "@/components/buttons";
 import { BankAccounts } from "@/components/form_bank_accounts";
-import { Income } from "@/components/form_incomes";
+import { FormIncome } from "@/components/form_incomes";
 import { Header } from "@/components/header";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
@@ -13,7 +13,7 @@ type BankAccountForm = {
 
 type IncomeForm = {
     amount: number;
-    date: string;
+    income_date: string;
     description: string;
 }
 
@@ -28,6 +28,18 @@ type OnboardingData = {
     }[];
 };
 
+type IncomeRow = {
+    id: number,
+    user_id: number,
+    amount: number,
+    income_date: string,
+    description: string,
+    created_at: string,
+    updated_at: string,
+    deleted_at: string,
+    user_name?: string,
+};
+
 export default function OnBoarding(){
     const [data, setData] = useState<OnboardingData>({
         bankAccount: null,
@@ -37,13 +49,14 @@ export default function OnBoarding(){
     const [user, setUser] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
+    const [incomeToEdit, setIncomeToEdit] = useState<IncomeRow | null>(null);
 
 
     function updateBankAccount(account: OnboardingData["bankAccount"]) {
         setData((prev) => ({ ...prev, bankAccount: account }));
     }
 
-    function updateIncome(income: OnboardingData["income"]) {
+    function updateIncome(income: IncomeForm) {
         setData((prev) => ({ ...prev, income: income }));
     }
 
@@ -81,6 +94,38 @@ export default function OnBoarding(){
         }
     }
 
+   async function handleCreateIncome(income: OnboardingData["income"]) {
+
+        const res = await fetch("/api/me");
+        const dataUser = await res.json();
+
+        const body = {
+            id: dataUser.user.id,
+            Income: income
+        };
+
+        try {
+            const res = await fetch("/api/incomes", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(body),
+            });
+            const data = await res.json();
+
+
+            if (!res.ok) {
+                setError(data.error);
+                return;
+            }
+
+        } catch (err) {
+            setError("Error al iniciar sesión. Por favor, inténtalo de nuevo.");
+            setTimeout(() => setError(null), 5000);
+        }
+    }
+
     useEffect(() => {
         (async () => {
             const res = await fetch("/api/me");
@@ -96,7 +141,7 @@ export default function OnBoarding(){
             {data.bankAccount === null ? (
                 <BankAccounts onChange={updateBankAccount} />
             ) : data.income === null ? (
-                <Income onChange={updateIncome} />
+                <FormIncome createIncome={handleCreateIncome} incomeToEdit={incomeToEdit} UpdateIncome={updateIncome}/>
             ) : (
                 <div>
                     <form onSubmit={handleSubmit}>
