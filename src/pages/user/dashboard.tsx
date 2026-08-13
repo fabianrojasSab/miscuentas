@@ -52,6 +52,12 @@ export default function Dasboard () {
     const [reloadTable, setReloadTable] = useState(false);
     const [periodExpenses, setPeriodExpenses] = useState<BdPeriodExpensesRow[]>([]);
 
+    function getTotalPeriodExpenses(periodExpenses: BdPeriodExpensesRow[]): number {
+        return periodExpenses.reduce((total, expense) => {
+            return total + Number(expense.amount);
+        }, 0);
+    }
+
     function getCategoryTypeLabel(type: ExpenseCategoryType): string {
         switch (type) {
             case ExpenseCategoryType.FIXED:
@@ -231,6 +237,9 @@ export default function Dasboard () {
                         )}
                     </tr>
                     ))}
+            <p>
+                Total gastos: ${getTotalPeriodExpenses(periodExpenses)}
+            </p>
         </div>
     )
 }
