@@ -1,4 +1,4 @@
-import { Income } from "@/components/form_incomes";
+import { FormIncome } from "@/components/form_incomes";
 import { Header } from "@/components/header";
 import { TableAllIncomes } from "@/components/table_incomes";
 import { useState } from "react";
@@ -14,17 +14,6 @@ type IncomeForm = {
     income_date: string;
     description: string;
 }
-
-type OnboardingData = {
-    bankAccount: BankAccountForm | null;
-    income: IncomeForm | null;
-    expenses: {
-        name: string;
-        amount: number;
-        category_id: number;
-        date: string;
-    }[];
-};
 
 type IncomeRow = {
     id: number,
@@ -44,14 +33,14 @@ export default function Incomes(){
     const [incomeToEdit, setIncomeToEdit] = useState<IncomeRow | null>(null);
     const [reloadTable, setReloadTable] = useState(false);
 
-    async function handleCreateIncome(income: OnboardingData["income"]) {
-
+    //Funcion para crear el ingreso
+    async function handleCreateIncome(income: IncomeForm) {
         const res = await fetch("/api/me");
         const dataUser = await res.json();
 
         const body = {
             id: dataUser.user.id,
-            Income: income
+            income: income
         };
 
         try {
@@ -74,16 +63,16 @@ export default function Incomes(){
             setSuccess(data.id);
             setTimeout(() => setSuccess(null), 5000);
         } catch (err) {
-            setError("Error al iniciar sesión. Por favor, inténtalo de nuevo.");
+            setError("Error al crear el ingreso. Por favor, inténtalo de nuevo.");
             setTimeout(() => setError(null), 5000);
         }
     }
 
-    async function handleUpdateIncome(income: OnboardingData["income"]) {
-
+    //Funcion para actualizar un ingreso
+    async function handleUpdateIncome(income: IncomeForm) {
         const body = {
             id: incomeToEdit?.id,
-            Income: income
+            income: income
         };
 
         try {
@@ -106,7 +95,7 @@ export default function Incomes(){
             setSuccess(data.id);
             setTimeout(() => setSuccess(null), 5000);
         } catch (err) {
-            setError("Error al iniciar sesión. Por favor, inténtalo de nuevo.");
+            setError("Error actualizar el ingreso. Por favor, inténtalo de nuevo.");
             setTimeout(() => setError(null), 5000);
         }
     }
@@ -116,7 +105,7 @@ export default function Incomes(){
             <Header/>
             Administracion de ingreso
             <br />
-            <Income createIncome={handleCreateIncome} incomeToEdit={incomeToEdit} UpdateIncome={handleUpdateIncome}/>
+            <FormIncome createIncome={handleCreateIncome} incomeToEdit={incomeToEdit} UpdateIncome={handleUpdateIncome}/>
             {error && (
                 <p className="text-red-600 text-center">{error}</p>
             )}

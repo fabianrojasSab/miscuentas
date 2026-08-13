@@ -26,22 +26,22 @@ export default async function handler(
         switch (req.method) {
         case "POST": {
 
-            const { id, Income} = req.body as {
+            const { id, income} = req.body as {
                 id: number,
-                Income: IncomeForm
+                income: IncomeForm
             };
 
-            if (!id || !Income) {
+            if (!id || !income) {
                 return res
                 .status(400)
-                .json({ error: "Faltan campos obligatorios" + id + Income});
+                .json({ error: "Faltan campos obligatorios" + id + income});
             }
 
             const newData = {
                 userId: id,
-                amount: Income.amount,
-                income_date: Income.income_date,
-                description: Income.description
+                amount: income.amount,
+                income_date: income.income_date,
+                description: income.description
             }
 
             const incomeResult = await createIncomes(newData);
@@ -78,18 +78,18 @@ export default async function handler(
             });
         }
         case "PUT": {
-            const { id, Income } = req.body as {
+            const { id, income } = req.body as {
                 id: number,
-                Income: IncomeForm
+                income: IncomeForm
             };
 
-            if (!id || !Income ) {
+            if (!id || !income ) {
                 return res
                 .status(400)
                 .json({ error: "Faltan campos obligatorios"});
             }
 
-            const incomeUpdated = await updateIncomes(id, Income);
+            const incomeUpdated = await updateIncomes(id, income);
 
             return res.status(200).json({
                 success: true,
@@ -99,15 +99,16 @@ export default async function handler(
         default:
             return res.status(405).json({ error: "Método no permitido" });
         }
-    } catch (err: any) {
-        if (err.code === "SQLLITE_ERROR") {
-            return res.status(500).json({ error: err.message });
+    } catch (err: unknown) {
+
+        if (err instanceof Error) {
+            return res.status(500).json({
+                error: err.message
+            });
         }
 
-        if (!err.code) {
-            return res.status(401).json({ error: err.message });
-        }
-
-        return res.status(500).json({ error: err.message });
+        return res.status(500).json({
+            error: "Ocurrió un error desconocido"
+        });
     }
 }

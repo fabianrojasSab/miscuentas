@@ -23,12 +23,13 @@ type Props = {
     reload: boolean;
 };
 
+//Componente para traer los ingresos solo del usuario
 export const TableIncomesByUser = ({ onEdit, reload }: Props) =>{
     const [error, setError] = useState<string | null>(null);
     const [incomes, setIncomes] = useState<IncomeRow[]>([]);
     const [loading, setLoading] = useState(true);
 
-    //debemos crear propiedades independientes para cada funcion
+    //debemos crear propiedades independientes para cada componente
     async function handleUpdateIncome(income: IncomeRow){
         const incomeToUpdate : IncomesForm = {
             amount: income.amount,
@@ -39,6 +40,7 @@ export const TableIncomesByUser = ({ onEdit, reload }: Props) =>{
         onEdit(income)
     }
 
+    //Funcion para cargar lo ingresos
     async function loadIncomes(){
         setError(null);
         setLoading(true);
@@ -99,12 +101,13 @@ export const TableIncomesByUser = ({ onEdit, reload }: Props) =>{
     )
 }
 
+//Componente para traer todos los ingresos en general (se esta usando en la vista del admin)
 export const TableAllIncomes = ({ onEdit, reload }: Props) => {
     const [error, setError] = useState<string | null>(null);
     const [incomes, setIncomes] = useState<IncomeRow[]>([]);
     const [loading, setLoading] = useState(true);
 
-
+    //Funcion para cargar los ingresos
     async function handleLoadIncomes(){
         setError(null);
         setLoading(true);
@@ -129,6 +132,7 @@ export const TableAllIncomes = ({ onEdit, reload }: Props) => {
         }
     }
 
+    //Controlador para eliminar un ingreso
     async function handleDeleteIncome(id: number){
         setError(null);
         setLoading(true);
@@ -155,20 +159,14 @@ export const TableAllIncomes = ({ onEdit, reload }: Props) => {
         }
     }
 
+    //Controlador para actualizar ingreso, se envia a la funcion del padre
     async function handleUpdateIncome(income: IncomeRow){
-        const incomeToUpdate : IncomesForm = {
-            amount: income.amount,
-            income_date: income.income_date,
-            description: income.description,
-        };
-
         onEdit(income)
     }
 
     useEffect(() => {
         handleLoadIncomes();
     }, [reload]);
-    
 
     return(
         <div>
@@ -179,35 +177,35 @@ export const TableAllIncomes = ({ onEdit, reload }: Props) => {
                 <p>No hay ingresos registrados.</p>
             ) : (
                 <table className="w-full border">
-                <thead>
-                    <tr>
-                    <th className="border p-2">Fecha</th>
-                    <th className="border p-2">Monto</th>
-                    <th className="border p-2">Descripción</th>
-                    <th className="border p-2">Creado en</th>
-                    <th className="border p-2">Actualizado en</th>
-                    <th className="border p-2">Eliminado en</th>
-                    <th className="border p-2">Usuario</th>
-                    <th className="border p-2">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {incomes.map((inc) => (
-                    <tr key={inc.id}>
-                        <td className="border p-2">{inc.income_date}</td>
-                        <td className="border p-2">{inc.amount}</td>
-                        <td className="border p-2">{inc.description ?? "-"}</td>
-                        <td className="border p-2">{inc.created_at}</td>
-                        <td className="border p-2">{inc.updated_at}</td>
-                        <td className="border p-2">{inc.deleted_at}</td>
-                        <td className="border p-2">{inc.user_name}</td>
-                        <td className="border p-2">
-                            <button className="bg-blue-500 text-white px-2 py-1 rounded mr-2" onClick={() => handleUpdateIncome(inc)}>Editar</button>
-                            <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => handleDeleteIncome(inc.id)}>Eliminar</button>
-                        </td>
-                    </tr>
-                    ))}
-                </tbody>
+                    <thead>
+                        <tr>
+                        <th className="border p-2">Fecha</th>
+                        <th className="border p-2">Monto</th>
+                        <th className="border p-2">Descripción</th>
+                        <th className="border p-2">Creado en</th>
+                        <th className="border p-2">Actualizado en</th>
+                        <th className="border p-2">Eliminado en</th>
+                        <th className="border p-2">Usuario</th>
+                        <th className="border p-2">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {incomes.map((inc) => (
+                        <tr key={inc.id}>
+                            <td className="border p-2">{inc.income_date}</td>
+                            <td className="border p-2">{inc.amount}</td>
+                            <td className="border p-2">{inc.description ?? "-"}</td>
+                            <td className="border p-2">{inc.created_at}</td>
+                            <td className="border p-2">{inc.updated_at}</td>
+                            <td className="border p-2">{inc.deleted_at}</td>
+                            <td className="border p-2">{inc.user_name}</td>
+                            <td className="border p-2">
+                                <button className="bg-blue-500 text-white px-2 py-1 rounded mr-2" onClick={() => handleUpdateIncome(inc)}>Editar</button>
+                                <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => handleDeleteIncome(inc.id)}>Eliminar</button>
+                            </td>
+                        </tr>
+                        ))}
+                    </tbody>
                 </table>
             )}
         </div>

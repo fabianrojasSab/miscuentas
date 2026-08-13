@@ -1,4 +1,4 @@
-import { Income } from "@/components/form_incomes";
+import { FormIncome } from "@/components/form_incomes";
 import { Header } from "@/components/header";
 import { TableIncomesByUser } from "@/components/table_incomes";
 import { useState } from "react";
@@ -115,7 +115,7 @@ export default function Incomes(){
         <div>
             <Header/>
             Registro de ingreso
-            <Income createIncome={handleSubmit} incomeToEdit={incomeToEdit} UpdateIncome={handleUpdateIncome}/>
+            <FormIncome createIncome={handleSubmit} incomeToEdit={incomeToEdit} UpdateIncome={handleUpdateIncome}/>
             {error && (
                 <p className="text-red-600 text-center">{error}</p>
             )}

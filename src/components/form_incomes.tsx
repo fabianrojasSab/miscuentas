@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "./buttons"
 import { Input } from "./ui/input"
 
@@ -26,13 +26,11 @@ type Props = {
     UpdateIncome: (income: IncomesForm) => void;
 };
 
-
-
-export const Income = ({ createIncome, incomeToEdit, UpdateIncome }: Props) =>{
+export const FormIncome = ({ createIncome, incomeToEdit, UpdateIncome }: Props) =>{
     const [error, setError] = useState<string | null>(null);
     const [income, setIncome] = useState<IncomesForm | null>(null);
 
-
+    //Funcion para crear o actualizar el ingreso
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         setError(null);
@@ -54,16 +52,6 @@ export const Income = ({ createIncome, incomeToEdit, UpdateIncome }: Props) =>{
         form.reset();
     }
 
-    useEffect(() => {
-        if (incomeToEdit) {
-            setIncome({
-                amount: incomeToEdit.amount,
-                income_date: incomeToEdit.income_date,
-                description: incomeToEdit.description ?? "",
-            });
-        }
-    }, [incomeToEdit]);
-
     return(
         <div>
             <form onSubmit={handleSubmit}>
@@ -72,7 +60,7 @@ export const Income = ({ createIncome, incomeToEdit, UpdateIncome }: Props) =>{
                     className="mb-4"
                     type="number"
                     name="amount"
-                    value={income?.amount ?? ""}
+                    value={incomeToEdit?.amount ?? income?.amount}
                     onChange={(e) =>
                         setIncome(prev => ({
                             ...prev!,
@@ -85,7 +73,7 @@ export const Income = ({ createIncome, incomeToEdit, UpdateIncome }: Props) =>{
                     className="mb-4"
                     type="text"
                     name="date"
-                    value={income?.income_date ?? ""}
+                    value={incomeToEdit?.income_date ?? income?.income_date}
                     onChange={(e) =>
                         setIncome(prev => ({
                             ...prev!,
@@ -98,7 +86,7 @@ export const Income = ({ createIncome, incomeToEdit, UpdateIncome }: Props) =>{
                     className="mb-4"
                     type="text"
                     name="description"
-                    value={income?.description ?? ""}
+                    value={incomeToEdit?.description ?? income?.description}
                     onChange={(e) =>
                         setIncome(prev => ({
                             ...prev!,
