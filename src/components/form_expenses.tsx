@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { Button } from "./buttons"
-import { Input } from "./ui/input"
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "./ui/select";
+import { Button } from "@/components/buttons"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type ExpensesForm = {
     expense_category_id: number;
@@ -45,10 +45,11 @@ export const FormExpenses = ({ createExpense, expenseToEdit, UpdateExpense }: Pr
     const [expenses, setExpenses] = useState<ExpensesForm | null>(null);
     const [categories, setCategories] = useState<CategoryRow[]>([]);
     const [category, setCategory] = useState("");
+    const [loading, setLoading] = useState<boolean>(false);
 
     async function handleLoadCategories(){
         setError(null);
-        // setLoading(true);
+        setLoading(true);
         try {
             const res = await fetch("/api/categories", {
                 method: "GET",
@@ -66,7 +67,7 @@ export const FormExpenses = ({ createExpense, expenseToEdit, UpdateExpense }: Pr
             console.log(err);
             setTimeout(() => setError(null), 5000);
         }finally {
-            // setLoading(false);
+            setLoading(false);
         }
     }
 
@@ -110,41 +111,32 @@ export const FormExpenses = ({ createExpense, expenseToEdit, UpdateExpense }: Pr
         <div>
             <form onSubmit={handleSubmit}>
                 <label>Categoria</label>
-                {/* <Input
-                    className="mb-4"
-                    type="number"
-                    name="expense_category_id"
-                    value={expenses?.expense_category_id ?? ""}
-                    onChange={(e) =>
-                        setExpenses(prev => ({
-                            ...prev!,
-                            expense_category_id: Number(e.target.value)
-                        }))
-                    }
-                /> */}
-                <Select
-                    name="expense_category_id"
-                    value={category}
-                    onValueChange={setCategory}
-                >
-                    <SelectTrigger>
-                        <SelectValue placeholder="Selecciona una Categoria" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectGroup>
-                        <SelectLabel>Categoria</SelectLabel>
-                        {categories.map((inc) => (
-                            <SelectItem
-                                key={inc.id}
-                                value={String(inc.id)}
-                            >
-                                {inc.name}
-                            </SelectItem>
-                        ))}
-                        </SelectGroup>
-                    </SelectContent>
-                </Select>
-
+                {loading ? (
+                    <p>Cargando...</p>
+                ) : (
+                    <Select
+                        name="expense_category_id"
+                        value={category}
+                        onValueChange={setCategory}
+                    >
+                        <SelectTrigger>
+                            <SelectValue placeholder="Selecciona una Categoria" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                            <SelectLabel>Categoria</SelectLabel>
+                            {categories.map((inc) => (
+                                <SelectItem
+                                    key={inc.id}
+                                    value={String(inc.id)}
+                                >
+                                    {inc.name}
+                                </SelectItem>
+                            ))}
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+                )}
                 <label>Nombre</label>
                 <Input
                     className="mb-4"

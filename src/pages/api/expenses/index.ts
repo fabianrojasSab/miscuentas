@@ -28,24 +28,24 @@ export default async function handler(
         switch (req.method) {
         case "POST": {
 
-            const { id, Expense} = req.body as {
+            const { id, expenses} = req.body as {
                 id: number,
-                Expense: ExpensesForm
+                expenses: ExpensesForm
             };
 
-            if (!id || !Expense) {
+            if (!id || !expenses) {
                 return res
                 .status(400)
-                .json({ error: "Faltan campos obligatorios" + id + Expense});
+                .json({ error: "Faltan campos obligatorios" + id + expenses});
             }
 
             const newData = {
                 userId: id,
-                name: Expense.name,
-                amount: Expense.amount,
-                date: Expense.income_date,
-                description: Expense.description ?? "",
-                category: Expense.expense_category_id,
+                name: expenses.name,
+                amount: expenses.amount,
+                date: expenses.income_date,
+                description: expenses.description ?? "",
+                category: expenses.expense_category_id,
             }
 
             const expenseResult = await createExpenses(newData);
@@ -91,18 +91,18 @@ export default async function handler(
             });
         }
         case "PUT": {
-            const { id, Expense } = req.body as {
+            const { id, expense } = req.body as {
                 id: number,
-                Expense: ExpensesForm
+                expense: ExpensesForm
             };
 
-            if (!id || !Expense ) {
+            if (!id || !expense ) {
                 return res
                 .status(400)
                 .json({ error: "Faltan campos obligatorios"});
             }
 
-            const expenseUpdated = await updateExpense(id, Expense);
+            const expenseUpdated = await updateExpense(id, expense);
 
             return res.status(200).json({
                 success: true,
@@ -112,15 +112,16 @@ export default async function handler(
         default:
             return res.status(405).json({ error: "Método no permitido" });
         }
-    } catch (err: any) {
-        if (err.code === "SQLLITE_ERROR") {
-            return res.status(500).json({ error: err.message });
+    } catch (err: unknown) {
+
+        if (err instanceof Error) {
+            return res.status(500).json({
+                error: err.message
+            });
         }
 
-        if (!err.code) {
-            return res.status(401).json({ error: err.message });
-        }
-
-        return res.status(500).json({ error: err.message });
+        return res.status(500).json({
+            error: "Ocurrió un error desconocido"
+        });
     }
 }
