@@ -1,11 +1,7 @@
-import { createIncomes, getAllIncomes, getAllIncomesByUser, deleteIncomes, updateIncomes } from "@/lib/db/queries/incomes";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { parse } from "cookie";
 import { getUserBySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
-import { get } from "http";
-import { createExpenses } from "@/lib/db/queries/expenses";
-import { createCategory, deleteCategory, getAllCategories, getAllCategoriesByUser, updateCategory } from "@/lib/db/queries/categories";
-import { getAllExpenseCategories } from "@/lib/db/queries/expense_categories";
+import { createCategory, deleteCategory, getAllCategories, updateCategory } from "@/lib/db/queries/categories";
 
 type CategoryForm = {
     name_category: string;
@@ -29,22 +25,20 @@ export default async function handler(
         switch (req.method) {
         case "POST": {
 
-            const { id, Category} = req.body as {
-                id: number,
-                Category: CategoryForm
+            const { category} = req.body as {
+                category: CategoryForm
             };
 
-            if (!id || !Category) {
+            if (!category) {
                 return res
                 .status(400)
-                .json({ error: "Faltan campos obligatorios" + id + Category});
+                .json({ error: "Datos invalidos"});
             }
 
             const newData = {
-                userId: id,
-                name: Category.name_category ?? "",
-                category_type: Category.category_type,
-                description: Category.description,
+                name: category.name_category ?? "",
+                category_type: category.category_type,
+                description: category.description,
             }
 
             const expenseResult = await createCategory(newData);
@@ -70,26 +64,26 @@ export default async function handler(
                 .json({ error: "Faltan campos obligatorios" + id });
             }
 
-            const categoryDelete = await deleteCategory(id);
+            const categoryDeleted = await deleteCategory(id);
 
             return res.status(200).json({
                 success: true,
-                id: categoryDelete.id
+                id: categoryDeleted.id
             });
         }
         case "PUT": {
-            const { id, Category } = req.body as {
+            const { id, category } = req.body as {
                 id: number,
-                Category: CategoryForm
+                category: CategoryForm
             };
 
-            if (!id || !Category ) {
+            if (!id || !category ) {
                 return res
                 .status(400)
                 .json({ error: "Faltan campos obligatorios"});
             }
 
-            const categoryUpdated = await updateCategory(id, Category);
+            const categoryUpdated = await updateCategory(id, category);
 
             return res.status(200).json({
                 success: true,
@@ -99,15 +93,16 @@ export default async function handler(
         default:
             return res.status(405).json({ error: "Método no permitido" });
         }
-    } catch (err: any) {
-        if (err.code === "SQLLITE_ERROR") {
-            return res.status(500).json({ error: err.message });
+    } catch (err: unknown) {
+
+        if (err instanceof Error) {
+            return res.status(500).json({
+                error: err.message
+            });
         }
 
-        if (!err.code) {
-            return res.status(401).json({ error: err.message });
-        }
-
-        return res.status(500).json({ error: err.message });
+        return res.status(500).json({
+            error: "Ocurrió un error desconocido"
+        });
     }
 }
