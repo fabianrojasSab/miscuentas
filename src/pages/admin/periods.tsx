@@ -12,7 +12,7 @@ type PeriodForm = {
 
 type PeriodRow = {
     id: number,
-    name_period: string,
+    name: string,
     description: string,
     period_type: number,
     year: number,
@@ -30,14 +30,14 @@ export default function Periods(){
     const [success, setSuccess] = useState<string | null>();
     const [reloadTable, setReloadTable] = useState(false);
 
+    //Funcion para crear un periodo
     async function handleCreatePeriod(period: PeriodForm){
-
         const res = await fetch("/api/me");
         const dataUser = await res.json();
 
         const body = {
             id: dataUser.user.id,
-            Period: period
+            period: period
         };
 
         try {
@@ -60,16 +60,16 @@ export default function Periods(){
             setSuccess(data.id);
             setTimeout(() => setSuccess(null), 5000);
         } catch (err) {
-            setError("Error al iniciar sesión. Por favor, inténtalo de nuevo.");
+            setError("Error al crear el periodo. Por favor, inténtalo de nuevo.");
             setTimeout(() => setError(null), 5000);
         }
     }
 
+    //Controlador para actualizar periodo
     async function handleUpdatePeriod(period: PeriodForm) {
-
         const body = {
             id: periodToEdit?.id,
-            Period: period
+            period: period
         };
 
         try {
@@ -92,7 +92,7 @@ export default function Periods(){
             setSuccess(data.id);
             setTimeout(() => setSuccess(null), 5000);
         } catch (err) {
-            setError("Error al iniciar sesión. Por favor, inténtalo de nuevo.");
+            setError("Error al actualizar el periodo. Por favor, inténtalo de nuevo.");
             setTimeout(() => setError(null), 5000);
         }
     }

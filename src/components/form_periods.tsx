@@ -41,6 +41,7 @@ export const FormPeriods = ({createPeriod, periodToEdit, UpdatePeriod}: props) =
     const [error, setError] = useState<string | null>();
     const [loading, setLoading] =useState<boolean>(false);
 
+    //Funcion para obtener todos los periodos anuales
     async function handleGetPeriodsYearly() {
         setError(null);
         setLoading(true);
@@ -58,7 +59,7 @@ export const FormPeriods = ({createPeriod, periodToEdit, UpdatePeriod}: props) =
 
             setPeriodsYearly(data.periodsyearly ?? []);
         } catch (err) {
-            setError("!Informacion de ingresos vacia¡");
+            setError("!Informacion de periodos vacia¡");
             console.log(err);
             setTimeout(() => setError(null), 5000);
         }finally {
@@ -66,6 +67,7 @@ export const FormPeriods = ({createPeriod, periodToEdit, UpdatePeriod}: props) =
         }
     }
 
+    //Controlador para crear o actualizar el periodo
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         setError(null);
@@ -184,7 +186,7 @@ export const FormPeriods = ({createPeriod, periodToEdit, UpdatePeriod}: props) =
                             <SelectContent>
                                 {periodsYearly.map( period =>{
                                     return(
-                                        <SelectItem value={String(period.year)}>
+                                        <SelectItem value={String(period.year)} key={period.id}>
                                             {period.year}
                                         </SelectItem>
                                     )})

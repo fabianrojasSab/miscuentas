@@ -33,18 +33,18 @@ export default async function handler(
         switch (req.method) {
         case "POST": {
 
-            const { id, Period } = req.body as {
+            const { id, period } = req.body as {
                 id: number;
-                Period: PeriodForm;
+                period: PeriodForm;
             };
 
-            if (!id || !Period) {
+            if (!id || !period) {
                 return res.status(400).json({
                     error: "Faltan campos obligatorios"
                 });
             }
 
-            const periodType = Number(Period.period_type);
+            const periodType = Number(period.period_type);
 
             if (!Object.values(PeriodType).includes(periodType)) {
                 return res.status(400).json({
@@ -60,53 +60,53 @@ export default async function handler(
             switch (periodType) {
 
                 case PeriodType.YEARLY:
-                    if (!Period.period_value) {
+                    if (!period.period_value) {
                         return res.status(400).json({
                             error: "El año es obligatorio"
                         });
                     }
 
-                    year = Period.period_value;
+                    year = period.period_value;
                     break;
 
                 case PeriodType.MONTHLY:
-                    if (!Period.period_value || !Period.period_value) {
+                    if (!period.period_value || !period.period_value) {
                         return res.status(400).json({
                             error: "El año y el mes son obligatorios"
                         });
                     }
 
-                    year = Period.year;
-                    month = Period.period_value;
+                    year = period.year;
+                    month = period.period_value;
                     break;
 
                 case PeriodType.WEEKLY:
-                    if (!Period.period_value || !Period.period_value) {
+                    if (!period.period_value || !period.period_value) {
                         return res.status(400).json({
                             error: "El año y la semana son obligatorios"
                         });
                     }
 
-                    year = Period.period_value;
-                    week = Period.period_value;
+                    year = period.period_value;
+                    week = period.period_value;
                     break;
 
                 case PeriodType.DAILY:
-                    if (!Period.period_value || !Period.period_value || !Period.period_value) {
+                    if (!period.period_value || !period.period_value || !period.period_value) {
                         return res.status(400).json({
                             error: "El año, mes y día son obligatorios"
                         });
                     }
 
-                    year = Period.period_value;
-                    month = Period.period_value;
-                    day = Period.period_value;
+                    year = period.period_value;
+                    month = period.period_value;
+                    day = period.period_value;
                     break;
             }
 
             const newData = {
-                name: Period.name_period,
-                description: Period.description,
+                name: period.name_period,
+                description: period.description,
                 period_type: periodType,
                 year: year,
                 month: month,
@@ -169,18 +169,18 @@ export default async function handler(
             });
         }
         case "PUT": {
-            const { id, Period } = req.body as {
+            const { id, period } = req.body as {
                 id: number,
-                Period: PeriodForm
+                period: PeriodForm
             };
 
-            if (!id || !Period ) {
+            if (!id || !period ) {
                 return res
                 .status(400)
                 .json({ error: "Faltan campos obligatorios"});
             }
 
-            const periodType = Number(Period.period_type);
+            const periodType = Number(period.period_type);
 
             if (!Object.values(PeriodType).includes(periodType)) {
                 return res.status(400).json({
@@ -196,53 +196,53 @@ export default async function handler(
             switch (periodType) {
 
                 case PeriodType.YEARLY:
-                    if (!Period.period_value) {
+                    if (!period.period_value) {
                         return res.status(400).json({
                             error: "El año es obligatorio"
                         });
                     }
 
-                    year = Period.period_value;
+                    year = period.period_value;
                     break;
 
                 case PeriodType.MONTHLY:
-                    if (!Period.period_value || !Period.period_value) {
+                    if (!period.period_value || !period.period_value) {
                         return res.status(400).json({
                             error: "El año y el mes son obligatorios"
                         });
                     }
 
-                    year = Period.period_value;
-                    month = Period.period_value;
+                    year = period.period_value;
+                    month = period.period_value;
                     break;
 
                 case PeriodType.WEEKLY:
-                    if (!Period.period_value || !Period.period_value) {
+                    if (!period.period_value || !period.period_value) {
                         return res.status(400).json({
                             error: "El año y la semana son obligatorios"
                         });
                     }
 
-                    year = Period.period_value;
-                    week = Period.period_value;
+                    year = period.period_value;
+                    week = period.period_value;
                     break;
 
                 case PeriodType.DAILY:
-                    if (!Period.period_value || !Period.period_value || !Period.period_value) {
+                    if (!period.period_value || !period.period_value || !period.period_value) {
                         return res.status(400).json({
                             error: "El año, mes y día son obligatorios"
                         });
                     }
 
-                    year = Period.period_value;
-                    month = Period.period_value;
-                    day = Period.period_value;
+                    year = period.period_value;
+                    month = period.period_value;
+                    day = period.period_value;
                     break;
             }
 
             const updateData = {
-                name: Period.name_period,
-                description: Period.description,
+                name: period.name_period,
+                description: period.description,
                 period_type: periodType,
                 year: year,
                 month: month,
