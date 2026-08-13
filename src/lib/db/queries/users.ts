@@ -61,8 +61,11 @@ export async function updateUserById(
 
 export async function getAllUsers(): Promise<DbUserRow[]> {
     const db = getDb();
-
+    let began = false;
+    
     try {
+        await runAsync(db, "BEGIN");
+        began = true;
         const allUsersResult = await allAsync<DbUserRow>(
             db,
             `SELECT id,
@@ -83,15 +86,20 @@ export async function getAllUsers(): Promise<DbUserRow[]> {
         );
 
         return allUsersResult;
-    }finally {
-        db.close();
-    }   
+    }catch (e) {
+        if (began) await runAsync(db, "ROLLBACK");
+        throw e;
+    }
 }
 
 export async function getUserByEmail(email: string): Promise<DbUserRow> {
     const db = getDb();
-
+    let began = false;
+    
     try {
+        await runAsync(db, "BEGIN");
+        began = true;
+
         const userResult = await getAsync<DbUserRow>(
             db,
             `SELECT id, 
@@ -119,15 +127,20 @@ export async function getUserByEmail(email: string): Promise<DbUserRow> {
         }
 
         return userResult;
-    }finally {
-        db.close();
-    }  
+    }catch (e) {
+        if (began) await runAsync(db, "ROLLBACK");
+        throw e;
+    }
 }
 
 export async function getUserById(id: number): Promise<DbUserRow> {
     const db = getDb();
-
+    let began = false;
+    
     try {
+        await runAsync(db, "BEGIN");
+        began = true;
+
         const userResult = await getAsync<DbUserRow>(
             db,
             `SELECT id, 
@@ -155,9 +168,10 @@ export async function getUserById(id: number): Promise<DbUserRow> {
         }
 
         return userResult;
-    }finally {
-        db.close();
-    }  
+    }catch (e) {
+        if (began) await runAsync(db, "ROLLBACK");
+        throw e;
+    }
 }
 
 export async function createUser({
@@ -186,9 +200,7 @@ export async function createUser({
     }catch (e) {
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
-    } finally {
-        db.close();
-    }   
+    }
 }
 
 export async function login({
@@ -197,7 +209,6 @@ export async function login({
 }: UserLogin): Promise<{ id: number; name: string, sw_admin: number, token: string, expiresAt: string, needsOnboarding: boolean }> {
     const db = getDb();
 
-    try {
         const userResult = await getAsync<DbUserRow>(
             db,
             `SELECT id, name, password, sw_admin, onboarding_completed_at
@@ -230,7 +241,4 @@ export async function login({
             expiresAt: expiresAt,
             needsOnboarding: needsOnboarding
         });
-    }finally {
-        db.close();
-    }   
 }

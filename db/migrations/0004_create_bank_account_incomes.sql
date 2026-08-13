@@ -1,5 +1,5 @@
 CREATE TABLE bank_account_incomes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     bank_account_id INTEGER,
     income_id INTEGER,
     created_at TEXT,

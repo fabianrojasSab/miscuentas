@@ -1,9 +1,7 @@
-PRAGMA foreign_keys = ON;
-
 CREATE TABLE users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INT AUTO_INCREMENT  PRIMARY KEY,
     name TEXT NOT NULL,
-    email TEXT NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
     email_verified_at TEXT,
     password TEXT NOT NULL,
     two_factor_secret TEXT,

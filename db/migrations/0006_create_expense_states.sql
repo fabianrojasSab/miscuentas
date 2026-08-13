@@ -1,5 +1,5 @@
 CREATE TABLE expense_states (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     name TEXT NOT NULL,
     description TEXT
 );

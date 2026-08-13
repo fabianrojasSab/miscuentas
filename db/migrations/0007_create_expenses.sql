@@ -1,5 +1,5 @@
 CREATE TABLE expenses (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INTEGER NOT NULL,
     expense_category_id INTEGER,
     name TEXT NOT NULL,

@@ -1,5 +1,5 @@
 CREATE TABLE expense_categories (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     name TEXT NOT NULL,
     category_type INTEGER NOT NULL
         CHECK (category_type IN (1,2,3)),

@@ -1,7 +1,7 @@
 CREATE TABLE bank_accounts (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INTEGER NOT NULL,
-    account_number TEXT NOT NULL UNIQUE,
+    account_number VARCHAR(255) NOT NULL UNIQUE,
     account_type INTEGER NOT NULL,
     bank_name TEXT NOT NULL,
     account_balance REAL NOT NULL DEFAULT 0.00,

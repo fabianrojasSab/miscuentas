@@ -60,7 +60,7 @@ export async function createSession(userId: number) {
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
-        db.close();
+        // db.end();
     }   
 }
 
@@ -71,7 +71,7 @@ export async function deleteSessionByToken(token: string) {
     try {
         await runAsync(db, `DELETE FROM sessions WHERE token_hash = ?`, [tokenHash]);
     }finally {
-        db.close();
+        // db.end();
     }  
 }
 
@@ -104,6 +104,6 @@ export async function getUserBySessionToken(token: string) {
             needsOnboarding
         };
     }finally {
-        db.close();
+        // db.end();
     }   
 }
