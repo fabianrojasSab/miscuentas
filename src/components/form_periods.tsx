@@ -1,18 +1,19 @@
 import { useState } from "react"
-import { Button } from "./buttons"
-import { Input } from "./ui/input"
+import { Button } from "@/components/buttons"
+import { Input } from "@/components/ui/input"
 import { PeriodType } from "@/emuns/PeriodType"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 //QUEDA PENDIENTE QUE SE LE ASIGNE EL ID PADRE CUANDO SE CREA EL MES, LAS SEMANAS Y LOS DIAS
 type PeriodForm = {
     name_period: string,
     description: string,
     period_type: number,
     period_value: number,
-    year: number,
-    month: number,
-    week: number,
-    day: number,
+    year: number | null,
+    month: number | null,
+    week: number | null,
+    day: number | null,
+    parent_id: number | null,
 }
 
 type PeriodRow = {
@@ -37,7 +38,7 @@ type props = {
 
 export const FormPeriods = ({createPeriod, periodToEdit, UpdatePeriod}: props) =>{
     const [period, setPeriod] = useState<PeriodForm | null>();
-    const [periodsYearly, setPeriodsYearly] = useState<PeriodForm [] | null>();
+    const [periodsYearly, setPeriodsYearly] = useState<PeriodRow [] | null>();
     const [error, setError] = useState<string | null>();
     const [loading, setLoading] =useState<boolean>(false);
 
@@ -79,10 +80,11 @@ export const FormPeriods = ({createPeriod, periodToEdit, UpdatePeriod}: props) =
             description: form.description.value,
             period_type: form.period_type.value,
             period_value: form.period_value.value,
-            year: form.year?.value ?? "",
-            // month: number,
-            // week: number,
-            // day: number,
+            year: form.year?.value ?? null,
+            month: form.month?.value ?? null,
+            week: form.week?.value ?? null,
+            day: form.day?.value ?? null,
+            parent_id: period?.parent_id ?? null,
         };
 
         if (periodToEdit) {
@@ -90,8 +92,7 @@ export const FormPeriods = ({createPeriod, periodToEdit, UpdatePeriod}: props) =
         } else {
             createPeriod(body);
         }
-        
-        form.reset();
+        setPeriod(null);
     }
 
     return(
@@ -172,12 +173,19 @@ export const FormPeriods = ({createPeriod, periodToEdit, UpdatePeriod}: props) =
                                     ? String(period.year)
                                     : ""
                             }
-                            onValueChange={(value) =>
+                            onValueChange={(value) => {
+                                const selectedPeriod = periodsYearly.find(
+                                    (item) => String(item.year) === value
+                                );
+
+                                if (!selectedPeriod) return;
+
                                 setPeriod(prev => ({
                                     ...prev!,
-                                    year: Number(value)
-                                }))
-                            }
+                                    parent_id: selectedPeriod.id,
+                                    year: selectedPeriod.year,
+                                }));
+                            }}
                         >
                             <SelectTrigger>
                                 <SelectValue placeholder="Selecciona un tipo" />
@@ -215,7 +223,6 @@ export const FormPeriods = ({createPeriod, periodToEdit, UpdatePeriod}: props) =
                 <Button type="submit">
                     {periodToEdit ? "Actualizar periodo" : "Crear periodo"}
                 </Button>
-                
             </form>
         </div>
     )

@@ -1,17 +1,14 @@
 import { allAsync, getAsync, getDb, runAsync } from "../index";
 
 type BdNewPeriodRow = {
-    id: number,
     name: string,
     description: string,
     period_type: number,
-    year: number,
-    month: number,
-    week: number,
-    day: number,
-    parent_id: number,
-    created_at: string,
-    updated_at: string,
+    year: number | null,
+    month: number | null,
+    week: number | null,
+    day: number | null,
+    parent_id: number | null,
 }
 
 type DbPeriodRow = {
@@ -32,10 +29,10 @@ type DbUpdateIncomeRow = {
     name: string,
     description: string,
     period_type: number,
-    year: number,
-    month: number,
-    week: number,
-    day: number,
+    year: number | null,
+    month: number | null,
+    week: number | null,
+    day: number | null,
 }
 
 export async function createPeriod({
@@ -46,6 +43,7 @@ export async function createPeriod({
     month,
     week,
     day,
+    parent_id,
 }: BdNewPeriodRow): Promise<{id: number}> {
     const db = getDb();
     const isNow = () => new Date().toISOString();
@@ -57,9 +55,9 @@ export async function createPeriod({
 
         const period = await runAsync(
             db,
-            `INSERT INTO periods (name, description, period_type, year, month, week, day, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [name, description, period_type, year, month, week, day, isNow()],
+            `INSERT INTO periods (name, description, period_type, parent_id, year, month, week, day, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [name, description, period_type, parent_id, year, month, week, day, isNow()],
         );
         await runAsync(db, "COMMIT");
         

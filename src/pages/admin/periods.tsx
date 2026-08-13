@@ -8,7 +8,13 @@ type PeriodForm = {
     description: string,
     period_type: number,
     period_value: number,
+    year: number | null,
+    month: number | null,
+    week: number | null,
+    day: number | null,
+    parent_id: number | null,
 }
+
 
 type PeriodRow = {
     id: number,
@@ -32,11 +38,7 @@ export default function Periods(){
 
     //Funcion para crear un periodo
     async function handleCreatePeriod(period: PeriodForm){
-        const res = await fetch("/api/me");
-        const dataUser = await res.json();
-
         const body = {
-            id: dataUser.user.id,
             period: period
         };
 
@@ -106,7 +108,7 @@ export default function Periods(){
                 <p className="text-red-600 text-center">{error}</p>
             )}
             {success && (
-                <p className="text-green-600 text-center">Ingreso con ID {success} registrado</p>
+                <p className="text-green-600 text-center">Periodo con ID {success} registrado</p>
             )}
             <br />
             <TableAllPeriods onEdit={setPeriodToEdit} reload={reloadTable}/>

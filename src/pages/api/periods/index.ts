@@ -1,8 +1,6 @@
-import { createIncomes, getAllIncomes, getAllIncomesByUser, deleteIncomes, updateIncomes } from "@/lib/db/queries/incomes";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { parse } from "cookie";
 import { getUserBySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
-import { get } from "http";
 import { PeriodType } from "@/emuns/PeriodType";
 import { createPeriod, deletePeriod, getAllPeriods, getPeriodByMonth, getPeriodByYear, getPeriodsYearly, updatePeriod } from "@/lib/db/queries/periods";
 
@@ -11,10 +9,11 @@ type PeriodForm = {
     description: string,
     period_type: number,
     period_value: number,
-    year: number,
-    month: number,
-    week: number,
-    day: number,
+    year: number | null,
+    month: number | null,
+    week: number | null,
+    day: number | null,
+    parent_id: number | null,
 }
 
 export default async function handler(
@@ -33,12 +32,11 @@ export default async function handler(
         switch (req.method) {
         case "POST": {
 
-            const { id, period } = req.body as {
-                id: number;
+            const { period } = req.body as {
                 period: PeriodForm;
             };
 
-            if (!id || !period) {
+            if (!period) {
                 return res.status(400).json({
                     error: "Faltan campos obligatorios"
                 });
@@ -112,6 +110,7 @@ export default async function handler(
                 month: month,
                 week: week,
                 day: day,
+                parent_id: period.parent_id,
             };
 
             const periodResult = await createPeriod(newData);
@@ -248,6 +247,7 @@ export default async function handler(
                 month: month,
                 week: week,
                 day: day,
+                parent_id: period.parent_id,
             };
 
             const periodUpdated = await updatePeriod(id, updateData);
