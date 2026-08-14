@@ -17,11 +17,22 @@ type BankAccountForm = {
     bank: string;
 };
 
-type Props = {
-    onChange: (account: BankAccountForm) => void;
+type BankAccountRow = {
+    id: number,
+    user_id: number,
+    account_number: string,
+    account_type: number,
+    bank_name: string,
+    account_balance: string,
 };
 
-export const BankAccounts = ({ onChange }: Props) =>{
+type Props = {
+    createBankAccount: (account: BankAccountForm) => void;
+    bankAccontToEdit: BankAccountRow | null;
+    UpdateBankAccount: (account: BankAccountForm) => void;
+};
+
+export const BankAccounts = ({createBankAccount, bankAccontToEdit, UpdateBankAccount }: Props) =>{
     const [error, setError] = useState<string | null>(null);
 
 
@@ -37,7 +48,11 @@ export const BankAccounts = ({ onChange }: Props) =>{
             bank: form.bank.value,
         };
 
-        onChange(body)
+        if(bankAccontToEdit) {
+            UpdateBankAccount(body)
+        }else{
+            createBankAccount(body)
+        }
     }
 
     return(

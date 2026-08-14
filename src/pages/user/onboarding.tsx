@@ -94,6 +94,39 @@ export default function OnBoarding(){
         }
     }
 
+    async function handleCreatebankAccount(bankAccount: OnboardingData["bankAccount"]) {
+       const res = await fetch("/api/me");
+        const dataUser = await res.json();
+
+        const body = {
+            id: dataUser.user.id,
+            bankAccount: bankAccount
+        };   
+
+        try {
+            const res = await fetch("/api/bankAccount", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(body),
+            });
+            const data = await res.json();
+
+
+            if (!res.ok) {
+                setError(data.error);
+                return;
+            }
+
+            setData((prev) => ({ ...prev, bankAccount: data.bankAccount }));
+
+        } catch (err) {
+            setError("Error al iniciar sesión. Por favor, inténtalo de nuevo.");
+            setTimeout(() => setError(null), 5000);
+        }
+    }
+
    async function handleCreateIncome(income: OnboardingData["income"]) {
 
         const res = await fetch("/api/me");
@@ -120,6 +153,8 @@ export default function OnBoarding(){
                 return;
             }
 
+            setData((prev) => ({ ...prev, income: data.income }));
+
         } catch (err) {
             setError("Error al iniciar sesión. Por favor, inténtalo de nuevo.");
             setTimeout(() => setError(null), 5000);
@@ -141,7 +176,7 @@ export default function OnBoarding(){
             {data.bankAccount === null ? (
                 <BankAccounts onChange={updateBankAccount} />
             ) : data.income === null ? (
-                <FormIncome createIncome={handleCreateIncome} incomeToEdit={incomeToEdit} UpdateIncome={updateIncome}/>
+                <FormIncome createIncome={handleCreateIncome} incomeToEdit={data.income} UpdateIncome={updateIncome}/>
             ) : (
                 <div>
                     <form onSubmit={handleSubmit}>
