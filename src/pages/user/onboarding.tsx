@@ -101,7 +101,7 @@ export default function OnBoarding(){
 
         const body = {
             id: dataUser.user.id,
-            Income: income
+            income: income
         };
 
         try {
