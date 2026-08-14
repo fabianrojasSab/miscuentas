@@ -21,6 +21,6 @@ export async function getAllExpenseCategories(): Promise<DbCategoryRow[]> {
 
         return categoriesResult;
     }finally {
-        db.close();
+        //db.close();
     }  
 }

@@ -54,6 +54,6 @@ export async function createConfigInit({
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
-        db.close();
+        //db.close();
     }        
 }

@@ -39,7 +39,7 @@ export async function createCategory({
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
-        db.close();
+        //db.close();
     }  
 }
 
@@ -62,7 +62,7 @@ export async function getAllCategoriesByUser(id: number): Promise<BdNewCategoryR
 
         return allCategoriesResult;
     }finally {
-        db.close();
+        //db.close();
     }   
 }
 
@@ -83,7 +83,7 @@ export async function getAllCategories(): Promise<BdNewCategoryRow[]> {
 
         return allCategoriesResult;
     }finally {
-        db.close();
+        //db.close();
     }   
 }
 
@@ -110,7 +110,7 @@ export async function deleteCategory(id: number): Promise<{ id: number }> {
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
-        db.close();
+        //db.close();
     }  
 }
 
@@ -140,6 +140,6 @@ export async function updateCategory(id: number, data: DbUpdateCategoryRow): Pro
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
-        db.close();
+        //db.close();
     }  
 }

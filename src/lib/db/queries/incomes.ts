@@ -51,7 +51,7 @@ export async function createIncomes({
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
-        db.close();
+        //db.close();
     }  
 }
 
@@ -80,7 +80,7 @@ export async function getAllIncomesByUser(id: number): Promise<DbIncomeRow[]> {
 
         return allIncomesResult;
     }finally {
-        db.close();
+        //db.close();
     }   
 }
 
@@ -103,7 +103,7 @@ export async function getAllIncomes(): Promise<DbIncomeRow[]> {
 
         return allIncomesResult;
     }finally {
-        db.close();
+        //db.close();
     }   
 }
 
@@ -131,7 +131,7 @@ export async function deleteIncomes(id: number): Promise<{ id: number }> {
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
-        db.close();
+        //db.close();
     }  
 }
 
@@ -161,6 +161,6 @@ export async function updateIncomes(id: number, data: DbUpdateIncomeRow): Promis
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
-        db.close();
+        //db.close();
     }  
 }

@@ -34,6 +34,6 @@ export async function createBankAccount({
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
-        db.close();
+        //db.close();
     }  
 }

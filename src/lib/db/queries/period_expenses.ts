@@ -71,7 +71,7 @@ export async function createPeriodExpenses(periodExpenses: BdNewPeriodExpenseRow
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
-        db.close();
+        //db.close();
     }  
 }
 
@@ -105,7 +105,7 @@ export async function getPeriodExpensesByUser(id: number): Promise<BdPeriodExpen
 
         return allExpensesResult;
     }finally {
-        db.close();
+        //db.close();
     }   
 }
 
@@ -135,6 +135,6 @@ export async function updatePeriodExpense(id: number, data: DbUpdatePeriodExpens
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
-        db.close();
+        //db.close();
     }  
 }

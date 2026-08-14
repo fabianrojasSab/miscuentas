@@ -47,16 +47,28 @@ export async function updateUserById(
         setClauses.push(`${field} = ?`);
         values.push(value);
     }
-    values.push(id); // Para la cláusula WHERE
+    // values.push(id); // Para la cláusula WHERE
 
-    const sql = `UPDATE users SET ${setClauses.join(", ")}, updated_at = ? WHERE id = ?`;
-    values.splice(values.length - 1, 0, new Date().toISOString()); // Insertar updated_at antes del id
-    return new Promise((resolve, reject) => {
-        db.run(sql, values, function (err) {
-        if (err) return reject(err);
-        resolve();
-        });
-    });
+    // const sql = `UPDATE users SET ${setClauses.join(", ")}, updated_at = ? WHERE id = ?`;
+    const updatedResult = await allAsync<DbUserRow>(
+        db,
+        `UPDATE users SET
+            ${setClauses.join(", ")},
+            updated_at = ?
+        WHERE id = ?`,
+        [fieldsToUpdate.name, fieldsToUpdate.email, fieldsToUpdate.password, fieldsToUpdate.sw_admin, id]
+    );
+
+    await runAsync(db, "COMMIT");
+
+
+    // values.splice(values.length - 1, 0, new Date().toISOString()); // Insertar updated_at antes del id
+    // return new Promise((resolve, reject) => {
+    //     db.run(sql, values, function (err) {
+    //     if (err) return reject(err);
+    //     resolve();
+    //     });
+    // });
 }
 
 export async function getAllUsers(): Promise<DbUserRow[]> {

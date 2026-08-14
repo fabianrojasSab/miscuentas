@@ -66,7 +66,7 @@ export async function createPeriod({
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
-        db.close();
+        //db.close();
     }  
 }
 
@@ -87,7 +87,7 @@ export async function getAllPeriods(): Promise<DbPeriodRow[]> {
 
         return allPeriodsResult;
     }finally {
-        db.close();
+        //db.close();
     }   
 }
 
@@ -110,7 +110,7 @@ export async function getPeriodByYear(year: number): Promise<DbPeriodRow> {
 
         return periodsResult;
     }finally {
-        db.close();
+        //db.close();
     }   
 }
 
@@ -133,7 +133,7 @@ export async function getPeriodByMonth(month: number, year: number): Promise<DbP
 
         return periodsResult;
     }finally {
-        db.close();
+        //db.close();
     }   
 }
 
@@ -160,7 +160,7 @@ export async function deletePeriod(id: number): Promise<{ id: number }> {
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
-        db.close();
+        //db.close();
     }  
 }
 
@@ -197,7 +197,7 @@ export async function updatePeriod(id: number, data: DbUpdateIncomeRow): Promise
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
-        db.close();
+        //db.close();
     }  
 }
 
@@ -219,6 +219,6 @@ export async function getPeriodsYearly(): Promise<DbPeriodRow[]> {
 
         return periodsResult;
     }finally {
-        db.close();
+        //db.close();
     }   
 }

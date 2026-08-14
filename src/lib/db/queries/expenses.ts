@@ -57,7 +57,7 @@ export async function createExpenses({
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
-        db.close();
+        //db.close();
     }  
 }
 
@@ -80,7 +80,7 @@ export async function getAllExpensesByUser(id: number): Promise<BdNewExpenseRow[
 
         return allExpensesResult;
     }finally {
-        db.close();
+        //db.close();
     }   
 }
 
@@ -110,7 +110,7 @@ export async function getExpensesByUser(id: number): Promise<BdExpenseRow[]> {
 
         return allExpensesResult;
     }finally {
-        db.close();
+        //db.close();
     }   
 }
 
@@ -133,7 +133,7 @@ export async function getAllExpenses(): Promise<BdNewExpenseRow[]> {
 
         return allExpensesResult;
     }finally {
-        db.close();
+        //db.close();
     }   
 }
 
@@ -160,7 +160,7 @@ export async function deleteExpense(id: number): Promise<{ id: number }> {
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
-        db.close();
+        //db.close();
     }  
 }
 
@@ -190,6 +190,6 @@ export async function updateExpense(id: number, data: DbUpdateExpenseRow): Promi
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
-        db.close();
+        //db.close();
     }  
 }
