@@ -55,8 +55,8 @@ export async function createPeriod({
 
         const period = await runAsync(
             db,
-            `INSERT INTO periods (name, description, period_type, parent_id, year, month, week, day, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO periods (name, description, period_type, parent_id, year, month, week, day, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [name, description, period_type, parent_id, year, month, week, day, isNow()],
         );
         await runAsync(db, "COMMIT");
