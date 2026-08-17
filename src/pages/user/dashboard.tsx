@@ -52,10 +52,15 @@ export default function Dasboard () {
     const [reloadTable, setReloadTable] = useState(false);
     const [periodExpenses, setPeriodExpenses] = useState<BdPeriodExpensesRow[]>([]);
 
-    function getTotalPeriodExpenses(periodExpenses: BdPeriodExpensesRow[]): number {
-        return periodExpenses.reduce((total, expense) => {
-            return total + Number(expense.amount);
-        }, 0);
+    //Funcion para calcular el total a pagar de los gastos del periodo
+    function getTotalPeriodExpenses(
+        periodExpenses: BdPeriodExpensesRow[]
+    ): number {
+        return periodExpenses
+            .filter((expense) => expense.state === "Pendiente")
+            .reduce((total, expense) => {
+                return total + Number(expense.amount);
+            }, 0);
     }
 
     function getCategoryTypeLabel(type: ExpenseCategoryType): string {
