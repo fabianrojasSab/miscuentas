@@ -176,7 +176,7 @@ export async function updateExpense(id: number, data: DbUpdateExpenseRow): Promi
         const updateResult = await runAsync(
             db,
             `UPDATE expenses SET
-            (expense_category_id, name, description, expense_date, amount, updated_at) = (?, ?, ?, ?, ?, ?)
+            expense_category_id = ?, name = ?, description = ?, expense_date = ?, amount = ?, updated_at = ?
             WHERE id = ?`,
             [data.expense_category_id, data.name, data.description, data.expense_date, data.amount, isNow(), id],
         );

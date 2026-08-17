@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/buttons"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -51,6 +51,16 @@ export const FormCategory = ({ createCategory, categoryToEdit, UpdateCategory }:
         setCategory(null); //limpia el formulario
     }
 
+    useEffect(() => {
+        if (categoryToEdit) {
+            setCategory({
+                name_category: categoryToEdit.name,
+                category_type: categoryToEdit.category_type,
+                description: categoryToEdit.description,
+            });
+        }
+    }, [categoryToEdit]);
+
     return(
         <div>
             <form onSubmit={handleSubmit}>
@@ -59,7 +69,7 @@ export const FormCategory = ({ createCategory, categoryToEdit, UpdateCategory }:
                     className="mb-4"
                     type="text"
                     name="name_category"
-                    value={categoryToEdit?.name ?? category?.name_category}
+                    value={category?.name_category ?? ""}
                     onChange={(e) =>
                         setCategory(prev => ({
                             ...prev!,
@@ -70,11 +80,11 @@ export const FormCategory = ({ createCategory, categoryToEdit, UpdateCategory }:
                 <label>Tipo de categoria</label>
                 <Select
                     name="category_type"
-                    value={String(
-                        categoryToEdit?.category_type ??
-                        category?.category_type ??
-                        ""
-                    )}
+                    value={
+                        category?.category_type != null
+                        ? String(category?.category_type)
+                        : ""
+                    }
                     onValueChange={(value) =>
                         setCategory(prev => ({
                             ...prev!,
@@ -101,7 +111,7 @@ export const FormCategory = ({ createCategory, categoryToEdit, UpdateCategory }:
                     className="mb-4"
                     type="text"
                     name="description"
-                    value={categoryToEdit?.description ?? category?.description}
+                    value={category?.description ?? ""}
                     onChange={(e) =>
                         setCategory(prev => ({
                             ...prev!,

@@ -175,15 +175,15 @@ export async function updatePeriod(id: number, data: DbUpdateIncomeRow): Promise
 
         const updateResult = await runAsync(
             db,
-            `UPDATE periods SET (
-            name,
-            description,
-            period_type,
-            year,
-            month,
-            week,
-            day,
-            updated_at) = (?, ?, ?, ?, ?, ?, ?, ?)
+            `UPDATE periods SET
+            name = ?,
+            description = ?,
+            period_type = ?,
+            year = ?,
+            month = ?,
+            week = ?,
+            day = ?,
+            updated_at = ?
             WHERE id = ?`,
             [data.name, data.description, data.period_type, data.year, data.month, data.week, data.day, isNow(), id],
         );

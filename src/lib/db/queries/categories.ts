@@ -126,7 +126,7 @@ export async function updateCategory(id: number, data: DbUpdateCategoryRow): Pro
         const updateResult = await runAsync(
             db,
             `UPDATE expense_categories SET
-            (name, category_type, description, updated_at) = (?, ?, ?, ?)
+            name = ?, category_type = ?, description = ?, updated_at = ?
             WHERE id = ?`,
             [data.name_category, data.category_type, data.description,  isNow(), id],
         );

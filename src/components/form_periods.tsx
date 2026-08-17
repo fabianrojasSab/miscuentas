@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/buttons"
 import { Input } from "@/components/ui/input"
 import { PeriodType } from "@/emuns/PeriodType"
@@ -94,6 +94,43 @@ export const FormPeriods = ({createPeriod, periodToEdit, UpdatePeriod}: props) =
         }
         setPeriod(null);
     }
+
+    useEffect(() => {
+        if (!periodToEdit) return;
+
+        let periodValue = 0;
+
+        switch (periodToEdit.period_type) {
+            case PeriodType.YEARLY:
+                periodValue = periodToEdit.year ?? 0;
+                break;
+
+            case PeriodType.MONTHLY:
+                periodValue = periodToEdit.month ?? 0;
+                break;
+
+            case PeriodType.WEEKLY:
+                periodValue = periodToEdit.week ?? 0;
+                break;
+
+            case PeriodType.DAILY:
+                periodValue = periodToEdit.day ?? 0;
+                break;
+        }
+
+        setPeriod({
+            name_period: periodToEdit.name,
+            description: periodToEdit.description ?? "",
+            period_type: periodToEdit.period_type,
+            period_value: periodValue,
+            year: periodToEdit.year,
+            month: periodToEdit.month,
+            week: periodToEdit.week,
+            day: periodToEdit.day,
+            parent_id: periodToEdit.parent_id,
+        });
+    }, [periodToEdit]);
+
 
     return(
         <div>

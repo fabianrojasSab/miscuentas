@@ -147,7 +147,7 @@ export async function updateIncomes(id: number, data: DbUpdateIncomeRow): Promis
         const updateResult = await runAsync(
             db,
             `UPDATE incomes SET
-            (amount, income_date, description, updated_at) = (?, ?, ?, ?)
+            amount = ?, income_date = ?, description = ?, updated_at = ?
             WHERE id = ?`,
             [data.amount, data.income_date, data.description, isNow(), id],
         );

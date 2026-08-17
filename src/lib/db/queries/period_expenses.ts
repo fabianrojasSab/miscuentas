@@ -120,9 +120,12 @@ export async function updatePeriodExpense(id: number, data: DbUpdatePeriodExpens
 
         const updateResult = await runAsync(
             db,
-            `UPDATE period_expenses SET
-            (expense_date, amount, expense_state_id, updated_at) = (?, ?, ?, ?)
-            WHERE id = ?`,
+        `UPDATE period_expenses 
+        SET expense_date = ?,
+            amount = ?,
+            expense_state_id = ?,
+            updated_at = ?
+        WHERE id = ?`,
             [data.expense_date, data.amount, data.expense_state_id, isNow(), id],
         );
         await runAsync(db, "COMMIT");

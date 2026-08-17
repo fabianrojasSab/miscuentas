@@ -115,7 +115,7 @@ export async function updateBankAccount(id: number, data: DbUpdateBankAccountRow
         const updateResult = await runAsync(
             db,
             `UPDATE bank_accounts SET
-            (account_number, account_type, bank_name, updated_at) = (?, ?, ?, ?)
+            account_number = ?, account_type = ?, bank_name = ?, updated_at = ?
             WHERE id = ?`,
             [data.account_number, data.account_type, data.bank_name, isNow(), id],
         );

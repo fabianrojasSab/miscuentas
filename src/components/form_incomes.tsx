@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "./buttons"
 import { Input } from "./ui/input"
 
@@ -52,6 +52,16 @@ export const FormIncome = ({ createIncome, incomeToEdit, UpdateIncome }: Props) 
         form.reset();
     }
 
+    useEffect(() => {
+        if (incomeToEdit) {
+            setIncome({
+            amount: incomeToEdit.amount,
+            income_date: incomeToEdit.income_date,
+            description: incomeToEdit.description,
+            });
+        }
+    }, [incomeToEdit]);
+
     return(
         <div>
             <form onSubmit={handleSubmit}>
@@ -60,7 +70,7 @@ export const FormIncome = ({ createIncome, incomeToEdit, UpdateIncome }: Props) 
                     className="mb-4"
                     type="number"
                     name="amount"
-                    value={incomeToEdit?.amount ?? income?.amount}
+                    value={income?.amount ?? ""}
                     onChange={(e) =>
                         setIncome(prev => ({
                             ...prev!,
@@ -73,7 +83,7 @@ export const FormIncome = ({ createIncome, incomeToEdit, UpdateIncome }: Props) 
                     className="mb-4"
                     type="text"
                     name="date"
-                    value={incomeToEdit?.income_date ?? income?.income_date}
+                    value={income?.income_date ?? ""}
                     onChange={(e) =>
                         setIncome(prev => ({
                             ...prev!,
@@ -86,7 +96,7 @@ export const FormIncome = ({ createIncome, incomeToEdit, UpdateIncome }: Props) 
                     className="mb-4"
                     type="text"
                     name="description"
-                    value={incomeToEdit?.description ?? income?.description}
+                    value={income?.description ?? ""}
                     onChange={(e) =>
                         setIncome(prev => ({
                             ...prev!,
