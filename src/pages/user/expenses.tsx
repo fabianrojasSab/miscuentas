@@ -36,14 +36,14 @@ export default function Expenses(){
     const [expenseToEdit, setExpenseToEdit] = useState<ExpenseRow | null>(null);
     const [reloadTable, setReloadTable] = useState(false);
 
-    async function handleCreateExpense(expenses: OnboardingData["expenses"]) {
+    async function handleCreateExpense(expense: OnboardingData["expenses"]) {
 
         const res = await fetch("/api/me");
         const dataUser = await res.json();
 
         const body = {
             id: dataUser.user.id,
-            Expense: expenses
+            expense: expense
         };
 
         try {

@@ -28,24 +28,24 @@ export default async function handler(
         switch (req.method) {
         case "POST": {
 
-            const { id, expenses} = req.body as {
+            const { id, expense} = req.body as {
                 id: number,
-                expenses: ExpensesForm
+                expense: ExpensesForm
             };
 
-            if (!id || !expenses) {
+            if (!id || !expense) {
                 return res
                 .status(400)
-                .json({ error: "Faltan campos obligatorios" + id + expenses});
+                .json({ error: "Faltan campos obligatorios" + id + expense});
             }
 
             const newData = {
                 userId: id,
-                name: expenses.name,
-                amount: expenses.amount,
-                date: expenses.income_date,
-                description: expenses.description ?? "",
-                category: expenses.expense_category_id,
+                name: expense.name,
+                amount: expense.amount,
+                date: expense.income_date,
+                description: expense.description ?? "",
+                category: expense.expense_category_id,
             }
 
             const expenseResult = await createExpenses(newData);
