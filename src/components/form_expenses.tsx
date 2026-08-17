@@ -7,7 +7,7 @@ type ExpensesForm = {
     expense_category_id: number;
     name: string;
     description: string;
-    income_date: string;
+    expense_date: string;
     amount: number;
 };
 
@@ -17,7 +17,7 @@ type ExpensesRow = {
     expense_category_id: number,
     name: string,
     description: string,
-    income_date: string,
+    expense_date: string,
     amount: number,
     created_at: string,
     updated_at: string,
@@ -80,7 +80,7 @@ export const FormExpenses = ({ createExpense, expenseToEdit, UpdateExpense }: Pr
         const body : ExpensesForm = {
             name: form.name_expense.value,
             amount: form.amount.value,
-            income_date: form.date.value,
+            expense_date: form.date.value,
             description: form.description.value ?? "",
             expense_category_id: Number(form.expense_category_id.value),
         };
@@ -100,7 +100,7 @@ export const FormExpenses = ({ createExpense, expenseToEdit, UpdateExpense }: Pr
             setExpenses({
                 name: expenseToEdit.name,
                 amount: expenseToEdit.amount,
-                income_date: expenseToEdit.income_date,
+                expense_date: expenseToEdit.expense_date,
                 description: expenseToEdit.description ?? "",
                 expense_category_id: expenseToEdit.expense_category_id,
             });
@@ -168,11 +168,11 @@ export const FormExpenses = ({ createExpense, expenseToEdit, UpdateExpense }: Pr
                     className="mb-4"
                     type="date"
                     name="date"
-                    value={expenses?.income_date ?? ""}
+                    value={expenses?.expense_date ?? ""}
                     onChange={(e) =>
                         setExpenses(prev => ({
                             ...prev!,
-                            income_date: e.target.value
+                            expense_date: e.target.value
                         }))
                     }
                 />

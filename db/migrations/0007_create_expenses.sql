@@ -4,7 +4,7 @@ CREATE TABLE expenses (
     expense_category_id INTEGER,
     name TEXT NOT NULL,
     description TEXT,
-    income_date TEXT NOT NULL,
+    expense_date TEXT NOT NULL,
     amount REAL NOT NULL,
     created_at TEXT,
     updated_at TEXT,

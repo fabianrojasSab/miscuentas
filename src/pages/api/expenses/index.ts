@@ -8,7 +8,7 @@ type ExpensesForm = {
     expense_category_id: number;
     name: string;
     description: string;
-    income_date: string;
+    expense_date: string;
     amount: number;
 };
 
@@ -43,7 +43,7 @@ export default async function handler(
                 userId: id,
                 name: expense.name,
                 amount: expense.amount,
-                date: expense.income_date,
+                date: expense.expense_date,
                 description: expense.description ?? "",
                 category: expense.expense_category_id,
             }

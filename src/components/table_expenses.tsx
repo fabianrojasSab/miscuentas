@@ -7,7 +7,7 @@ type ExpensesRow = {
     expense_category_id: number,
     name: string,
     description: string,
-    income_date: string,
+    expense_date: string,
     amount: number,
     created_at: string,
     updated_at: string,
@@ -19,7 +19,7 @@ type ExpensesForm = {
     expense_category_id: number;
     name: string;
     description: string;
-    income_date: string;
+    expense_date: string;
     amount: number;
 };
 
@@ -29,7 +29,7 @@ export type BdExpenseRow = {
     category_name: string,
     category_type: number,
     name: string,
-    income_date: string,
+    expense_date: string,
     amount: number,
 }
 
@@ -114,7 +114,7 @@ export const TableExpensesByUser = ({ reload }: Props) =>{
                             <td className="border p-2">{inc.name}</td>
                             <td className="border p-2">{inc.category_name}</td>
                             <td className="border p-2">{getCategoryTypeLabel(inc.category_type)}</td>
-                            <td className="border p-2">{inc.income_date}</td>
+                            <td className="border p-2">{inc.expense_date}</td>
                             <td className="border p-2">{inc.amount}</td>
                         </tr>
                         ))}
@@ -180,7 +180,7 @@ export const TableAllExpensesByUser = ({ reload }: Props) =>{
                 <tbody>
                     {expenses.map((inc) => (
                     <tr key={inc.id}>
-                        <td className="border p-2">{inc.income_date}</td>
+                        <td className="border p-2">{inc.expense_date}</td>
                         <td className="border p-2">{inc.amount}</td>
                         <td className="border p-2">{inc.description ?? "-"}</td>
                         <td className="border p-2">{inc.created_at}</td>
@@ -285,7 +285,7 @@ export const TableAllExpenses = ({ onEdit, reload }: Props) => {
                     <tbody>
                         {expenses.map((inc) => (
                         <tr key={inc.id}>
-                            <td className="border p-2">{inc.income_date}</td>
+                            <td className="border p-2">{inc.expense_date}</td>
                             <td className="border p-2">{inc.amount}</td>
                             <td className="border p-2">{inc.description ?? "-"}</td>
                             <td className="border p-2">{inc.created_at}</td>

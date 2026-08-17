@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS expenses (
     expense_category_id INTEGER NULL,
     name TEXT NOT NULL,
     description TEXT NULL,
-    income_date TEXT NOT NULL,
+    expense_date TEXT NOT NULL,
     amount REAL NOT NULL,
     created_at TEXT NULL,
     updated_at TEXT NULL,

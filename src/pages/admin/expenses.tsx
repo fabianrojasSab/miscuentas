@@ -7,7 +7,7 @@ type ExpensesForm = {
     expense_category_id: number;
     name: string;
     description: string;
-    income_date: string;
+    expense_date: string;
     amount: number;
 };
 
@@ -17,7 +17,7 @@ type ExpenseRow = {
     expense_category_id: number,
     name: string,
     description: string,
-    income_date: string,
+    expense_date: string,
     amount: number,
     created_at: string,
     updated_at: string,
