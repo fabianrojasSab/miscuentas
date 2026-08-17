@@ -1,13 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { parse } from "cookie";
 import { getUserBySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
-import { createCategory, deleteCategory, getAllCategories, updateCategory } from "@/lib/db/queries/categories";
-import { createBankAccount } from "@/lib/db/queries/bank_accounts";
+import { createBankAccount, deleteBankAccount, getAllBankAccount, getBankAccountByUser, updateBankAccount } from "@/lib/db/queries/bank_accounts";
 
 type BankAccountForm = {
-    account: number;
-    type: string;
-    bank: string;
+    account_number: string,
+    account_type: number,
+    bank_name: string,
+    account_balance: number,
 };
 
 export default async function handler(
@@ -39,22 +39,26 @@ export default async function handler(
 
             const newData = {
                 userId: id,
-                account: bankAccount.account,
-                type: bankAccount.type,
-                bank: bankAccount.bank,
+                account_number: bankAccount.account_number,
+                account_type: bankAccount.account_type,
+                bank: bankAccount.bank_name,
             }
 
-            const expenseResult = await createBankAccount(newData);
+            const bankAccountResult = await createBankAccount(newData);
 
             return res.status(200).json({
                 success: true,
-                id: expenseResult.id
+                id: bankAccountResult.id
             });
         }
         case "GET": {
-            const categories = await getAllCategories();
 
-            return res.status(200).json({ categories });
+            const bankAccounts =
+                user.sw_admin === 0
+                    ? await getBankAccountByUser(user.id)
+                    : await getAllBankAccount();
+
+            return res.status(200).json({ bankAccounts });
         }
         case "DELETE": {
             const { id } = req.body as {
@@ -67,30 +71,30 @@ export default async function handler(
                 .json({ error: "Faltan campos obligatorios" + id });
             }
 
-            const categoryDeleted = await deleteCategory(id);
+            const bankAccountDeleted = await deleteBankAccount(id);
 
             return res.status(200).json({
                 success: true,
-                id: categoryDeleted.id
+                id: bankAccountDeleted.id
             });
         }
         case "PUT": {
-            const { id, category } = req.body as {
+            const { id, bankAccount } = req.body as {
                 id: number,
-                category: CategoryForm
+                bankAccount: BankAccountForm
             };
 
-            if (!id || !category ) {
+            if (!id || !bankAccount ) {
                 return res
                 .status(400)
                 .json({ error: "Faltan campos obligatorios"});
             }
 
-            const categoryUpdated = await updateCategory(id, category);
+            const bankAccountUpdated = await updateBankAccount(id, bankAccount);
 
             return res.status(200).json({
                 success: true,
-                id: categoryUpdated.id
+                id: bankAccountUpdated.id
             });
         }
         default:

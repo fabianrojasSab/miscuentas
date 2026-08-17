@@ -6,9 +6,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
 type BankAccountForm = {
-    account: number;
-    type: string;
-    bank: string;
+    account_number: string,
+    account_type: number,
+    bank_name: string,
 };
 
 type IncomeForm = {
@@ -41,23 +41,18 @@ type IncomeRow = {
 };
 
 export default function OnBoarding(){
-    const [data, setData] = useState<OnboardingData>({
-        bankAccount: null,
-        income: null,
-        expenses: [],
-    });
-    const [user, setUser] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
-    const [incomeToEdit, setIncomeToEdit] = useState<IncomeRow | null>(null);
+    const [bankAccount, setBankAccount] = useState<BankAccountForm | null>(null);
+    const [income, setIncome] = useState<IncomeForm | null>(null);
 
 
     function updateBankAccount(account: OnboardingData["bankAccount"]) {
-        setData((prev) => ({ ...prev, bankAccount: account }));
+        setBankAccount(account);
     }
 
     function updateIncome(income: IncomeForm) {
-        setData((prev) => ({ ...prev, income: income }));
+        setIncome(income);
     }
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -68,8 +63,8 @@ export default function OnBoarding(){
 
         const body = {
             id: dataUser.user.id,
-            BankAccount: data.bankAccount,
-            Income: data.income
+            BankAccount: bankAccount,
+            Income: income
         };
 
         try {
@@ -95,7 +90,7 @@ export default function OnBoarding(){
     }
 
     async function handleCreatebankAccount(bankAccount: OnboardingData["bankAccount"]) {
-       const res = await fetch("/api/me");
+        const res = await fetch("/api/me");
         const dataUser = await res.json();
 
         const body = {
@@ -119,7 +114,7 @@ export default function OnBoarding(){
                 return;
             }
 
-            setData((prev) => ({ ...prev, bankAccount: data.bankAccount }));
+            setBankAccount(body.bankAccount);
 
         } catch (err) {
             setError("Error al iniciar sesión. Por favor, inténtalo de nuevo.");
@@ -127,7 +122,7 @@ export default function OnBoarding(){
         }
     }
 
-   async function handleCreateIncome(income: OnboardingData["income"]) {
+    async function handleCreateIncome(income: OnboardingData["income"]) {
 
         const res = await fetch("/api/me");
         const dataUser = await res.json();
@@ -153,7 +148,7 @@ export default function OnBoarding(){
                 return;
             }
 
-            setData((prev) => ({ ...prev, income: data.income }));
+            setIncome(body.income);
 
         } catch (err) {
             setError("Error al iniciar sesión. Por favor, inténtalo de nuevo.");
@@ -163,9 +158,34 @@ export default function OnBoarding(){
 
     useEffect(() => {
         (async () => {
-            const res = await fetch("/api/me");
-            const data = await res.json();
-            setUser(data.user);
+            try {
+                const res = await fetch("/api/onBoarding", {
+                    method: "GET",
+                });
+                const onboardingResult = await res.json();
+
+
+                if (!res.ok) {
+                    setError(onboardingResult.error);
+                    return;
+                }
+                const { incomes, bankAccounts } = onboardingResult.onboarding;
+
+                if (incomes.length > 0) {
+                    // Hay ingresos
+                    setIncome(onboardingResult.onboarding.incomes);
+                }
+                
+                if (bankAccounts.length > 0) {
+                    // Hay cuentas bancarias
+                    setBankAccount(onboardingResult.onboarding.bankAccounts)
+                }
+                
+
+            } catch (err) {
+                setError("Error al iniciar sesión. Por favor, inténtalo de nuevo.");
+                setTimeout(() => setError(null), 5000);
+            }
         })();
     }, []);
 
@@ -173,10 +193,10 @@ export default function OnBoarding(){
         <div>
             <Header/>
 
-            {data.bankAccount === null ? (
-                <BankAccounts onChange={updateBankAccount} />
-            ) : data.income === null ? (
-                <FormIncome createIncome={handleCreateIncome} incomeToEdit={data.income} UpdateIncome={updateIncome}/>
+            {bankAccount === null ? (
+                <BankAccounts createBankAccount={handleCreatebankAccount} bankAccontToEdit={bankAccount} UpdateBankAccount={updateBankAccount} />
+            ) : income === null ? (
+                <FormIncome createIncome={handleCreateIncome} incomeToEdit={income} UpdateIncome={updateIncome}/>
             ) : (
                 <div>
                     <form onSubmit={handleSubmit}>

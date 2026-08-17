@@ -12,9 +12,9 @@ import {
 } from "@/components/ui/select"
 
 type BankAccountForm = {
-    account: number;
-    type: string;
-    bank: string;
+    account_number: string,
+    account_type: number,
+    bank_name: string,
 };
 
 type BankAccountRow = {
@@ -43,9 +43,9 @@ export const BankAccounts = ({createBankAccount, bankAccontToEdit, UpdateBankAcc
         const form = e.currentTarget;
 
         const body : BankAccountForm = {
-            account: form.account.value,
-            type: form.type.value,
-            bank: form.bank.value,
+            account_number: form.account_number.value,
+            account_type: form.account_type.value,
+            bank_name: form.bank_name.value,
         };
 
         if(bankAccontToEdit) {
@@ -58,8 +58,8 @@ export const BankAccounts = ({createBankAccount, bankAccontToEdit, UpdateBankAcc
     return(
         <div>
             <form onSubmit={handleSubmit}>
-                <Input type="number" name="account" placeholder="Numero de cuenta" className="mb-4"/>
-                <Select name="type">
+                <Input type="number" name="account_number" placeholder="Numero de cuenta" className="mb-4"/>
+                <Select name="account_type">
                     <SelectTrigger>
                         <SelectValue placeholder="Tipo de cuenta" />
                     </SelectTrigger>
@@ -71,7 +71,7 @@ export const BankAccounts = ({createBankAccount, bankAccontToEdit, UpdateBankAcc
                         </SelectGroup>
                     </SelectContent>
                 </Select>
-                <Input type="text" name="bank" placeholder="Nombre de banco" className="mb-4"/>
+                <Input type="text" name="bank_name" placeholder="Nombre de banco" className="mb-4"/>
                 
                 {error && (
                     <p className="text-red-600 text-center">{error}</p>
