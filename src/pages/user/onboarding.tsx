@@ -28,18 +28,6 @@ type OnboardingData = {
     }[];
 };
 
-type IncomeRow = {
-    id: number,
-    user_id: number,
-    amount: number,
-    income_date: string,
-    description: string,
-    created_at: string,
-    updated_at: string,
-    deleted_at: string,
-    user_name?: string,
-};
-
 export default function OnBoarding(){
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
