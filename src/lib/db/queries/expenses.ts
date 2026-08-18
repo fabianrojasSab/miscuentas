@@ -100,7 +100,7 @@ export async function getExpensesByUser(id: number): Promise<BdExpenseRow[]> {
                 e.amount
             FROM expenses e
             INNER JOIN expense_categories ec ON e.expense_category_id = ec.id
-            WHERE e.user_id = ?`,
+            WHERE e.user_id = ? ec.category_type = 1`,
             [id],
         );
 
@@ -186,6 +186,55 @@ export async function updateExpense(id: number, data: DbUpdateExpenseRow): Promi
             throw new Error("No se encontró el gasto a actualizar");
         }
         return {id};
+    }catch (e) {
+        if (began) await runAsync(db, "ROLLBACK");
+        throw e;
+    } finally {
+        //db.close();
+    }  
+}
+
+export async function createExpenseVariable(id: number, newExpense: BdNewExpenseRow, idPeriod: number): Promise<{ id: number }> {
+    const db = getDb();
+    const isNow = () => new Date().toISOString();
+    let began = false;
+
+    try {
+        await runAsync(db, "BEGIN");
+        began = true;
+
+        const expense = await runAsync(
+            db,
+            `INSERT INTO expenses (user_id, expense_category_id, name, description, expense_date, amount, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [id, newExpense.category, newExpense.name, newExpense.description, newExpense.date, newExpense.amount, isNow(), isNow()],
+        );
+
+        const periodExpense = await runAsync(
+            db,
+            `INSERT INTO period_expenses
+            (
+                period_id,
+                expense_id,
+                expense_date,
+                amount,
+                expense_state_id,
+                created_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?)`,
+            [
+                idPeriod,
+                expense.lastID,
+                newExpense.date,
+                newExpense.amount,
+                2,
+                isNow()
+            ]
+        );
+
+        await runAsync(db, "COMMIT");
+
+        return {id: periodExpense.lastID};
     }catch (e) {
         if (began) await runAsync(db, "ROLLBACK");
         throw e;

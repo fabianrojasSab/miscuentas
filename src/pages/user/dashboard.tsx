@@ -1,10 +1,9 @@
 import { Button } from "@/components/buttons";
+import { FormExpenses } from "@/components/form_expenses";
 import { Header } from "@/components/header";
-import { TableExpensesByUser } from "@/components/table_expenses";
 import { ExpenseCategoryType } from "@/emuns/ExpenseCategoryType";
-import { useEffect, useState } from "react";
-import { GiConsoleController } from "react-icons/gi";
-//ARREGLAR EL FORMULARIO DE LOS PERIODOS AL MOMENTO DE CREAR LOS MESES
+import { useState } from "react";
+
 type PeriodRow = {
     id: number,
     name: string,
@@ -43,6 +42,14 @@ export type BdPeriodExpensesRow = {
     category_type: number,
 }
 
+type ExpensesForm = {
+    expense_category_id: number;
+    name: string;
+    description: string;
+    expense_date: string;
+    amount: number;
+};
+
 export default function Dasboard () {
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
@@ -51,8 +58,9 @@ export default function Dasboard () {
     const [expenseToEdit, setExpenseToEdit] = useState<ExpenseRow | null>(null);
     const [reloadTable, setReloadTable] = useState(false);
     const [periodExpenses, setPeriodExpenses] = useState<BdPeriodExpensesRow[]>([]);
+    const [success, setSuccess] = useState<string | null>(null);
 
-    //Funcion para calcular el total a pagar de los gastos del periodo
+    //Funcion para calcular el total a pagar de los gastos del periodo teniendo el cuenta el estado del gasto
     function getTotalPeriodExpenses(
         periodExpenses: BdPeriodExpensesRow[]
     ): number {
@@ -79,6 +87,7 @@ export default function Dasboard () {
         }
     }
 
+    //Funcion para hacer el cambio de estado del gasto del periodo
     async function handleCheckpay(expense: BdPeriodExpensesRow){
         try {
 
@@ -218,12 +227,75 @@ export default function Dasboard () {
 
     }
 
+    //Funcion para crear un gasto variable
+    async function handleCreateExpenseVariable(expense: ExpensesForm) {
+        const res = await fetch("/api/me");
+        const dataUser = await res.json();        
+        let date = new Date();
+        let year = date.getFullYear();
+        let month = date.getMonth() + 1;
+
+        try {
+            //consulta y valida si hay un periodo del mes actual, arreglar para que valide con el mes actual
+            let res = await fetch(`/api/periods?month=${month}&year=${year}`, {
+                method: "GET",
+            });
+            const dataPeriodsMonth = await res.json();
+
+            if (!res.ok) {
+                setError(dataPeriodsMonth.error);
+                return;
+            }
+
+            const dataToSend = {
+                id: dataUser.user.id,
+                expense: expense,
+                idPeriod: dataPeriodsMonth.periodBymonth.id,
+                dashboard: true,
+            }
+    
+            res = await fetch("/api/expenses", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(dataToSend),
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data.error);
+                return;
+            }
+
+            setSuccess(data.id);
+            setTimeout(() => setSuccess(null), 5000);
+
+        } catch (err) {
+            setError("Error al iniciar sesión. Por favor, inténtalo de nuevo.");
+            setTimeout(() => setError(null), 5000);
+        }
+    }
+
+    async function handleUpdateExpense(){
+
+    }
+
     return (
         <div>
             <Header/>
             dashboard de usuario
             <Button href="/user/incomes">Registrar Ingreso</Button>
             <Button href="/user/expenses">Registrar gasto</Button>
+
+            <FormExpenses createExpense={handleCreateExpenseVariable} expenseToEdit={expenseToEdit} UpdateExpense={handleUpdateExpense}/>
+            {error && (
+                <p className="text-red-600 text-center">{error}</p>
+            )}
+            {success && (
+                <p className="text-green-600 text-center">Ingreso con ID {success} registrado</p>
+            )}
+
             <Button onClick={handleSearchPeriod}>ver</Button>
             {periodYear ? (<div>Datos del: {periodYear?.name} {periodMonth?.name}</div>) : (<div> No hay periodo creado</div>)}
             {/* <TableExpensesByUser onEdit={setExpenseToEdit} reload={reloadTable}/> */}

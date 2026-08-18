@@ -2,7 +2,8 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { parse } from "cookie";
 import { getUserBySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { get } from "http";
-import { createExpenses, deleteExpense, getAllExpenses, getAllExpensesByUser, getExpensesByUser, updateExpense } from "@/lib/db/queries/expenses";
+import { createExpenses, createExpenseVariable, deleteExpense, getAllExpenses, getAllExpensesByUser, getExpensesByUser, updateExpense } from "@/lib/db/queries/expenses";
+import { getExpenseCateroryById } from "@/lib/db/queries/expense_categories";
 
 type ExpensesForm = {
     expense_category_id: number;
@@ -28,9 +29,11 @@ export default async function handler(
         switch (req.method) {
         case "POST": {
 
-            const { id, expense} = req.body as {
+            const { id, expense, idPeriod, dashboard} = req.body as {
                 id: number,
-                expense: ExpensesForm
+                expense: ExpensesForm,
+                idPeriod: number,
+                dashboard: boolean,
             };
 
             if (!id || !expense) {
@@ -46,6 +49,15 @@ export default async function handler(
                 date: expense.expense_date,
                 description: expense.description ?? "",
                 category: expense.expense_category_id,
+            }
+
+            if(dashboard === true ) {
+                const expenseResult = await createExpenseVariable(id, newData, idPeriod)
+
+                return res.status(200).json({
+                    success: true,
+                    id: expenseResult.id
+                });
             }
 
             const expenseResult = await createExpenses(newData);
