@@ -110,94 +110,115 @@ export const FormExpenses = ({ createExpense, expenseToEdit, UpdateExpense }: Pr
     return(
         <div className="w-full max-w-md mx-auto bg-card rounded-lg">
             <form className="space-y-5 rounded-lg border p-6 shadow-sm" onSubmit={handleSubmit}>
-                <label>Categoria</label>
-                {loading ? (
-                    <p>Cargando...</p>
-                ) : (
-                    <Select
-                        name="expense_category_id"
-                        value={category}
-                        onValueChange={setCategory}
-                    >
-                        <SelectTrigger>
-                            <SelectValue placeholder="Selecciona una Categoria" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectGroup>
-                            <SelectLabel>Categoria</SelectLabel>
-                            {categories.map((inc) => (
-                                <SelectItem
-                                    key={inc.id}
-                                    value={String(inc.id)}
-                                >
-                                    {inc.name}
-                                </SelectItem>
-                            ))}
-                            </SelectGroup>
-                        </SelectContent>
-                    </Select>
-                )}
-                <label>Nombre</label>
-                <Input
-                    className="mb-4"
-                    type="text"
-                    name="name_expense"
-                    value={expenses?.name ?? ""}
-                    onChange={(e) =>
-                        setExpenses(prev => ({
-                            ...prev!,
-                            name: e.target.value
-                        }))
-                    }
-                />
-                <label>descripcion</label>
-                <Input
-                    className="mb-4"
-                    type="text"
-                    name="description"
-                    value={expenses?.description ?? ""}
-                    onChange={(e) =>
-                        setExpenses(prev => ({
-                            ...prev!,
-                            description: e.target.value
-                        }))
-                    }
-                />
-                <label>Fecha gasto</label>
-                <Input
-                    className="mb-4"
-                    type="date"
-                    name="date"
-                    value={expenses?.expense_date ?? ""}
-                    onChange={(e) =>
-                        setExpenses(prev => ({
-                            ...prev!,
-                            expense_date: e.target.value
-                        }))
-                    }
-                />
-                <label>Valor</label>
-                <Input
-                    className="mb-4"
-                    type="number"
-                    name="amount"
-                    value={expenses?.amount ?? ""}
-                    onChange={(e) =>
-                        setExpenses(prev => ({
-                            ...prev!,
-                            amount: Number(e.target.value)
-                        }))
-                    }
-                />
+                {/* Categoria */}
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">Categoria</label>
+                    {loading ? (
+                        <p>Cargando...</p>
+                    ) : (
+                        <Select
+                            name="expense_category_id"
+                            value={category}
+                            onValueChange={setCategory}
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="Selecciona una Categoria" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                <SelectLabel>Categoria</SelectLabel>
+                                {categories.map((inc) => (
+                                    <SelectItem
+                                        key={inc.id}
+                                        value={String(inc.id)}
+                                    >
+                                        {inc.name}
+                                    </SelectItem>
+                                ))}
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                    )}
+                </div>
+
+                {/* Nombre */}
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">Nombre</label>
+                    <Input
+                        className="mb-4"
+                        type="text"
+                        name="name_expense"
+                        value={expenses?.name ?? ""}
+                        onChange={(e) =>
+                            setExpenses(prev => ({
+                                ...prev!,
+                                name: e.target.value
+                            }))
+                        }
+                    />
+                </div>
+
+                {/* descripcion */}
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">descripcion</label>
+                    <Input
+                        className="mb-4"
+                        type="text"
+                        name="description"
+                        value={expenses?.description ?? ""}
+                        onChange={(e) =>
+                            setExpenses(prev => ({
+                                ...prev!,
+                                description: e.target.value
+                            }))
+                        }
+                    />
+                </div>
+
+                {/* Fecha gasto */}
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">Fecha gasto</label>
+                    <Input
+                        className="mb-4"
+                        type="date"
+                        name="date"
+                        value={expenses?.expense_date ?? ""}
+                        onChange={(e) =>
+                            setExpenses(prev => ({
+                                ...prev!,
+                                expense_date: e.target.value
+                            }))
+                        }
+                    />
+                </div>
+
+                {/* Valor */}
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">Valor</label>
+                    <Input
+                        className="mb-4"
+                        type="number"
+                        name="amount"
+                        value={expenses?.amount ?? ""}
+                        onChange={(e) =>
+                            setExpenses(prev => ({
+                                ...prev!,
+                                amount: Number(e.target.value)
+                            }))
+                        }
+                    />
+                </div>
                 
+                {/* Error */}
                 {error && (
-                    <p className="text-red-600 text-center">{error}</p>
+                    <p className="rounded-md bg-red-50 p-3 text-sm text-red-600">
+                        {error}
+                    </p>
                 )}
         
-                <Button type="submit">
+                <Button type="submit" className="w-full">
                     {expenseToEdit ? "Actualizar gasto" : "Crear gasto"}
                 </Button>
-                
             </form>
         </div>
     )

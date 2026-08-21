@@ -63,67 +63,81 @@ export const FormCategory = ({ createCategory, categoryToEdit, UpdateCategory }:
 
     return(
         <div>
-            <form onSubmit={handleSubmit}>
-                <label>Nombre categoria</label>
-                <Input
-                    className="mb-4"
-                    type="text"
-                    name="name_category"
-                    value={category?.name_category ?? ""}
-                    onChange={(e) =>
-                        setCategory(prev => ({
-                            ...prev!,
-                            name_category: e.target.value
-                        }))
-                    }
-                />
-                <label>Tipo de categoria</label>
-                <Select
-                    name="category_type"
-                    value={
-                        category?.category_type != null
-                        ? String(category?.category_type)
-                        : ""
-                    }
-                    onValueChange={(value) =>
-                        setCategory(prev => ({
-                            ...prev!,
-                            category_type: Number(value)
-                        }))
-                    }
-                >
-                    <SelectTrigger>
-                        <SelectValue placeholder="Selecciona un tipo" />
-                    </SelectTrigger>
+            <form onSubmit={handleSubmit} className="space-y-5 rounded-lg border p-6 shadow-sm">
+                {/* Nombre de categoria */}
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">Nombre categoria</label>
+                    <Input
+                        className="mb-4"
+                        type="text"
+                        name="name_category"
+                        value={category?.name_category ?? ""}
+                        onChange={(e) =>
+                            setCategory(prev => ({
+                                ...prev!,
+                                name_category: e.target.value
+                            }))
+                        }
+                    />
+                </div>
 
-                    <SelectContent>
-                        <SelectItem value={String(ExpenseCategoryType.FIXED)}>
-                            Fijo
-                        </SelectItem>
+                {/* Tipo de categoria */}
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">Tipo de categoria</label>
+                    <Select
+                        name="category_type"
+                        value={
+                            category?.category_type != null
+                            ? String(category?.category_type)
+                            : ""
+                        }
+                        onValueChange={(value) =>
+                            setCategory(prev => ({
+                                ...prev!,
+                                category_type: Number(value)
+                            }))
+                        }
+                    >
+                        <SelectTrigger>
+                            <SelectValue placeholder="Selecciona un tipo" />
+                        </SelectTrigger>
 
-                        <SelectItem value={String(ExpenseCategoryType.VARIABLE)}>
-                            Variable
-                        </SelectItem>
-                    </SelectContent>
-                </Select>
-                <label>Description</label>
-                <Input
-                    className="mb-4"
-                    type="text"
-                    name="description"
-                    value={category?.description ?? ""}
-                    onChange={(e) =>
-                        setCategory(prev => ({
-                            ...prev!,
-                            description: e.target.value
-                        }))
-                    }
-                />
+                        <SelectContent>
+                            <SelectItem value={String(ExpenseCategoryType.FIXED)}>
+                                Fijo
+                            </SelectItem>
+
+                            <SelectItem value={String(ExpenseCategoryType.VARIABLE)}>
+                                Variable
+                            </SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                {/* Descripcion */}
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">Description</label>
+                    <Input
+                        className="mb-4"
+                        type="text"
+                        name="description"
+                        value={category?.description ?? ""}
+                        onChange={(e) =>
+                            setCategory(prev => ({
+                                ...prev!,
+                                description: e.target.value
+                            }))
+                        }
+                    />
+                </div>
+                {/* Error */}
                 {error && (
-                    <p className="text-red-600 text-center">{error}</p>
+                    <p className="rounded-md bg-red-50 p-3 text-sm text-red-600">
+                        {error}
+                    </p>
                 )}
         
-                <Button type="submit">
+                <Button type="submit" className="w-full">
                     {categoryToEdit ? "Actualizar categoria" : "Crear categoria"}
                 </Button>
             </form>

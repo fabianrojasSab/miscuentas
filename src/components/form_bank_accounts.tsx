@@ -56,29 +56,60 @@ export const BankAccounts = ({createBankAccount, bankAccontToEdit, UpdateBankAcc
     }
 
     return(
-        <div>
-            <form onSubmit={handleSubmit}>
-                <Input type="number" name="account_number" placeholder="Numero de cuenta" className="mb-4"/>
-                <Select name="account_type">
-                    <SelectTrigger>
-                        <SelectValue placeholder="Tipo de cuenta" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectGroup>
-                        <SelectLabel>Tipo</SelectLabel>
-                        <SelectItem value="1">Ahorro</SelectItem>
-                        <SelectItem value="2">Corriente</SelectItem>
-                        </SelectGroup>
-                    </SelectContent>
-                </Select>
-                <Input type="text" name="bank_name" placeholder="Nombre de banco" className="mb-4"/>
-                
+        <div className="w-full max-w-md mx-auto bg-card">
+            <form onSubmit={handleSubmit} className="space-y-5 rounded-lg border p-6 shadow-sm">
+                <div>
+                    <h2 className="text-xl font-semibold">
+                        Registra Cuenta de banco.
+                    </h2>
+
+                    <p className="text-sm text-muted-foreground">
+                        Puedes ingresar los ultimos 4 digitos de tu cuenta para que lleves el control de lo que ingresa o sale de tu cuenta de banco
+                    </p>
+                </div>
+                {/* Numero de cuenta */}
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                        Numero de cuenta
+                    </label>
+                    <Input type="number" name="account_number" placeholder="Numero de cuenta" className="mb-4"/>
+                </div>
+
+                {/* Tipo de cuenta */}
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                        Tipo de cuenta
+                    </label>
+                    <Select name="account_type">
+                        <SelectTrigger>
+                            <SelectValue placeholder="Tipo de cuenta" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                            <SelectLabel>Tipo</SelectLabel>
+                            <SelectItem value="1">Ahorro</SelectItem>
+                            <SelectItem value="2">Corriente</SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                {/* Nombre de banco */}
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                        Nombre de banco
+                    </label>
+                    <Input type="text" name="bank_name" placeholder="Nombre de banco" className="mb-4"/>
+                </div>
+                {/* Error */}
                 {error && (
-                    <p className="text-red-600 text-center">{error}</p>
+                    <p className="rounded-md bg-red-50 p-3 text-sm text-red-600">
+                        {error}
+                    </p>
                 )}
         
-                <Button type="submit">Crear banco</Button>
-                
+                {/* Botón */}
+                <Button type="submit" className="w-full">Crear banco</Button>
             </form>
         </div>
     )
