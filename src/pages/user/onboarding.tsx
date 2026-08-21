@@ -4,6 +4,7 @@ import { FormIncome } from "@/components/form_incomes";
 import { Header } from "@/components/header";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { FormExpenses } from "@/components/form_expenses";
 
 type BankAccountForm = {
     account_number: string,
@@ -17,15 +18,18 @@ type IncomeForm = {
     description: string;
 }
 
+type ExpensesForm = {
+    expense_category_id: number;
+    name: string;
+    description: string;
+    expense_date: string;
+    amount: number;
+};
+
 type OnboardingData = {
     bankAccount: BankAccountForm | null;
     income: IncomeForm | null;
-    expenses: {
-        name: string;
-        amount: number;
-        category_id: number;
-        date: string;
-    }[];
+    expenses: ExpensesForm | null;
 };
 
 export default function OnBoarding(){
@@ -33,6 +37,7 @@ export default function OnBoarding(){
     const router = useRouter();
     const [bankAccount, setBankAccount] = useState<BankAccountForm | null>(null);
     const [income, setIncome] = useState<IncomeForm | null>(null);
+    const [expenses, setExpenses] = useState<ExpensesForm | null>(null);
 
 
     function updateBankAccount(account: OnboardingData["bankAccount"]) {
@@ -41,6 +46,10 @@ export default function OnBoarding(){
 
     function updateIncome(income: IncomeForm) {
         setIncome(income);
+    }
+
+    function updateExpenses(expenses: ExpensesForm) {
+        setExpenses(expenses);
     }
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -144,6 +153,40 @@ export default function OnBoarding(){
         }
     }
 
+    async function handleCreateExpenses(expenses: OnboardingData["expenses"]) {
+
+        const res = await fetch("/api/me");
+        const dataUser = await res.json();
+
+        const body = {
+            id: dataUser.user.id,
+            expenses: expenses
+        };
+
+        try {
+            const res = await fetch("/api/expenses", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(body),
+            });
+            const data = await res.json();
+
+
+            if (!res.ok) {
+                setError(data.error);
+                return;
+            }
+
+            setExpenses(body.expenses);
+
+        } catch (err) {
+            setError("Error al crear los gastos. Por favor, inténtalo de nuevo.");
+            setTimeout(() => setError(null), 5000);
+        }
+    }
+
     useEffect(() => {
         (async () => {
             try {
@@ -157,7 +200,7 @@ export default function OnBoarding(){
                     setError(onboardingResult.error);
                     return;
                 }
-                const { incomes, bankAccounts } = onboardingResult.onboarding;
+                const { incomes, bankAccounts, expenses } = onboardingResult.onboarding;
 
                 if (incomes.length > 0) {
                     // Hay ingresos
@@ -167,6 +210,11 @@ export default function OnBoarding(){
                 if (bankAccounts.length > 0) {
                     // Hay cuentas bancarias
                     setBankAccount(onboardingResult.onboarding.bankAccounts)
+                }
+
+                if (expenses.length > 0) {
+                    //hay gastos fijos creados
+                    setExpenses(expenses.onBoarding.expenses);
                 }
                 
 
@@ -180,25 +228,27 @@ export default function OnBoarding(){
     return(
         <div>
             <Header/>
-
             {bankAccount === null ? (
                 <BankAccounts createBankAccount={handleCreatebankAccount} bankAccontToEdit={bankAccount} UpdateBankAccount={updateBankAccount} />
             ) : income === null ? (
                 <FormIncome createIncome={handleCreateIncome} incomeToEdit={income} UpdateIncome={updateIncome}/>
+            ) : expenses === null ? (
+                <FormExpenses createExpense={handleCreateExpenses} expenseToEdit={expenses} UpdateExpense={updateExpenses}/>
             ) : (
                 <div>
                     <form onSubmit={handleSubmit}>
                         <h2 className="text-xl font-semibold">
-                            Cuenta bancaria registrada ✅
+                            !Registro inicial exitoso¡ ✅
                         </h2>
                         {error && (
-                            <p className="text-red-600 text-center">{error}</p>
+                            <p className="rounded-md bg-red-50 p-3 text-sm text-red-600">
+                                {error}
+                            </p>
                         )}
                         <Button type="submit">Continuar</Button>
                     </form>
                 </div>
             )}
-
         </div>
     )
 }

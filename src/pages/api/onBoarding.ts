@@ -4,6 +4,7 @@ import { parse } from "cookie";
 import { getUserBySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { getAllIncomes, getAllIncomesByUser } from "@/lib/db/queries/incomes";
 import { getAllBankAccount, getBankAccountByUser } from "@/lib/db/queries/bank_accounts";
+import { getAllExpenses, getAllExpensesByUser } from "@/lib/db/queries/expenses";
 
 type BankAccountForm = {
     account_number: number;
@@ -74,9 +75,15 @@ export default async function handler(
                     ? await getBankAccountByUser(user.id)
                     : await getAllBankAccount();
             
+            const expenses =
+                user.sw_admin === 0
+                    ? await getAllExpensesByUser(user.id)
+                    : await getAllExpenses();
+            
             const onboarding = {
                 incomes: incomes,
                 bankAccounts: allBankAccountResult,
+                expenses: expenses,
             }
 
             return res.status(200).json({ onboarding });
