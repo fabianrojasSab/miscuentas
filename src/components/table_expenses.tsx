@@ -98,28 +98,34 @@ export const TableExpensesByUser = ({ reload }: Props) =>{
             ) : expenses.length === 0 ? (
                 <p>No hay gastos registrados.</p>
             ) : (
-                <table className="w-full border">
-                    <thead>
-                        <tr>
-                        <th className="border p-2">Nombre</th>
-                        <th className="border p-2">Categoria</th>
-                        <th className="border p-2">Tipo</th>
-                        <th className="border p-2">Fecha</th>
-                        <th className="border p-2">Valor</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {expenses.map((inc) => (
-                        <tr key={inc.id}>
-                            <td className="border p-2">{inc.name}</td>
-                            <td className="border p-2">{inc.category_name}</td>
-                            <td className="border p-2">{getCategoryTypeLabel(inc.category_type)}</td>
-                            <td className="border p-2">{inc.expense_date}</td>
-                            <td className="border p-2">{inc.amount}</td>
-                        </tr>
-                        ))}
-                    </tbody>
-                </table>
+                <div className="w-full overflow-x-auto rounded-lg border bg-card shadow-sm">
+                        <table className="w-full min-w-[600px]">
+                            <thead className="bg-muted/50">
+                            <tr>
+                            <th className="px-4 py-3 text-left text-sm font-semibold">Nombre</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold">Categoria</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold">Tipo</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold">Fecha</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold">Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {expenses.map((inc) => (
+                            <tr key={inc.id}>
+                                <td className="border p-2">{inc.name}</td>
+                                <td className="border p-2">{inc.category_name}</td>
+                                <td className="border p-2">{getCategoryTypeLabel(inc.category_type)}</td>
+                                <td className="border p-2">{inc.expense_date}</td>
+                                <td className="border p-2">{Number(inc.amount).toLocaleString("es-CO", {
+                                    style: "currency",
+                                    currency: "COP",
+                                    minimumFractionDigits: 0,
+                                })}</td>
+                            </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             )}
         </div>
     )
@@ -167,28 +173,34 @@ export const TableAllExpensesByUser = ({ reload }: Props) =>{
             ) : expenses.length === 0 ? (
                 <p>No hay gastos registrados.</p>
             ) : (
-                <table className="w-full border">
-                <thead>
-                    <tr>
-                    <th className="border p-2">Fecha</th>
-                    <th className="border p-2">Monto</th>
-                    <th className="border p-2">Descripción</th>
-                    <th className="border p-2">Creado en</th>
-                    <th className="border p-2">Actualizado en</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {expenses.map((inc) => (
-                    <tr key={inc.id}>
-                        <td className="border p-2">{inc.expense_date}</td>
-                        <td className="border p-2">{inc.amount}</td>
-                        <td className="border p-2">{inc.description ?? "-"}</td>
-                        <td className="border p-2">{inc.created_at}</td>
-                        <td className="border p-2">{inc.updated_at}</td>
-                    </tr>
-                    ))}
-                </tbody>
-                </table>
+                <div className="w-full overflow-x-auto rounded-lg border bg-card shadow-sm">
+                    <table className="w-full min-w-[600px]">
+                        <thead className="bg-muted/50">
+                            <tr>
+                            <th className="px-4 py-3 text-left text-sm font-semibold">Fecha</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold">Monto</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold">Descripción</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold">Creado en</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold">Actualizado en</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {expenses.map((inc) => (
+                            <tr key={inc.id}>
+                                <td className="border p-2">{inc.expense_date}</td>
+                                <td className="px-4 py-3 text-right text-sm font-medium">{Number(inc.amount).toLocaleString("es-CO", {
+                                    style: "currency",
+                                    currency: "COP",
+                                    minimumFractionDigits: 0,
+                                })}</td>
+                                <td className="px-4 py-3 text-sm text-muted-foreground">{inc.description ?? "-"}</td>
+                                <td className="border p-2">{inc.created_at}</td>
+                                <td className="border p-2">{inc.updated_at}</td>
+                            </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             )}
         </div>
     )
@@ -269,37 +281,43 @@ export const TableAllExpenses = ({ onEdit, reload }: Props) => {
             ) : expenses.length === 0 ? (
                 <p>No hay gastos registrados.</p>
             ) : (
-                <table className="w-full border">
-                    <thead>
-                        <tr>
-                        <th className="border p-2">Fecha</th>
-                        <th className="border p-2">Monto</th>
-                        <th className="border p-2">Descripción</th>
-                        <th className="border p-2">Creado en</th>
-                        <th className="border p-2">Actualizado en</th>
-                        <th className="border p-2">Eliminado en</th>
-                        <th className="border p-2">Usuario</th>
-                        <th className="border p-2">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {expenses.map((inc) => (
-                        <tr key={inc.id}>
-                            <td className="border p-2">{inc.expense_date}</td>
-                            <td className="border p-2">{inc.amount}</td>
-                            <td className="border p-2">{inc.description ?? "-"}</td>
-                            <td className="border p-2">{inc.created_at}</td>
-                            <td className="border p-2">{inc.updated_at}</td>
-                            <td className="border p-2">{inc.deleted_at}</td>
-                            <td className="border p-2">{inc.user_name}</td>
-                            <td className="border p-2">
-                                <button className="bg-blue-500 text-white px-2 py-1 rounded mr-2" onClick={() => handleUpdateExpense(inc)}>Editar</button>
-                                <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => handleDeleteExpense(inc.id)}>Eliminar</button>
-                            </td>
-                        </tr>
-                        ))}
-                    </tbody>
-                </table>
+                <div className="w-full overflow-x-auto rounded-lg border bg-card shadow-sm">
+                    <table className="w-full min-w-[600px]">
+                        <thead className="bg-muted/50">
+                            <tr>
+                            <th className="px-4 py-3 text-left text-sm font-semibold">Fecha</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold">Monto</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold">Descripción</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold">Creado en</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold">Actualizado en</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold">Eliminado en</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold">Usuario</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {expenses.map((inc) => (
+                            <tr key={inc.id}>
+                                <td className="border p-2">{inc.expense_date}</td>
+                                <td className="px-4 py-3 text-right text-sm font-medium">{Number(inc.amount).toLocaleString("es-CO", {
+                                    style: "currency",
+                                    currency: "COP",
+                                    minimumFractionDigits: 0,
+                                })}</td>
+                                <td className="px-4 py-3 text-sm text-muted-foreground">{inc.description ?? "-"}</td>
+                                <td className="border p-2">{inc.created_at}</td>
+                                <td className="border p-2">{inc.updated_at}</td>
+                                <td className="border p-2">{inc.deleted_at}</td>
+                                <td className="border p-2">{inc.user_name}</td>
+                                <td className="border p-2">
+                                    <button className="bg-blue-500 text-white px-2 py-1 rounded mr-2" onClick={() => handleUpdateExpense(inc)}>Editar</button>
+                                    <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => handleDeleteExpense(inc.id)}>Eliminar</button>
+                                </td>
+                            </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             )}
         </div>
     )

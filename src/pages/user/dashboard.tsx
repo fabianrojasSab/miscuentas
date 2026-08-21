@@ -281,41 +281,240 @@ export default function Dasboard () {
 
     }
 
-    return (
-        <div>
-            <Header/>
-            <Button href="/user/incomes">Registrar Ingreso</Button>
-            <Button href="/user/expenses">Registrar gasto</Button>
-            <Button onClick={handleSearchPeriod}>ver</Button>
+return (
+    <div className="min-h-screen bg-background">
+        <Header />
 
-            <FormExpenses createExpense={handleCreateExpenseVariable} expenseToEdit={expenseToEdit} UpdateExpense={handleUpdateExpense}/>
+        <main className="container mx-auto space-y-8 px-4 py-8">
+            
+            {/* Encabezado */}
+            <section className="space-y-2">
+                <h1 className="text-3xl font-bold tracking-tight">
+                    Administración de gastos
+                </h1>
+
+                <p className="text-muted-foreground">
+                    Registra, administra y consulta tus gastos del período actual.
+                </p>
+            </section>
+
+            {/* Acciones principales */}
+            <section className="flex flex-wrap gap-3">
+                <Button href="/user/incomes">
+                    Registrar ingreso
+                </Button>
+
+                <Button href="/user/expenses">
+                    Registrar gasto
+                </Button>
+
+                <Button
+                    variant="transparent"
+                    onClick={handleSearchPeriod}
+                >
+                    Consultar período
+                </Button>
+            </section>
+
+            {/* Mensajes */}
             {error && (
-                <p className="text-red-600 text-center">{error}</p>
+                <div className="rounded-md border border-red-200 bg-red-50 p-4 text-red-600">
+                    {error}
+                </div>
             )}
+
             {success && (
-                <p className="text-green-600 text-center">Ingreso con ID {success} registrado</p>
+                <div className="rounded-md border border-green-200 bg-green-50 p-4 text-green-600">
+                    Ingreso con ID {success} registrado correctamente.
+                </div>
             )}
 
-            {periodYear ? (<div>Datos del: {periodYear?.name} {periodMonth?.name}</div>) : (<div> No hay periodo creado</div>)}
-            {/* <TableExpensesByUser onEdit={setExpenseToEdit} reload={reloadTable}/> */}
+            {/* Información del período */}
+            <section className="rounded-xl border bg-card p-6 shadow-sm">
+                <h2 className="text-lg font-semibold">
+                    Período actual
+                </h2>
 
-                    {periodExpenses.map((inc) => (
-                    <tr key={inc.id}>
-                        <td className="border p-2">{inc.name}</td>
-                        <td className="border p-2">{inc.month}</td>
-                        <td className="border p-2">{inc.category_name}</td>
-                        <td className="border p-2">{inc.amount}</td>
-                        <td className="border p-2">{inc.state}</td>
-                        <td className="border p-2">{getCategoryTypeLabel(inc.category_type)}</td>
-                        {inc.state === "Pendiente" && (
-                            <td className="border p-2"><Button onClick={() => handleCheckpay(inc)}>Pagar</Button></td>
+                {periodYear && periodMonth ? (
+                    <div className="mt-2">
+                        <p className="text-muted-foreground">
+                            Datos del período:
+                        </p>
 
+                        <p className="text-xl font-medium">
+                            {periodYear.name} {periodMonth.name}
+                        </p>
+                    </div>
+                ) : (
+                    <p className="mt-2 text-muted-foreground">
+                        No hay un período creado para la fecha actual.
+                    </p>
+                )}
+            </section>
+
+            {/* Formulario */}
+            <section className="rounded-xl border bg-card p-6 shadow-sm">
+                <div className="mb-6">
+                    <h2 className="text-xl font-semibold">
+                        {expenseToEdit
+                            ? "Actualizar gasto"
+                            : "Registrar nuevo gasto"}
+                    </h2>
+
+                    <p className="text-sm text-muted-foreground">
+                        Completa la información del gasto.
+                    </p>
+                </div>
+
+                <FormExpenses
+                    createExpense={handleCreateExpenseVariable}
+                    expenseToEdit={expenseToEdit}
+                    UpdateExpense={handleUpdateExpense}
+                />
+            </section>
+
+            {/* Resumen */}
+            <section className="grid gap-4 md:grid-cols-2">
+                <div className="rounded-xl border bg-card p-5 shadow-sm">
+                    <p className="text-sm text-muted-foreground">
+                        Cantidad de gastos
+                    </p>
+
+                    <p className="mt-1 text-3xl font-bold">
+                        {periodExpenses.length}
+                    </p>
+                </div>
+
+                <div className="rounded-xl border bg-card p-5 shadow-sm">
+                    <p className="text-sm text-muted-foreground">
+                        Total de gastos
+                    </p>
+
+                    <p className="mt-1 text-3xl font-bold">
+                        {getTotalPeriodExpenses(periodExpenses).toLocaleString(
+                            "es-CO",
+                            {
+                                style: "currency",
+                                currency: "COP",
+                                minimumFractionDigits: 0,
+                            }
                         )}
-                    </tr>
-                    ))}
-            <p>
-                Total gastos: ${getTotalPeriodExpenses(periodExpenses)}
-            </p>
-        </div>
-    )
+                    </p>
+                </div>
+            </section>
+
+            {/* Tabla */}
+            <section className="space-y-4">
+                <div>
+                    <h2 className="text-xl font-semibold">
+                        Gastos del período
+                    </h2>
+
+                    <p className="text-sm text-muted-foreground">
+                        Consulta y administra los gastos registrados.
+                    </p>
+                </div>
+
+                {periodExpenses.length === 0 ? (
+                    <div className="rounded-xl border border-dashed p-8 text-center">
+                        <p className="text-muted-foreground">
+                            No hay gastos registrados para este período.
+                        </p>
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto rounded-xl border bg-card shadow-sm">
+                        <table className="w-full min-w-[800px]">
+                            <thead className="bg-muted/50">
+                                <tr>
+                                    <th className="px-4 py-3 text-left text-sm font-semibold">
+                                        Gasto
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-sm font-semibold">
+                                        Mes
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-sm font-semibold">
+                                        Categoría
+                                    </th>
+                                    <th className="px-4 py-3 text-right text-sm font-semibold">
+                                        Monto
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-sm font-semibold">
+                                        Estado
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-sm font-semibold">
+                                        Tipo
+                                    </th>
+                                    <th className="px-4 py-3 text-center text-sm font-semibold">
+                                        Acción
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {periodExpenses.map((inc) => (
+                                    <tr
+                                        key={inc.id}
+                                        className="border-t transition-colors hover:bg-muted/50"
+                                    >
+                                        <td className="px-4 py-3">
+                                            {inc.name}
+                                        </td>
+
+                                        <td className="px-4 py-3">
+                                            {inc.month}
+                                        </td>
+
+                                        <td className="px-4 py-3">
+                                            {inc.category_name}
+                                        </td>
+
+                                        <td className="px-4 py-3 text-right font-medium">
+                                            {Number(inc.amount).toLocaleString(
+                                                "es-CO",
+                                                {
+                                                    style: "currency",
+                                                    currency: "COP",
+                                                    minimumFractionDigits: 0,
+                                                }
+                                            )}
+                                        </td>
+
+                                        <td className="px-4 py-3">
+                                            <span className="rounded-full bg-muted px-3 py-1 text-sm">
+                                                {inc.state}
+                                            </span>
+                                        </td>
+
+                                        <td className="px-4 py-3">
+                                            {getCategoryTypeLabel(
+                                                inc.category_type
+                                            )}
+                                        </td>
+
+                                        <td className="px-4 py-3 text-center">
+                                            {inc.state === "Pendiente" ? (
+                                                <Button
+                                                    size="sm"
+                                                    onClick={() =>
+                                                        handleCheckpay(inc)
+                                                    }
+                                                >
+                                                    Pagar
+                                                </Button>
+                                            ) : (
+                                                <span className="text-sm text-muted-foreground">
+                                                    Pagado
+                                                </span>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </section>
+        </main>
+    </div>
+);
 }

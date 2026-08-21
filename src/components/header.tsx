@@ -54,7 +54,7 @@ export const Header = () =>{
             )}
 
             {user && (
-                <div className="ml-auto flex items-center gap-4">
+                <div className="ml-auto flex items-center gap-4 text-sm">
                 <span className="font-semibold">Hola, {user.name} 👋</span>
 
                 <Button variant="transparent" onClick={logout}>

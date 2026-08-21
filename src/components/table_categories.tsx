@@ -111,28 +111,30 @@ export const TableAllCategories = ({ onEdit, reload }: Props) => {
             ) : categories.length === 0 ? (
                 <p>No hay categorias registradas.</p>
             ) : (
-                <table className="w-full border">
-                    <thead>
-                        <tr>
-                        <th className="border p-2">nombre de categoria</th>
-                        <th className="border p-2">Tipo de categoria</th>
-                        <th className="border p-2">Descripcion</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {categories.map((inc) => (
-                        <tr key={inc.id}>
-                            <td className="border p-2">{inc.name}</td>
-                            <td className="border p-2">{getCategoryTypeLabel(inc.category_type)}</td>
-                            <td className="border p-2">{inc.description}</td>
-                            <td className="border p-2">
-                                <button className="bg-blue-500 text-white px-2 py-1 rounded mr-2" onClick={() => handleUpdateIncome(inc)}>Editar</button>
-                                <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => handleDeleteIncome(inc.id)}>Eliminar</button>
-                            </td>
-                        </tr>
-                        ))}
-                    </tbody>
-                </table>
+                <div className="w-full overflow-x-auto rounded-lg border bg-card shadow-sm">
+                    <table className="w-full min-w-[600px]">
+                        <thead className="bg-muted/50">
+                            <tr>
+                            <th className="px-4 py-3 text-left text-sm font-semibold">nombre de categoria</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold">Tipo de categoria</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold">Descripcion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {categories.map((inc) => (
+                            <tr key={inc.id}>
+                                <td className="border p-2">{inc.name}</td>
+                                <td className="border p-2">{getCategoryTypeLabel(inc.category_type)}</td>
+                                <td className="px-4 py-3 text-sm text-muted-foreground">{inc.description || "-"}</td>
+                                <td className="border p-2">
+                                    <button className="bg-blue-500 text-white px-2 py-1 rounded mr-2" onClick={() => handleUpdateIncome(inc)}>Editar</button>
+                                    <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => handleDeleteIncome(inc.id)}>Eliminar</button>
+                                </td>
+                            </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             )}
         </div>
     )
