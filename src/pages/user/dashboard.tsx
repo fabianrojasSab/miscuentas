@@ -183,7 +183,7 @@ export default function Dasboard () {
                 if(Object.keys(dataPeriodsMonth).length != 0){
 
                     //consulta y valida si tiene gastos del periodo actual creados
-                    const res = await fetch(`/api/periodExpenses`, {
+                    const res = await fetch(`/api/periodExpenses?periodId=${dataPeriodsMonth.periodBymonth.id}`, {
                         method: "GET",
                     });
                     const dataPeriodExpenses = await res.json();

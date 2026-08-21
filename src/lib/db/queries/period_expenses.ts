@@ -75,7 +75,7 @@ export async function createPeriodExpenses(periodExpenses: BdNewPeriodExpenseRow
     }  
 }
 
-export async function getPeriodExpensesByUser(id: number): Promise<BdPeriodExpensesRow[]> {
+export async function getPeriodExpensesByUser(id: number, periodId: number): Promise<BdPeriodExpensesRow[]> {
     const db = getDb();
 //modificar la columna income_date esta mal nombrada
     try {
@@ -95,8 +95,8 @@ export async function getPeriodExpensesByUser(id: number): Promise<BdPeriodExpen
             INNER JOIN periods p ON pe.period_id = p.id
             INNER JOIN expense_states es ON es.id = pe.expense_state_id
             INNER JOIN expense_categories ec ON e.expense_category_id = ec.id
-            WHERE e.user_id = ? `,
-            [id],
+            WHERE e.user_id = ? and pe.period_id= ?`,
+            [id, periodId],
         );
 
         if(!allExpensesResult){
