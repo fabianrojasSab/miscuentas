@@ -31,7 +31,7 @@ export default function Timeline() {
   return (
     <section
       id="section_3"
-      className="bg-slate-900 px-4 py-20 text-white"
+      className="bg-primary px-4 py-20 text-white"
     >
       <div className="mx-auto max-w-5xl">
         <h2 className="text-center text-3xl font-bold sm:text-4xl">

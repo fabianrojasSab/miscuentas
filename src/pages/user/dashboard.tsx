@@ -284,9 +284,9 @@ export default function Dasboard () {
     return (
         <div>
             <Header/>
-            dashboard de usuario
             <Button href="/user/incomes">Registrar Ingreso</Button>
             <Button href="/user/expenses">Registrar gasto</Button>
+            <Button onClick={handleSearchPeriod}>ver</Button>
 
             <FormExpenses createExpense={handleCreateExpenseVariable} expenseToEdit={expenseToEdit} UpdateExpense={handleUpdateExpense}/>
             {error && (
@@ -296,7 +296,6 @@ export default function Dasboard () {
                 <p className="text-green-600 text-center">Ingreso con ID {success} registrado</p>
             )}
 
-            <Button onClick={handleSearchPeriod}>ver</Button>
             {periodYear ? (<div>Datos del: {periodYear?.name} {periodMonth?.name}</div>) : (<div> No hay periodo creado</div>)}
             {/* <TableExpensesByUser onEdit={setExpenseToEdit} reload={reloadTable}/> */}
 

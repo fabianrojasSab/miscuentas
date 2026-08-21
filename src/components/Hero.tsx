@@ -4,7 +4,7 @@ export default function Hero() {
     return (
         <section
         id="section_1"
-        className="flex min-h-[600px] items-center justify-center bg-gradient-to-br from-cyan-500 to-blue-700 px-4 pt-20"
+        className="flex min-h-[600px] items-center justify-center section-overlay px-4 pt-20"
         >
         <div className="mx-auto w-full max-w-4xl text-center">
             <h1 className="text-4xl font-bold text-white sm:text-5xl lg:text-6xl">

@@ -6,7 +6,7 @@ export default function Contact() {
     >
       <div className="mx-auto max-w-7xl">
         <h2 className="text-center text-3xl font-bold text-slate-800 sm:text-4xl">
-          Encuentrame¡
+          !Encuentrame¡
         </h2>
 
         <div className="mt-12 grid gap-8 lg:grid-cols-3">

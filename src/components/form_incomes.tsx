@@ -63,56 +63,109 @@ export const FormIncome = ({ createIncome, incomeToEdit, UpdateIncome }: Props) 
     }, [incomeToEdit]);
 
     return(
-        <div>
-            <form onSubmit={handleSubmit}>
-                <label>Valor</label>
-                <Input
-                    className="mb-4"
-                    type="number"
-                    name="amount"
-                    value={income?.amount ?? ""}
-                    onChange={(e) =>
-                        setIncome(prev => ({
-                            ...prev!,
-                            amount: Number(e.target.value)
-                        }))
-                    }
-                />
-                <label>fecha de ingreso</label>
-                <Input
-                    className="mb-4"
-                    type="text"
-                    name="date"
-                    value={income?.income_date ?? ""}
-                    onChange={(e) =>
-                        setIncome(prev => ({
-                            ...prev!,
-                            income_date: e.target.value
-                        }))
-                    }
-                />
-                <label>Descripcion</label>
-                <Input
-                    className="mb-4"
-                    type="text"
-                    name="description"
-                    value={income?.description ?? ""}
-                    onChange={(e) =>
-                        setIncome(prev => ({
-                            ...prev!,
-                            description: e.target.value
-                        }))
-                    }
-                />
-                
+        <div className="w-full max-w-md mx-auto bg-card">
+            <form
+                onSubmit={handleSubmit}
+                className="space-y-5 rounded-lg border p-6 shadow-sm"
+            >
+                <div>
+                    <h2 className="text-xl font-semibold">
+                        {incomeToEdit ? "Actualizar ingreso" : "Registrar ingreso"}
+                    </h2>
+
+                    <p className="text-sm text-muted-foreground">
+                        {incomeToEdit
+                            ? "Modifica la información del ingreso seleccionado."
+                            : "Ingresa la información de tu nuevo ingreso."}
+                    </p>
+                </div>
+
+                {/* Valor */}
+                <div className="space-y-2">
+                    <label
+                        htmlFor="amount"
+                        className="text-sm font-medium"
+                    >
+                        Valor
+                    </label>
+
+                    <Input
+                        id="amount"
+                        type="number"
+                        name="amount"
+                        min="0"
+                        step="0.01"
+                        placeholder="Ej: 1500000"
+                        value={income?.amount ?? ""}
+                        onChange={(e) =>
+                            setIncome((prev) => ({
+                                ...prev!,
+                                amount: Number(e.target.value),
+                            }))
+                        }
+                        required
+                    />
+                </div>
+
+                {/* Fecha */}
+                <div className="space-y-2">
+                    <label
+                        htmlFor="income_date"
+                        className="text-sm font-medium"
+                    >
+                        Fecha de ingreso
+                    </label>
+
+                    <Input
+                        id="income_date"
+                        type="date"
+                        name="date"
+                        value={income?.income_date ?? ""}
+                        onChange={(e) =>
+                            setIncome((prev) => ({
+                                ...prev!,
+                                income_date: e.target.value,
+                            }))
+                        }
+                        required
+                    />
+                </div>
+
+                {/* Descripción */}
+                <div className="space-y-2">
+                    <label
+                        htmlFor="description"
+                        className="text-sm font-medium"
+                    >
+                        Descripción
+                    </label>
+
+                    <Input
+                        id="description"
+                        type="text"
+                        name="description"
+                        placeholder="Ej: Salario mensual"
+                        value={income?.description ?? ""}
+                        onChange={(e) =>
+                            setIncome((prev) => ({
+                                ...prev!,
+                                description: e.target.value,
+                            }))
+                        }
+                    />
+                </div>
+
+                {/* Error */}
                 {error && (
-                    <p className="text-red-600 text-center">{error}</p>
+                    <p className="rounded-md bg-red-50 p-3 text-sm text-red-600">
+                        {error}
+                    </p>
                 )}
-        
-                <Button type="submit">
+
+                {/* Botón */}
+                <Button type="submit" className="w-full">
                     {incomeToEdit ? "Actualizar ingreso" : "Crear ingreso"}
                 </Button>
-                
             </form>
         </div>
     )

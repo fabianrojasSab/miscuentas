@@ -25,7 +25,7 @@ export const Header = () =>{
     }
 
     return(
-        <div className="flex h-16 shrink-0 items-center gap-2 border-b px-4 shadow-lg">
+        <div className="flex h-16 shrink-0 items-center gap-2 border-b px-4 mb-4 shadow-lg">
             <div className="font-bold max-sm:text-xs hidden sm:block text-foreground">
                 <Image
                     src="/Logo.svg"
@@ -36,7 +36,7 @@ export const Header = () =>{
             </div>
             <div className="font-bold text-2xl text-foreground">
                 <Link href="/">
-                    MisCuentas
+                    MizCuentas
                 </Link>
             </div>
 

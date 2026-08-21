@@ -14,13 +14,13 @@ export default function Navbar() {
 
   return (
     <nav className="fixed top-0 z-50 w-full bg-white shadow-sm">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 lg:px-8">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-1 lg:px-8">
         
         <Image
             src="/Logo.svg"
             alt="Logo"
-            width={40}
-            height={40}
+            width={90}
+            height={90}
         />
 
         {/* Desktop */}
@@ -38,7 +38,7 @@ export default function Navbar() {
           </div>
 
           <a
-            href="#top"
+            href="/"
             className="rounded-full bg-cyan-500 p-3 text-white transition hover:bg-cyan-600"
           >
             <User size={20} />

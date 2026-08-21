@@ -108,8 +108,8 @@ export const FormExpenses = ({ createExpense, expenseToEdit, UpdateExpense }: Pr
     }, [expenseToEdit]);
 
     return(
-        <div>
-            <form onSubmit={handleSubmit}>
+        <div className="w-full max-w-md mx-auto bg-card rounded-lg">
+            <form className="space-y-5 rounded-lg border p-6 shadow-sm" onSubmit={handleSubmit}>
                 <label>Categoria</label>
                 {loading ? (
                     <p>Cargando...</p>

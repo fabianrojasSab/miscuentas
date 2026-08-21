@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function FeaturedTopics() {
   return (
-    <section className="bg-slate-50 px-4 py-16">
+    <section className="bg-secondary px-4 py-16">
       <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-3">
         
         {/* Card Web Design */}
@@ -58,7 +58,7 @@ export default function FeaturedTopics() {
                     </p>
 
                     <button className="mt-6 rounded-full bg-cyan-500 px-6 py-3 font-semibold text-white hover:bg-cyan-600">
-                      Ver más
+                      !Comenzar¡
                     </button>
                   </div>
 

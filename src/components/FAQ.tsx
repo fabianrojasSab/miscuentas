@@ -26,7 +26,7 @@ export default function FAQ() {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section id="section_4" className="px-4 py-20">
+    <section id="section_4" className="bg-card px-4 py-20">
       <div className="mx-auto max-w-7xl">
         <h2 className="text-3xl font-bold text-slate-800">
           Preguntas frecuentes
