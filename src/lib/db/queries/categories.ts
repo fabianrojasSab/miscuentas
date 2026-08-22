@@ -143,3 +143,26 @@ export async function updateCategory(id: number, data: DbUpdateCategoryRow): Pro
         //db.close();
     }  
 }
+
+export async function getCategoriesByType(type: number): Promise<BdNewCategoryRow[]> {
+    const db = getDb();
+
+    try {
+        const allCategoriesResult = await allAsync<BdNewCategoryRow>(
+            db,
+            `SELECT
+                i.*
+            FROM expense_categories i
+            WHERE category_type = ?`,
+            [type],
+        );
+
+        if(!allCategoriesResult){
+            throw new Error("No hay categorias registradas")
+        }
+
+        return allCategoriesResult;
+    }finally {
+        //db.close();
+    }   
+}

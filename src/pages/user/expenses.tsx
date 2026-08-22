@@ -1,4 +1,4 @@
-import { FormExpenses } from "@/components/form_expenses";
+import { FormExpensesFixed } from "@/components/form_expenses";
 import { Header } from "@/components/header";
 import { TableAllExpensesByUser, TableExpensesByUser } from "@/components/table_expenses";
 import { useState } from "react";
@@ -106,7 +106,7 @@ export default function Expenses(){
     return(
         <div>
             <Header/>
-            <FormExpenses createExpense={handleCreateExpense} expenseToEdit={expenseToEdit} UpdateExpense={handleUpdateExpense}/>
+            <FormExpensesFixed createExpense={handleCreateExpense} expenseToEdit={expenseToEdit} UpdateExpense={handleUpdateExpense}/>
             {error && (
                 <p className="text-red-600 text-center">{error}</p>
             )}

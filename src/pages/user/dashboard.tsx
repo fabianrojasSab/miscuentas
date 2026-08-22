@@ -305,7 +305,7 @@ return (
                 </Button>
 
                 <Button href="/user/expenses">
-                    Registrar gasto
+                    Registrar gasto fijo
                 </Button>
 
                 <Button
