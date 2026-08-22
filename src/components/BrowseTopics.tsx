@@ -6,7 +6,6 @@ import Image from "next/image";
 type Topic = {
   title: string;
   description: string;
-  count: number;
   image: string;
 };
 
@@ -15,26 +14,22 @@ const topics: Record<string, Topic[]> = {
     {
       title: "Registra tus ingresos",
       description: "Guarda y consulta todos tus ingresos de forma organizada. Mantén un historial de tus movimientos y conoce mejor el dinero que recibes.",
-      count: 14,
-      image: "/images/topics/undraw_Remote_design_team_re_urdx.png",
+      image: "/images/topics/img1_browse_topics.png",
     },
     {
       title: "Controla tus gastos",
       description: "Registra tus gastos y clasifícalos por categorías para identificar fácilmente en qué estás utilizando tu dinero.",
-      count: 75,
-      image: "/images/topics/undraw_Redesign_feedback_re_jvm0.png",
+      image: "/images/topics/img2_browse_topics.png",
     },
     {
       title: "Organiza tus períodos",
       description: "Gestiona tu información financiera por años, meses, semanas o días para tener un control más detallado de cada período.",
-      count: 100,
-      image: "/images/topics/colleagues-working-cozy-office-medium-shot.png",
+      image: "/images/topics/img3_browse_topics.png",
     },
     {
       title: "Conoce tu estado financiero",
       description: "Consulta la información de tus ingresos y gastos para comprender mejor tu situación financiera y mantener un mayor control sobre tu presupuesto.",
-      count: 100,
-      image: "/images/topics/colleagues-working-cozy-office-medium-shot.png",
+      image: "/images/topics/img4_browse_topics.png",
     },
   ],
 
@@ -87,10 +82,6 @@ export default function BrowseTopics() {
                     {topic.description}
                   </p>
                 </div>
-
-                <span className="rounded-full bg-cyan-100 px-3 py-1 text-sm font-bold text-cyan-700">
-                  {topic.count}
-                </span>
               </div>
 
               <div className="relative mt-6 h-48">

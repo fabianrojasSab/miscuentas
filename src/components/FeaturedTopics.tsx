@@ -17,15 +17,11 @@ export default function FeaturedTopics() {
                 Toma el control de tus finanzas.
               </p>
             </div>
-
-            <span className="flex h-8 min-w-8 items-center justify-center rounded-full bg-cyan-100 px-3 text-sm font-bold text-cyan-700">
-              14
-            </span>
           </div>
 
           <div className="relative mt-6 h-56">
             <Image
-              src="/images/topics/undraw_Remote_design_team_re_urdx.png"
+              src="/images/topics/img_featured_topics.png"
               alt="Web Design"
               fill
               className="object-contain"
@@ -37,7 +33,7 @@ export default function FeaturedTopics() {
         <article className="relative col-span-1 overflow-hidden rounded-3xl lg:col-span-2">
           <div className="relative min-h-[400px]">
             <Image
-              src="/images/businesswoman-using-tablet-analysis.jpg"
+              src="/images/img2_featured_topics.jpg"
               alt="Finance"
               fill
               className="object-cover"
@@ -61,15 +57,10 @@ export default function FeaturedTopics() {
                       !Comenzar¡
                     </button>
                   </div>
-
-                  <span className="rounded-full bg-white/20 px-3 py-1 font-bold text-white">
-                    25
-                  </span>
                 </div>
               </div>
 
               <div className="flex justify-between text-white">
-                <span>Share:</span>
                 <button>🔖</button>
               </div>
             </div>
