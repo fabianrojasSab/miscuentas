@@ -166,7 +166,7 @@ export const TableAllExpensesByUser = ({ reload }: Props) =>{
     }, [reload]);
 
     return(
-        <div>
+        <div className=" max-w-md mx-auto">
             {error && <p className="text-red-600">{error}</p>}
             {loading ? (
                 <p>Cargando...</p>
@@ -174,28 +174,24 @@ export const TableAllExpensesByUser = ({ reload }: Props) =>{
                 <p>No hay gastos registrados.</p>
             ) : (
                 <div className="w-full overflow-x-auto rounded-lg border bg-card shadow-sm">
-                    <table className="w-full min-w-[600px]">
+                    <table className="w-full min-w-[500px]">
                         <thead className="bg-muted/50">
                             <tr>
-                            <th className="px-4 py-3 text-left text-sm font-semibold">Fecha</th>
+                            <th className="px-2 py-3 text-left text-sm font-semibold">Fecha</th>
                             <th className="px-4 py-3 text-left text-sm font-semibold">Monto</th>
                             <th className="px-4 py-3 text-left text-sm font-semibold">Descripción</th>
-                            <th className="px-4 py-3 text-left text-sm font-semibold">Creado en</th>
-                            <th className="px-4 py-3 text-left text-sm font-semibold">Actualizado en</th>
                             </tr>
                         </thead>
                         <tbody>
                             {expenses.map((inc) => (
                             <tr key={inc.id}>
-                                <td className="border p-2">{inc.expense_date}</td>
+                                <td className="p-2">{inc.expense_date}</td>
                                 <td className="px-4 py-3 text-right text-sm font-medium">{Number(inc.amount).toLocaleString("es-CO", {
                                     style: "currency",
                                     currency: "COP",
                                     minimumFractionDigits: 0,
                                 })}</td>
                                 <td className="px-4 py-3 text-sm text-muted-foreground">{inc.description ?? "-"}</td>
-                                <td className="border p-2">{inc.created_at}</td>
-                                <td className="border p-2">{inc.updated_at}</td>
                             </tr>
                             ))}
                         </tbody>

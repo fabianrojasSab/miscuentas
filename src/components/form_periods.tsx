@@ -275,7 +275,7 @@ export const FormPeriods = ({createPeriod, periodToEdit, UpdatePeriod}: props) =
                     </p>
                 )}
         
-                <Button type="submit" className="w-full">
+                <Button type="submit" >
                     {periodToEdit ? "Actualizar periodo" : "Crear periodo"}
                 </Button>
             </form>

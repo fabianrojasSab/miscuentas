@@ -312,7 +312,7 @@ return (
                     variant="transparent"
                     onClick={handleSearchPeriod}
                 >
-                    Consultar período
+                    Consultar gastos del mes
                 </Button>
             </section>
 
@@ -332,7 +332,7 @@ return (
             {/* Información del período */}
             <section className="rounded-xl border bg-card p-6 shadow-sm">
                 <h2 className="text-lg font-semibold">
-                    Período actual
+                    Mes actual
                 </h2>
 
                 {periodYear && periodMonth ? (
@@ -387,7 +387,7 @@ return (
 
                 <div className="rounded-xl border bg-card p-5 shadow-sm">
                     <p className="text-sm text-muted-foreground">
-                        Total de gastos
+                        Total de gastos por pagar
                     </p>
 
                     <p className="mt-1 text-3xl font-bold">
@@ -407,7 +407,7 @@ return (
             <section className="space-y-4">
                 <div>
                     <h2 className="text-xl font-semibold">
-                        Gastos del período
+                        Gastos del mes
                     </h2>
 
                     <p className="text-sm text-muted-foreground">
@@ -423,26 +423,17 @@ return (
                     </div>
                 ) : (
                     <div className="overflow-x-auto rounded-xl border bg-card shadow-sm">
-                        <table className="w-full min-w-[800px]">
+                        <table className="w-full min-w-[700px]">
                             <thead className="bg-muted/50">
                                 <tr>
                                     <th className="px-4 py-3 text-left text-sm font-semibold">
                                         Gasto
                                     </th>
                                     <th className="px-4 py-3 text-left text-sm font-semibold">
-                                        Mes
-                                    </th>
-                                    <th className="px-4 py-3 text-left text-sm font-semibold">
-                                        Categoría
-                                    </th>
-                                    <th className="px-4 py-3 text-right text-sm font-semibold">
                                         Monto
                                     </th>
                                     <th className="px-4 py-3 text-left text-sm font-semibold">
                                         Estado
-                                    </th>
-                                    <th className="px-4 py-3 text-left text-sm font-semibold">
-                                        Tipo
                                     </th>
                                     <th className="px-4 py-3 text-center text-sm font-semibold">
                                         Acción
@@ -460,15 +451,7 @@ return (
                                             {inc.name}
                                         </td>
 
-                                        <td className="px-4 py-3">
-                                            {inc.month}
-                                        </td>
-
-                                        <td className="px-4 py-3">
-                                            {inc.category_name}
-                                        </td>
-
-                                        <td className="px-4 py-3 text-right font-medium">
+                                        <td className="px-4 py-3 text-left font-medium">
                                             {Number(inc.amount).toLocaleString(
                                                 "es-CO",
                                                 {
@@ -483,12 +466,6 @@ return (
                                             <span className="rounded-full bg-muted px-3 py-1 text-sm">
                                                 {inc.state}
                                             </span>
-                                        </td>
-
-                                        <td className="px-4 py-3">
-                                            {getCategoryTypeLabel(
-                                                inc.category_type
-                                            )}
                                         </td>
 
                                         <td className="px-4 py-3 text-center">

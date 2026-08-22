@@ -71,7 +71,7 @@ export const TableIncomesByUser = ({ onEdit, reload }: Props) =>{
     
 
     return(
-        <div>
+        <div className=" max-w-md mx-auto">
             {error && <p className="text-red-600">{error}</p>}
             {loading ? (
                 <p>Cargando...</p>
@@ -79,13 +79,13 @@ export const TableIncomesByUser = ({ onEdit, reload }: Props) =>{
                 <p>No hay ingresos registrados.</p>
             ) : (
                 <div className="w-full overflow-x-auto rounded-lg border bg-card shadow-sm">
-                    <table className="w-full min-w-[600px]">
+                    <table className="w-full min-w-[500px]">
                         <thead className="bg-muted/50">
                             <tr>
-                                <th className="px-4 py-3 text-left text-sm font-semibold">
+                                <th className="px-2 py-3 text-left text-sm font-semibold">
                                     Fecha
                                 </th>
-                                <th className="px-4 py-3 text-right text-sm font-semibold">
+                                <th className="px-4 py-3 text-left text-sm font-semibold">
                                     Monto
                                 </th>
                                 <th className="px-4 py-3 text-left text-sm font-semibold">
@@ -98,13 +98,13 @@ export const TableIncomesByUser = ({ onEdit, reload }: Props) =>{
                             {incomes.map((inc) => (
                                 <tr
                                     key={inc.id}
-                                    className="border-t transition-colors hover:bg-muted/50"
+                                    
                                 >
-                                    <td className="px-4 py-3 text-sm">
+                                    <td className="p-2">
                                         {inc.income_date}
                                     </td>
 
-                                    <td className="px-4 py-3 text-right text-sm font-medium">
+                                    <td className="px-4 py-3 text-left text-sm font-medium">
                                         {Number(inc.amount).toLocaleString("es-CO", {
                                             style: "currency",
                                             currency: "COP",

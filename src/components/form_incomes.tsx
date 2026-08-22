@@ -163,7 +163,7 @@ export const FormIncome = ({ createIncome, incomeToEdit, UpdateIncome }: Props) 
                 )}
 
                 {/* Botón */}
-                <Button type="submit" className="w-full">
+                <Button type="submit" >
                     {incomeToEdit ? "Actualizar ingreso" : "Crear ingreso"}
                 </Button>
             </form>

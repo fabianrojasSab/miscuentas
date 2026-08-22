@@ -216,7 +216,7 @@ export const FormExpenses = ({ createExpense, expenseToEdit, UpdateExpense }: Pr
                     </p>
                 )}
         
-                <Button type="submit" className="w-full">
+                <Button type="submit" >
                     {expenseToEdit ? "Actualizar gasto" : "Crear gasto"}
                 </Button>
             </form>
@@ -401,7 +401,7 @@ export const FormExpensesFixed = ({ createExpense, expenseToEdit, UpdateExpense 
                     </p>
                 )}
         
-                <Button type="submit" className="w-full">
+                <Button type="submit" >
                     {expenseToEdit ? "Actualizar gasto" : "Crear gasto"}
                 </Button>
             </form>

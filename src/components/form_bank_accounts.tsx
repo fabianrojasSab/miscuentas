@@ -109,7 +109,7 @@ export const BankAccounts = ({createBankAccount, bankAccontToEdit, UpdateBankAcc
                 )}
         
                 {/* Botón */}
-                <Button type="submit" className="w-full">Crear banco</Button>
+                <Button type="submit" >Crear banco</Button>
             </form>
         </div>
     )

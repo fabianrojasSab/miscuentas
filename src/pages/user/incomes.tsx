@@ -114,7 +114,6 @@ export default function Incomes(){
     return(
         <div>
             <Header/>
-            Registro de ingreso
             <FormIncome createIncome={handleSubmit} incomeToEdit={incomeToEdit} UpdateIncome={handleUpdateIncome}/>
             {error && (
                 <p className="text-red-600 text-center">{error}</p>

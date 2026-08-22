@@ -137,7 +137,7 @@ export const FormCategory = ({ createCategory, categoryToEdit, UpdateCategory }:
                     </p>
                 )}
         
-                <Button type="submit" className="w-full">
+                <Button type="submit" >
                     {categoryToEdit ? "Actualizar categoria" : "Crear categoria"}
                 </Button>
             </form>
