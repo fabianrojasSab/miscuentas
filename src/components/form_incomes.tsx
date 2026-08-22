@@ -120,7 +120,7 @@ export const FormIncome = ({ createIncome, incomeToEdit, UpdateIncome }: Props) 
                         id="income_date"
                         type="date"
                         name="date"
-                        value={income?.income_date ?? ""}
+                        value={income?.income_date ?? new Date().toISOString().split("T")[0]}
                         onChange={(e) =>
                             setIncome((prev) => ({
                                 ...prev!,

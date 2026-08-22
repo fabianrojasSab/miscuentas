@@ -182,7 +182,7 @@ export const FormExpenses = ({ createExpense, expenseToEdit, UpdateExpense }: Pr
                         className="mb-4"
                         type="date"
                         name="date"
-                        value={expenses?.expense_date ?? ""}
+                        value={expenses?.expense_date ?? new Date().toISOString().split("T")[0]}
                         onChange={(e) =>
                             setExpenses(prev => ({
                                 ...prev!,
@@ -367,7 +367,7 @@ export const FormExpensesFixed = ({ createExpense, expenseToEdit, UpdateExpense 
                         className="mb-4"
                         type="date"
                         name="date"
-                        value={expenses?.expense_date ?? ""}
+                        value={expenses?.expense_date ?? new Date().toISOString().split("T")[0]}
                         onChange={(e) =>
                             setExpenses(prev => ({
                                 ...prev!,
