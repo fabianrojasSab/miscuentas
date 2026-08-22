@@ -36,14 +36,14 @@ export default function Expenses(){
     const [expenseToEdit, setExpenseToEdit] = useState<ExpenseRow | null>(null);
     const [reloadTable, setReloadTable] = useState(false);
 
-    async function handleCreateExpense(expenses: OnboardingData["expenses"]) {
+    async function handleCreateExpense(expense: OnboardingData["expenses"]) {
 
         const res = await fetch("/api/me");
         const dataUser = await res.json();
 
         const body = {
             id: dataUser.user.id,
-            expenses: expenses
+            expense: expense
         };
 
         try {
@@ -104,7 +104,7 @@ export default function Expenses(){
     }
 
     return(
-        <div>
+        <div className="h-full mb-4">
             <Header/>
             <FormExpensesFixed createExpense={handleCreateExpense} expenseToEdit={expenseToEdit} UpdateExpense={handleUpdateExpense}/>
             {error && (
@@ -114,7 +114,6 @@ export default function Expenses(){
                 <p className="text-green-600 text-center">Ingreso con ID {success} registrado</p>
             )}
             <br />
-            Gastos
             <TableAllExpensesByUser onEdit={setExpenseToEdit} reload={reloadTable}/>
         </div>
     )
