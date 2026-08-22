@@ -153,14 +153,14 @@ export default function OnBoarding(){
         }
     }
 
-    async function handleCreateExpenses(expenses: OnboardingData["expenses"]) {
+    async function handleCreateExpenses(expense: OnboardingData["expenses"]) {
 
         const res = await fetch("/api/me");
         const dataUser = await res.json();
 
         const body = {
             id: dataUser.user.id,
-            expenses: expenses
+            expense: expense
         };
 
         try {
@@ -179,7 +179,7 @@ export default function OnBoarding(){
                 return;
             }
 
-            setExpenses(body.expenses);
+            setExpenses(body.expense);
 
         } catch (err) {
             setError("Error al crear los gastos. Por favor, inténtalo de nuevo.");
