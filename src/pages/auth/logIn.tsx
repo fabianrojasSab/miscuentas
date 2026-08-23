@@ -52,7 +52,7 @@ export default function LogIn() {
     return (
         <div>
             <Header />
-            <div className="relative z-10 w-[45%] flex flex-col justify-center items-center px-16">
+            <div className="w-full max-w-md mx-auto">
                 <h1 className="text-5xl font-bold text-gray-900 mb-10">Iniciar sesion</h1>
                 <form onSubmit={handleSubmit}>
                     <Input type="email" name="email" placeholder="Correo electronico" className="mb-4"/>
