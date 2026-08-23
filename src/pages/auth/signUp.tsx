@@ -41,10 +41,10 @@ export default function SignUp() {
     return (
         <div>
             <Header />
-            <div className="relative z-10 w-[45%] flex flex-col justify-center items-center px-16">
+            <div className="w-full max-w-md mx-auto">
                 <h1 className="text-5xl font-bold text-gray-900 mb-10">Registrarse</h1>
                 <form onSubmit={handleSubmit}>
-                    <Input type="text" name="user_name" placeholder="Nombre completo" className="mb-4"/>
+                    <Input type="text" name="user_name" placeholder="Nombre de usuario" className="mb-4"/>
                     <Input type="email" name="email" placeholder="Correo electronico" className="mb-4"/>
                     <Input type="password" name="password" placeholder="Contraseña" className="mb-4"/>
                     <Input type="password" name="passwordConfirm" placeholder="Confirmar contraseña" className="mb-4"/>

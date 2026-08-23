@@ -1,4 +1,5 @@
 import { Search, Bookmark, BookOpen } from "lucide-react";
+import { Button } from "./buttons";
 
 const steps = [
   {
@@ -72,13 +73,13 @@ export default function Timeline() {
         </div>
 
         <div className="mt-16 text-center">
-          <p className="text-slate-300">
+          <p className="text-slate-300 mb-6">
             Quieres saber más?
           </p>
 
-          <button className="mt-4 rounded-full border border-white px-6 py-3 font-semibold transition hover:bg-white hover:text-slate-900">
+          <Button href="/auth/signUp" variant={"transparent"} size={"lg"}>
             Inscribete
-          </button>
+          </Button>
         </div>
       </div>
     </section>

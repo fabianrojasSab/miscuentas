@@ -15,7 +15,7 @@ const buttonVariants = cva(
                     "rounded-full bg-primary px-4 py-2 text-primary-foreground shadow-lg hover:bg-primary/90",
 
                 transparent:
-                    "bg-transparent hover:bg-accent/10 text-foreground",
+                    "rounded-full border border-white px-6 py-3 font-semibold transition hover:bg-white hover:text-slate-900",
 
                 color:
                     "rounded-md bg-surface-color px-4 py-2 text-surface-color-foreground shadow-lg hover:bg-primary/90",

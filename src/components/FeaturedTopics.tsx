@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Button } from "./buttons";
 
 export default function FeaturedTopics() {
   return (
@@ -49,13 +50,13 @@ export default function FeaturedTopics() {
                       Empieza a organizar tus finanzas hoy
                     </h3>
 
-                    <p className="mt-4 text-white/90">
+                    <p className="mt-4 mb-4 text-white/90">
                       No necesitas procesos complicados para comenzar a tener un mejor control de tu dinero. Registra tus ingresos, organiza tus gastos y consulta tu información financiera desde un mismo lugar.
                     </p>
 
-                    <button className="mt-6 rounded-full bg-cyan-500 px-6 py-3 font-semibold text-white hover:bg-cyan-600">
+                    <Button href="/auth/logIn" size={"lg"}>
                       !Comenzar¡
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
