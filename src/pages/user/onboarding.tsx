@@ -12,6 +12,19 @@ type BankAccountForm = {
     bank_name: string,
 };
 
+type ExpenseRow = {
+    id: number,
+    user_id: number,
+    expense_category_id: number,
+    name: string,
+    description: string,
+    expense_date: string,
+    amount: number,
+    created_at: string,
+    updated_at: string,
+    deleted_at: string,
+};
+
 type IncomeForm = {
     amount: number;
     income_date: string;
@@ -37,7 +50,9 @@ export default function OnBoarding(){
     const router = useRouter();
     const [bankAccount, setBankAccount] = useState<BankAccountForm | null>(null);
     const [income, setIncome] = useState<IncomeForm | null>(null);
-    const [expenses, setExpenses] = useState<ExpensesForm | null>(null);
+    const [expenses, setExpenses] = useState<ExpenseRow | null>(null);
+    const [readyToContinue, setReadyToContinue] = useState<boolean>(false);
+    const [complete, setComplete] = useState<boolean>(false);
 
 
     function updateBankAccount(account: OnboardingData["bankAccount"]) {
@@ -49,7 +64,6 @@ export default function OnBoarding(){
     }
 
     function updateExpenses(expenses: ExpensesForm) {
-        setExpenses(expenses);
     }
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -179,7 +193,8 @@ export default function OnBoarding(){
                 return;
             }
 
-            setExpenses(body.expense);
+            setComplete(true);
+            setExpenses(null);
 
         } catch (err) {
             setError("Error al crear los gastos. Por favor, inténtalo de nuevo.");
@@ -226,14 +241,58 @@ export default function OnBoarding(){
     }, []);
 
     return(
-        <div>
+        <div className="mb-6">
             <Header/>
             {bankAccount === null ? (
                 <BankAccounts createBankAccount={handleCreatebankAccount} bankAccontToEdit={bankAccount} UpdateBankAccount={updateBankAccount} />
             ) : income === null ? (
                 <FormIncome createIncome={handleCreateIncome} incomeToEdit={income} UpdateIncome={updateIncome}/>
-            ) : expenses === null ? (
-                <FormExpenses createExpense={handleCreateExpenses} expenseToEdit={expenses} UpdateExpense={updateExpenses}/>
+            ) : readyToContinue === false ? (
+                <div className="mx-auto w-full max-w-2xl space-y-6">
+                    
+                    {/* Encabezado */}
+                    <div className="space-y-2 text-center">
+                        <h1 className="text-2xl font-bold tracking-tight">
+                            Configura tus gastos fijos
+                        </h1>
+
+                        <p className="text-muted-foreground">
+                            Ingresa los gastos fijos que tienes actualmente para comenzar a
+                            organizar mejor tus finanzas.
+                        </p>
+                    </div>
+
+                    {/* Formulario */}
+                    <div className="rounded-xl border bg-card p-6 shadow-sm">
+                        <div className="mb-2">
+                            <h2 className="text-lg font-semibold">
+                                Nuevo gasto fijo
+                            </h2>
+
+                            <p className="text-sm text-muted-foreground">
+                                Registra el nombre, valor, categoría y fecha de pago.
+                            </p>
+                        </div>
+
+                        <FormExpenses
+                            createExpense={handleCreateExpenses}
+                            expenseToEdit={expenses}
+                            UpdateExpense={updateExpenses}
+                        />
+                    </div>
+
+                    {/* Continuar */}
+                    {complete && (
+                        <div className="flex justify-end border-t pt-6">
+                            <Button
+                                onClick={() => setReadyToContinue(true)}
+                            >
+                                Continuar
+                            </Button>
+                        </div>
+                    )}
+
+                </div>
             ) : (
                 <div>
                     <form onSubmit={handleSubmit}>
@@ -245,7 +304,7 @@ export default function OnBoarding(){
                                 {error}
                             </p>
                         )}
-                        <Button type="submit">Continuar</Button>
+                        <Button type="submit">!Hecho¡</Button>
                     </form>
                 </div>
             )}
