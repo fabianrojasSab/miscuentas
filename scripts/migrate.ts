@@ -1,15 +1,19 @@
 import fs from "fs";
 import path from "path";
 import mysql from "mysql2/promise";
+import nextEnv from "@next/env";
 
 const migrationsDir = path.join(process.cwd(), "db", "migrations");
+const { loadEnvConfig } = nextEnv;
+
+loadEnvConfig(process.cwd());
 
 const pool = mysql.createPool({
-    host: "bqfr06jcfwjwbnvfgvmu-mysql.services.clever-cloud.com",
-    port: Number(3306),
-    user: "ujoqabahwd22fqob",
-    password: "7dRzxSdtqp7w3dd9e9Vk",
-    database: "bqfr06jcfwjwbnvfgvmu",
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT),
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
     
     waitForConnections: true,
     connectionLimit: 10,
