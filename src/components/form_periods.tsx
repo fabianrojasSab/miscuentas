@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/buttons"
 import { Input } from "@/components/ui/input"
 import { PeriodType } from "@/emuns/PeriodType"
@@ -95,77 +95,125 @@ export const FormPeriods = ({createPeriod, periodToEdit, UpdatePeriod}: props) =
         setPeriod(null);
     }
 
+    useEffect(() => {
+        if (!periodToEdit) return;
+
+        let periodValue = 0;
+
+        switch (periodToEdit.period_type) {
+            case PeriodType.YEARLY:
+                periodValue = periodToEdit.year ?? 0;
+                break;
+
+            case PeriodType.MONTHLY:
+                periodValue = periodToEdit.month ?? 0;
+                break;
+
+            case PeriodType.WEEKLY:
+                periodValue = periodToEdit.week ?? 0;
+                break;
+
+            case PeriodType.DAILY:
+                periodValue = periodToEdit.day ?? 0;
+                break;
+        }
+
+        setPeriod({
+            name_period: periodToEdit.name,
+            description: periodToEdit.description ?? "",
+            period_type: periodToEdit.period_type,
+            period_value: periodValue,
+            year: periodToEdit.year,
+            month: periodToEdit.month,
+            week: periodToEdit.week,
+            day: periodToEdit.day,
+            parent_id: periodToEdit.parent_id,
+        });
+    }, [periodToEdit]);
+
+
     return(
-        <div>
-            <form onSubmit={handleSubmit}>
-                <label>Nombre</label>
-                <Input
-                    className="mb-4"
-                    type="text"
-                    name="name_period"
-                    value={period?.name_period ?? ""}
-                    onChange={(e) =>
-                        setPeriod(prev => ({
-                            ...prev!,
-                            name_period: e.target.value
-                        }))
-                    }
-                />
-                <label>Descripcion</label>
-                <Input
-                    className="mb-4"
-                    type="text"
-                    name="description"
-                    value={period?.description ?? ""}
-                    onChange={(e) =>
-                        setPeriod(prev => ({
-                            ...prev!,
-                            description: e.target.value
-                        }))
-                    }
-                />
-                <label>Tipo</label>
-                <Select
-                    name="period_type"
-                    value={
-                        period?.period_type != null
-                            ? String(period.period_type)
-                            : ""
-                    }
-                    onValueChange={(value) => {
-                        setPeriod(prev => ({
-                            ...prev!,
-                            period_type: Number(value)
-                        }))
-                        if( Number(value) === 2){handleGetPeriodsYearly() }else{setPeriodsYearly(null)}
+        <div className="w-full max-w-md mx-auto bg-card">
+            <form onSubmit={handleSubmit} className="space-y-5 rounded-lg border p-6 shadow-sm">
+                {/* Nombre */}
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">Nombre</label>
+                    <Input
+                        className="mb-4"
+                        type="text"
+                        name="name_period"
+                        value={period?.name_period ?? ""}
+                        onChange={(e) =>
+                            setPeriod(prev => ({
+                                ...prev!,
+                                name_period: e.target.value
+                            }))
                         }
-                    }
-                >
-                    <SelectTrigger>
-                        <SelectValue placeholder="Selecciona un tipo" />
-                    </SelectTrigger>
+                    />
+                </div>
 
-                    <SelectContent>
-                        <SelectItem value={String(PeriodType.DAILY)}>
-                            Diario
-                        </SelectItem>
+                {/* Descripcion */}
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">Descripcion</label>
+                    <Input
+                        className="mb-4"
+                        type="text"
+                        name="description"
+                        value={period?.description ?? ""}
+                        onChange={(e) =>
+                            setPeriod(prev => ({
+                                ...prev!,
+                                description: e.target.value
+                            }))
+                        }
+                    />
+                </div>
 
-                        <SelectItem value={String(PeriodType.MONTHLY)}>
-                            Mensual
-                        </SelectItem>
+                {/* Tipo */}
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">Tipo</label>
+                    <Select
+                        name="period_type"
+                        value={
+                            period?.period_type != null
+                                ? String(period.period_type)
+                                : ""
+                        }
+                        onValueChange={(value) => {
+                            setPeriod(prev => ({
+                                ...prev!,
+                                period_type: Number(value)
+                            }))
+                            if( Number(value) === 2){handleGetPeriodsYearly() }else{setPeriodsYearly(null)}
+                            }
+                        }
+                    >
+                        <SelectTrigger>
+                            <SelectValue placeholder="Selecciona un tipo" />
+                        </SelectTrigger>
 
-                        <SelectItem value={String(PeriodType.WEEKLY)}>
-                            Semanal
-                        </SelectItem>
+                        <SelectContent>
+                            <SelectItem value={String(PeriodType.DAILY)}>
+                                Diario
+                            </SelectItem>
 
-                        <SelectItem value={String(PeriodType.YEARLY)}>
-                            Anual
-                        </SelectItem>
-                    </SelectContent>
-                </Select>
+                            <SelectItem value={String(PeriodType.MONTHLY)}>
+                                Mensual
+                            </SelectItem>
+
+                            <SelectItem value={String(PeriodType.WEEKLY)}>
+                                Semanal
+                            </SelectItem>
+
+                            <SelectItem value={String(PeriodType.YEARLY)}>
+                                Anual
+                            </SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
                 {periodsYearly && (
-                    <div>
-                        <label>Año</label>
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium">Año</label>
                         <Select
                             name="year"
                             value={
@@ -203,24 +251,31 @@ export const FormPeriods = ({createPeriod, periodToEdit, UpdatePeriod}: props) =
                         </Select>
                     </div>
                 )}
-                <label>Periodo</label>
-                <Input
-                    className="mb-4"
-                    type="text"
-                    name="period_value"
-                    value={period?.period_value ?? ""}
-                    onChange={(e) =>
-                        setPeriod(prev => ({
-                            ...prev!,
-                            period_value: Number(e.target.value)
-                        }))
-                    }
-                />
+
+                {/* Periodo */}
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">Periodo</label>
+                    <Input
+                        className="mb-4"
+                        type="text"
+                        name="period_value"
+                        value={period?.period_value ?? ""}
+                        onChange={(e) =>
+                            setPeriod(prev => ({
+                                ...prev!,
+                                period_value: Number(e.target.value)
+                            }))
+                        }
+                    />
+                </div>
+                {/* Error */}
                 {error && (
-                    <p className="text-red-600 text-center">{error}</p>
+                    <p className="rounded-md bg-red-50 p-3 text-sm text-red-600">
+                        {error}
+                    </p>
                 )}
         
-                <Button type="submit">
+                <Button type="submit" >
                     {periodToEdit ? "Actualizar periodo" : "Crear periodo"}
                 </Button>
             </form>

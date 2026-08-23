@@ -3,6 +3,13 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Header } from "@/components/header";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import Navbar from "@/components/Navbar";
+import Hero from "@/components/Hero";
+import FeaturedTopics from "@/components/FeaturedTopics";
+import BrowseTopics from "@/components/BrowseTopics";
+import Timeline from "@/components/Timeline";
+import FAQ from "@/components/FAQ";
+import Contact from "@/components/Contact";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,14 +41,14 @@ export default function Home() {
   }, []);
 
   return (
-    <div
-      className={`${geistSans.className} ${geistMono.className} flex min-h-screen items-center justify-center bg-background font-sans`}
-    >
-      <main>
-        <Header />
-        <div className="flex h-screen w-screen items-center flex-col">
-        </div>
-      </main>
-    </div>
+    <main>
+      <Navbar />
+      <Hero />
+      <FeaturedTopics />
+      <BrowseTopics />
+      <Timeline />
+      <FAQ />
+      <Contact />
+    </main>
   );
 }

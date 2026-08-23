@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { parse } from "cookie";
 import { getUserBySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
-import { createCategory, deleteCategory, getAllCategories, updateCategory } from "@/lib/db/queries/categories";
+import { createCategory, deleteCategory, getAllCategories, getCategoriesByType, updateCategory } from "@/lib/db/queries/categories";
 
 type CategoryForm = {
     name_category: string;
@@ -49,9 +49,16 @@ export default async function handler(
             });
         }
         case "GET": {
-            const categories = await getAllCategories();
+            const { type } = req.query;
 
-            return res.status(200).json({ categories });
+            if (type){
+                const categories = await getCategoriesByType(Number(type));
+                return res.status(200).json({ categories });
+            }else {
+                const categories = await getAllCategories();
+                return res.status(200).json({ categories });
+            }
+
         }
         case "DELETE": {
             const { id } = req.body as {

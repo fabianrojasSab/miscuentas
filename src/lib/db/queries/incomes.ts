@@ -51,7 +51,7 @@ export async function createIncomes({
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
-        db.close();
+        //db.close();
     }  
 }
 
@@ -80,7 +80,7 @@ export async function getAllIncomesByUser(id: number): Promise<DbIncomeRow[]> {
 
         return allIncomesResult;
     }finally {
-        db.close();
+        //db.close();
     }   
 }
 
@@ -103,7 +103,7 @@ export async function getAllIncomes(): Promise<DbIncomeRow[]> {
 
         return allIncomesResult;
     }finally {
-        db.close();
+        //db.close();
     }   
 }
 
@@ -131,7 +131,7 @@ export async function deleteIncomes(id: number): Promise<{ id: number }> {
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
-        db.close();
+        //db.close();
     }  
 }
 
@@ -147,7 +147,7 @@ export async function updateIncomes(id: number, data: DbUpdateIncomeRow): Promis
         const updateResult = await runAsync(
             db,
             `UPDATE incomes SET
-            (amount, income_date, description, updated_at) = (?, ?, ?, ?)
+            amount = ?, income_date = ?, description = ?, updated_at = ?
             WHERE id = ?`,
             [data.amount, data.income_date, data.description, isNow(), id],
         );
@@ -161,6 +161,6 @@ export async function updateIncomes(id: number, data: DbUpdateIncomeRow): Promis
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
-        db.close();
+        //db.close();
     }  
 }

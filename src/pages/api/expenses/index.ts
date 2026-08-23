@@ -2,13 +2,14 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { parse } from "cookie";
 import { getUserBySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { get } from "http";
-import { createExpenses, deleteExpense, getAllExpenses, getAllExpensesByUser, getExpensesByUser, updateExpense } from "@/lib/db/queries/expenses";
+import { createExpenses, createExpenseVariable, deleteExpense, getAllExpenses, getAllExpensesByUser, getExpensesByUser, updateExpense } from "@/lib/db/queries/expenses";
+import { getExpenseCateroryById } from "@/lib/db/queries/expense_categories";
 
 type ExpensesForm = {
     expense_category_id: number;
     name: string;
     description: string;
-    income_date: string;
+    expense_date: string;
     amount: number;
 };
 
@@ -28,24 +29,35 @@ export default async function handler(
         switch (req.method) {
         case "POST": {
 
-            const { id, expenses} = req.body as {
+            const { id, expense, idPeriod, dashboard} = req.body as {
                 id: number,
-                expenses: ExpensesForm
+                expense: ExpensesForm,
+                idPeriod: number,
+                dashboard: boolean,
             };
 
-            if (!id || !expenses) {
+            if (!id || !expense) {
                 return res
                 .status(400)
-                .json({ error: "Faltan campos obligatorios" + id + expenses});
+                .json({ error: "Faltan campos obligatorios" + id + expense});
             }
 
             const newData = {
                 userId: id,
-                name: expenses.name,
-                amount: expenses.amount,
-                date: expenses.income_date,
-                description: expenses.description ?? "",
-                category: expenses.expense_category_id,
+                name: expense.name,
+                amount: expense.amount,
+                date: expense.expense_date,
+                description: expense.description ?? "",
+                category: expense.expense_category_id,
+            }
+
+            if(dashboard === true ) {
+                const expenseResult = await createExpenseVariable(id, newData, idPeriod)
+
+                return res.status(200).json({
+                    success: true,
+                    id: expenseResult.id
+                });
             }
 
             const expenseResult = await createExpenses(newData);

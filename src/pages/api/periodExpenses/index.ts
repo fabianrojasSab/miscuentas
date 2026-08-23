@@ -70,7 +70,9 @@ export default async function handler(
             });
         }
         case "GET": {
-            const periodExpenses =  await getPeriodExpensesByUser(user.id)
+            const { periodId } = req.query;
+
+            const periodExpenses =  await getPeriodExpensesByUser(user.id, Number(periodId))
 
 
             return res.status(200).json({ periodExpenses });

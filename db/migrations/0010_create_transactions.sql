@@ -1,5 +1,5 @@
 CREATE TABLE transactions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INTEGER NOT NULL,
     account_id INTEGER NOT NULL,
     description TEXT,

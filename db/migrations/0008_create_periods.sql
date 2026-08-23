@@ -1,5 +1,5 @@
 CREATE TABLE periods (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     name TEXT NOT NULL,
     description TEXT NOT NULL,
     period_type INTEGER NOT NULL,

@@ -1,10 +1,9 @@
 import { Button } from "@/components/buttons";
+import { FormExpenses } from "@/components/form_expenses";
 import { Header } from "@/components/header";
-import { TableExpensesByUser } from "@/components/table_expenses";
 import { ExpenseCategoryType } from "@/emuns/ExpenseCategoryType";
-import { useEffect, useState } from "react";
-import { GiConsoleController } from "react-icons/gi";
-//ARREGLAR EL FORMULARIO DE LOS PERIODOS AL MOMENTO DE CREAR LOS MESES
+import { useState } from "react";
+
 type PeriodRow = {
     id: number,
     name: string,
@@ -25,7 +24,7 @@ type ExpenseRow = {
     expense_category_id: number,
     name: string,
     description: string,
-    income_date: string,
+    expense_date: string,
     amount: number,
     created_at: string,
     updated_at: string,
@@ -43,6 +42,14 @@ export type BdPeriodExpensesRow = {
     category_type: number,
 }
 
+type ExpensesForm = {
+    expense_category_id: number;
+    name: string;
+    description: string;
+    expense_date: string;
+    amount: number;
+};
+
 export default function Dasboard () {
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
@@ -51,11 +58,17 @@ export default function Dasboard () {
     const [expenseToEdit, setExpenseToEdit] = useState<ExpenseRow | null>(null);
     const [reloadTable, setReloadTable] = useState(false);
     const [periodExpenses, setPeriodExpenses] = useState<BdPeriodExpensesRow[]>([]);
+    const [success, setSuccess] = useState<string | null>(null);
 
-    function getTotalPeriodExpenses(periodExpenses: BdPeriodExpensesRow[]): number {
-        return periodExpenses.reduce((total, expense) => {
-            return total + Number(expense.amount);
-        }, 0);
+    //Funcion para calcular el total a pagar de los gastos del periodo teniendo el cuenta el estado del gasto
+    function getTotalPeriodExpenses(
+        periodExpenses: BdPeriodExpensesRow[]
+    ): number {
+        return periodExpenses
+            .filter((expense) => expense.state === "Pendiente")
+            .reduce((total, expense) => {
+                return total + Number(expense.amount);
+            }, 0);
     }
 
     function getCategoryTypeLabel(type: ExpenseCategoryType): string {
@@ -74,6 +87,7 @@ export default function Dasboard () {
         }
     }
 
+    //Funcion para hacer el cambio de estado del gasto del periodo
     async function handleCheckpay(expense: BdPeriodExpensesRow){
         try {
 
@@ -169,7 +183,7 @@ export default function Dasboard () {
                 if(Object.keys(dataPeriodsMonth).length != 0){
 
                     //consulta y valida si tiene gastos del periodo actual creados
-                    const res = await fetch(`/api/periodExpenses`, {
+                    const res = await fetch(`/api/periodExpenses?periodId=${dataPeriodsMonth.periodBymonth.id}`, {
                         method: "GET",
                     });
                     const dataPeriodExpenses = await res.json();
@@ -213,33 +227,271 @@ export default function Dasboard () {
 
     }
 
-    return (
-        <div>
-            <Header/>
-            dashboard de usuario
-            <Button href="/user/incomes">Registrar Ingreso</Button>
-            <Button href="/user/expenses">Registrar gasto</Button>
-            <Button onClick={handleSearchPeriod}>ver</Button>
-            {periodYear ? (<div>Datos del: {periodYear?.name} {periodMonth?.name}</div>) : (<div> No hay periodo creado</div>)}
-            {/* <TableExpensesByUser onEdit={setExpenseToEdit} reload={reloadTable}/> */}
+    //Funcion para crear un gasto variable
+    async function handleCreateExpenseVariable(expense: ExpensesForm) {
+        const res = await fetch("/api/me");
+        const dataUser = await res.json();        
+        let date = new Date();
+        let year = date.getFullYear();
+        let month = date.getMonth() + 1;
 
-                    {periodExpenses.map((inc) => (
-                    <tr key={inc.id}>
-                        <td className="border p-2">{inc.name}</td>
-                        <td className="border p-2">{inc.month}</td>
-                        <td className="border p-2">{inc.category_name}</td>
-                        <td className="border p-2">{inc.amount}</td>
-                        <td className="border p-2">{inc.state}</td>
-                        <td className="border p-2">{getCategoryTypeLabel(inc.category_type)}</td>
-                        {inc.state === "Pendiente" && (
-                            <td className="border p-2"><Button onClick={() => handleCheckpay(inc)}>Pagar</Button></td>
+        try {
+            //consulta y valida si hay un periodo del mes actual, arreglar para que valide con el mes actual
+            let res = await fetch(`/api/periods?month=${month}&year=${year}`, {
+                method: "GET",
+            });
+            const dataPeriodsMonth = await res.json();
 
+            if (!res.ok) {
+                setError(dataPeriodsMonth.error);
+                return;
+            }
+
+            const dataToSend = {
+                id: dataUser.user.id,
+                expense: expense,
+                idPeriod: dataPeriodsMonth.periodBymonth.id,
+                dashboard: true,
+            }
+    
+            res = await fetch("/api/expenses", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(dataToSend),
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data.error);
+                return;
+            }
+
+            setSuccess(data.id);
+            setTimeout(() => setSuccess(null), 5000);
+
+        } catch (err) {
+            setError("Error al iniciar sesión. Por favor, inténtalo de nuevo.");
+            setTimeout(() => setError(null), 5000);
+        }
+    }
+
+    async function handleUpdateExpense(){
+
+    }
+
+return (
+    <div className="min-h-screen bg-background">
+        <Header />
+
+        <main className="container mx-auto space-y-8 px-4 py-8">
+            
+            {/* Encabezado */}
+            <section className="space-y-2">
+                <h1 className="text-3xl font-bold tracking-tight">
+                    Administración de gastos
+                </h1>
+
+                <p className="text-muted-foreground">
+                    Registra, administra y consulta tus gastos del período actual.
+                </p>
+            </section>
+
+            {/* Acciones principales */}
+            <section className="flex flex-wrap gap-3">
+                <Button href="/user/incomes">
+                    Registrar ingreso
+                </Button>
+
+                <Button href="/user/expenses">
+                    Registrar gasto fijo
+                </Button>
+
+                <Button
+                    variant="transparent"
+                    onClick={handleSearchPeriod}
+                >
+                    Consultar gastos del mes
+                </Button>
+            </section>
+
+            {/* Mensajes */}
+            {error && (
+                <div className="rounded-md border border-red-200 bg-red-50 p-4 text-red-600">
+                    {error}
+                </div>
+            )}
+
+            {success && (
+                <div className="rounded-md border border-green-200 bg-green-50 p-4 text-green-600">
+                    Ingreso con ID {success} registrado correctamente.
+                </div>
+            )}
+
+            {/* Información del período */}
+            <section className="rounded-xl border bg-card p-6 shadow-sm">
+                <h2 className="text-lg font-semibold">
+                    Mes actual
+                </h2>
+
+                {periodYear && periodMonth ? (
+                    <div className="mt-2">
+                        <p className="text-muted-foreground">
+                            Datos del período:
+                        </p>
+
+                        <p className="text-xl font-medium">
+                            {periodYear.name} {periodMonth.name}
+                        </p>
+                    </div>
+                ) : (
+                    <p className="mt-2 text-muted-foreground">
+                        No hay un período creado para la fecha actual.
+                    </p>
+                )}
+            </section>
+
+            {/* Formulario */}
+            <section className="rounded-xl border bg-card p-6 shadow-sm">
+                <div className="mb-6">
+                    <h2 className="text-xl font-semibold">
+                        {expenseToEdit
+                            ? "Actualizar gasto"
+                            : "Registrar nuevo gasto"}
+                    </h2>
+
+                    <p className="text-sm text-muted-foreground">
+                        Completa la información del gasto.
+                    </p>
+                </div>
+
+                <FormExpenses
+                    createExpense={handleCreateExpenseVariable}
+                    expenseToEdit={expenseToEdit}
+                    UpdateExpense={handleUpdateExpense}
+                />
+            </section>
+
+            {/* Resumen */}
+            <section className="grid gap-4 md:grid-cols-2">
+                <div className="rounded-xl border bg-card p-5 shadow-sm">
+                    <p className="text-sm text-muted-foreground">
+                        Cantidad de gastos
+                    </p>
+
+                    <p className="mt-1 text-3xl font-bold">
+                        {periodExpenses.length}
+                    </p>
+                </div>
+
+                <div className="rounded-xl border bg-card p-5 shadow-sm">
+                    <p className="text-sm text-muted-foreground">
+                        Total de gastos por pagar
+                    </p>
+
+                    <p className="mt-1 text-3xl font-bold">
+                        {getTotalPeriodExpenses(periodExpenses).toLocaleString(
+                            "es-CO",
+                            {
+                                style: "currency",
+                                currency: "COP",
+                                minimumFractionDigits: 0,
+                            }
                         )}
-                    </tr>
-                    ))}
-            <p>
-                Total gastos: ${getTotalPeriodExpenses(periodExpenses)}
-            </p>
-        </div>
-    )
+                    </p>
+                </div>
+            </section>
+
+            {/* Tabla */}
+            <section className="space-y-4">
+                <div>
+                    <h2 className="text-xl font-semibold">
+                        Gastos del mes
+                    </h2>
+
+                    <p className="text-sm text-muted-foreground">
+                        Consulta y administra los gastos registrados.
+                    </p>
+                </div>
+
+                {periodExpenses.length === 0 ? (
+                    <div className="rounded-xl border border-dashed p-8 text-center">
+                        <p className="text-muted-foreground">
+                            No hay gastos registrados para este período.
+                        </p>
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto rounded-xl border bg-card shadow-sm">
+                        <table className="w-full min-w-[700px]">
+                            <thead className="bg-muted/50">
+                                <tr>
+                                    <th className="px-4 py-3 text-left text-sm font-semibold">
+                                        Gasto
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-sm font-semibold">
+                                        Monto
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-sm font-semibold">
+                                        Estado
+                                    </th>
+                                    <th className="px-4 py-3 text-center text-sm font-semibold">
+                                        Acción
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {periodExpenses.map((inc) => (
+                                    <tr
+                                        key={inc.id}
+                                        className="border-t transition-colors hover:bg-muted/50"
+                                    >
+                                        <td className="px-4 py-3">
+                                            {inc.name}
+                                        </td>
+
+                                        <td className="px-4 py-3 text-left font-medium">
+                                            {Number(inc.amount).toLocaleString(
+                                                "es-CO",
+                                                {
+                                                    style: "currency",
+                                                    currency: "COP",
+                                                    minimumFractionDigits: 0,
+                                                }
+                                            )}
+                                        </td>
+
+                                        <td className="px-4 py-3">
+                                            <span className="rounded-full bg-muted px-3 py-1 text-sm">
+                                                {inc.state}
+                                            </span>
+                                        </td>
+
+                                        <td className="px-4 py-3 text-center">
+                                            {inc.state === "Pendiente" ? (
+                                                <Button
+                                                    size="sm"
+                                                    onClick={() =>
+                                                        handleCheckpay(inc)
+                                                    }
+                                                >
+                                                    Pagar
+                                                </Button>
+                                            ) : (
+                                                <span className="text-sm text-muted-foreground">
+                                                    Pagado
+                                                </span>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </section>
+        </main>
+    </div>
+);
 }

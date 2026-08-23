@@ -1,5 +1,5 @@
 CREATE TABLE period_expenses (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     period_id INTEGER NOT NULL,
     expense_id INTEGER NOT NULL,
     expense_date TEXT NOT NULL,

@@ -1,4 +1,4 @@
-import { FormExpenses } from "@/components/form_expenses";
+import { FormExpensesFixed } from "@/components/form_expenses";
 import { Header } from "@/components/header";
 import { TableAllExpensesByUser, TableExpensesByUser } from "@/components/table_expenses";
 import { useState } from "react";
@@ -7,7 +7,7 @@ type ExpensesForm = {
     expense_category_id: number;
     name: string;
     description: string;
-    income_date: string;
+    expense_date: string;
     amount: number;
 };
 
@@ -23,7 +23,7 @@ type ExpenseRow = {
     expense_category_id: number,
     name: string,
     description: string,
-    income_date: string,
+    expense_date: string,
     amount: number,
     created_at: string,
     updated_at: string,
@@ -36,14 +36,14 @@ export default function Expenses(){
     const [expenseToEdit, setExpenseToEdit] = useState<ExpenseRow | null>(null);
     const [reloadTable, setReloadTable] = useState(false);
 
-    async function handleCreateExpense(expenses: OnboardingData["expenses"]) {
+    async function handleCreateExpense(expense: OnboardingData["expenses"]) {
 
         const res = await fetch("/api/me");
         const dataUser = await res.json();
 
         const body = {
             id: dataUser.user.id,
-            Expense: expenses
+            expense: expense
         };
 
         try {
@@ -104,9 +104,9 @@ export default function Expenses(){
     }
 
     return(
-        <div>
+        <div className="h-full mb-4">
             <Header/>
-            <FormExpenses createExpense={handleCreateExpense} expenseToEdit={expenseToEdit} UpdateExpense={handleUpdateExpense}/>
+            <FormExpensesFixed createExpense={handleCreateExpense} expenseToEdit={expenseToEdit} UpdateExpense={handleUpdateExpense}/>
             {error && (
                 <p className="text-red-600 text-center">{error}</p>
             )}
@@ -114,7 +114,6 @@ export default function Expenses(){
                 <p className="text-green-600 text-center">Ingreso con ID {success} registrado</p>
             )}
             <br />
-            Gastos
             <TableAllExpensesByUser onEdit={setExpenseToEdit} reload={reloadTable}/>
         </div>
     )

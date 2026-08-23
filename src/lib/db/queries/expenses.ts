@@ -13,7 +13,7 @@ export type DbUpdateExpenseRow = {
     expense_category_id: number,
     name: string,
     description: string,
-    income_date: string,
+    expense_date: string,
     amount:number
 }
 
@@ -23,7 +23,7 @@ export type BdExpenseRow = {
     category_name: string,
     category_type: number,
     name: string,
-    income_date: string,
+    expense_date: string,
     amount: number,
 }
 
@@ -45,7 +45,7 @@ export async function createExpenses({
 
         const expenses = await runAsync(
             db,
-            `INSERT INTO expenses (user_id, expense_category_id, name, description, income_date, amount, created_at, updated_at)
+            `INSERT INTO expenses (user_id, expense_category_id, name, description, expense_date, amount, created_at, updated_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
             [userId, category, name, description, date, amount, isNow(), isNow()],
         );
@@ -57,7 +57,7 @@ export async function createExpenses({
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
-        db.close();
+        //db.close();
     }  
 }
 
@@ -80,13 +80,13 @@ export async function getAllExpensesByUser(id: number): Promise<BdNewExpenseRow[
 
         return allExpensesResult;
     }finally {
-        db.close();
+        //db.close();
     }   
 }
 
 export async function getExpensesByUser(id: number): Promise<BdExpenseRow[]> {
     const db = getDb();
-//modificar la columna income_date esta mal nombrada
+
     try {
         const allExpensesResult = await allAsync<BdExpenseRow>(
             db,
@@ -96,11 +96,11 @@ export async function getExpensesByUser(id: number): Promise<BdExpenseRow[]> {
                 ec.name as category_name,
                 ec.category_type,
                 e.name,
-                e.income_date,
+                e.expense_date,
                 e.amount
             FROM expenses e
             INNER JOIN expense_categories ec ON e.expense_category_id = ec.id
-            WHERE e.user_id = ?`,
+            WHERE e.user_id = ? and ec.category_type = 1`,
             [id],
         );
 
@@ -110,7 +110,7 @@ export async function getExpensesByUser(id: number): Promise<BdExpenseRow[]> {
 
         return allExpensesResult;
     }finally {
-        db.close();
+        //db.close();
     }   
 }
 
@@ -133,7 +133,7 @@ export async function getAllExpenses(): Promise<BdNewExpenseRow[]> {
 
         return allExpensesResult;
     }finally {
-        db.close();
+        //db.close();
     }   
 }
 
@@ -160,7 +160,7 @@ export async function deleteExpense(id: number): Promise<{ id: number }> {
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
-        db.close();
+        //db.close();
     }  
 }
 
@@ -176,9 +176,9 @@ export async function updateExpense(id: number, data: DbUpdateExpenseRow): Promi
         const updateResult = await runAsync(
             db,
             `UPDATE expenses SET
-            (expense_category_id, name, description, income_date, amount, updated_at) = (?, ?, ?, ?, ?, ?)
+            expense_category_id = ?, name = ?, description = ?, expense_date = ?, amount = ?, updated_at = ?
             WHERE id = ?`,
-            [data.expense_category_id, data.name, data.description, data.income_date, data.amount, isNow(), id],
+            [data.expense_category_id, data.name, data.description, data.expense_date, data.amount, isNow(), id],
         );
         await runAsync(db, "COMMIT");
 
@@ -190,6 +190,55 @@ export async function updateExpense(id: number, data: DbUpdateExpenseRow): Promi
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
-        db.close();
+        //db.close();
+    }  
+}
+
+export async function createExpenseVariable(id: number, newExpense: BdNewExpenseRow, idPeriod: number): Promise<{ id: number }> {
+    const db = getDb();
+    const isNow = () => new Date().toISOString();
+    let began = false;
+
+    try {
+        await runAsync(db, "BEGIN");
+        began = true;
+
+        const expense = await runAsync(
+            db,
+            `INSERT INTO expenses (user_id, expense_category_id, name, description, expense_date, amount, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [id, newExpense.category, newExpense.name, newExpense.description, newExpense.date, newExpense.amount, isNow(), isNow()],
+        );
+
+        const periodExpense = await runAsync(
+            db,
+            `INSERT INTO period_expenses
+            (
+                period_id,
+                expense_id,
+                expense_date,
+                amount,
+                expense_state_id,
+                created_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?)`,
+            [
+                idPeriod,
+                expense.lastID,
+                newExpense.date,
+                newExpense.amount,
+                2,
+                isNow()
+            ]
+        );
+
+        await runAsync(db, "COMMIT");
+
+        return {id: periodExpense.lastID};
+    }catch (e) {
+        if (began) await runAsync(db, "ROLLBACK");
+        throw e;
+    } finally {
+        //db.close();
     }  
 }

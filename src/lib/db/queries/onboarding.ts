@@ -3,9 +3,9 @@ import { getDb, runAsync } from "../index";
 export type NewData = {
     id: number;
     BankAccount : {
-        account: number;
-        type: string;
-        bank: string;
+        account_number: number;
+        account_type: string;
+        bank_name: string;
     };
     Income : {
         amount: number;
@@ -16,8 +16,6 @@ export type NewData = {
 
 export async function createConfigInit({
     id,
-    BankAccount,
-    Income
 }: NewData): Promise<{ ok: boolean }> {
     const db = getDb();
     const isNow = () => new Date().toISOString();
@@ -26,20 +24,6 @@ export async function createConfigInit({
     try {
         await runAsync(db, "BEGIN");
         began = true;
-
-        const accResult = await runAsync(
-            db,
-            `INSERT INTO bank_accounts (user_id, account_number, account_type, bank_name, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?)`,
-            [id, BankAccount.account, BankAccount.type, BankAccount.bank, isNow(), isNow()]
-        );
-
-        const incomeResult = await runAsync(
-            db,
-            `INSERT INTO incomes (user_id, amount, income_date, description, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?)`,
-            [id, Income.amount, Income.date, Income.description, isNow(), isNow()]
-        );
 
         await runAsync(
             db,
@@ -54,6 +38,6 @@ export async function createConfigInit({
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
-        db.close();
+        //db.close();
     }        
 }

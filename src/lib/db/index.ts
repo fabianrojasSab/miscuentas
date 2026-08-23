@@ -1,45 +1,62 @@
-import sqlite3 from "sqlite3";
-import path from "path";
+import mysql from "mysql2/promise";
+import nextEnv from "@next/env";
 
-const dbPath = path.join(process.cwd(), "db", "miscuentas.sqlite");
+const { loadEnvConfig } = nextEnv;
+
+loadEnvConfig(process.cwd());
+
+const pool = mysql.createPool({
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT),
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+});
 
 export function getDb() {
-    const db = new sqlite3.Database(dbPath);
-    db.run("PRAGMA foreign_keys = ON;");
-    return db;
+    return pool;
 }
 
-export function runAsync(
-    db: sqlite3.Database,
+export async function runAsync(
+    db: mysql.Pool,
     sql: string,
-    params: any[] = []
+    params: unknown[] = []
 ): Promise<{ lastID: number; changes: number }> {
-    return new Promise((resolve, reject) => {
-        db.run(sql, params, function (this: sqlite3.RunResult, err) {
-        if (err) return reject(err);
-        resolve({
-            lastID: this.lastID ?? 0,
-            changes: this.changes ?? 0,
-        });
-        });
-    });
+
+    const [result] = await db.query(sql, params);
+
+    const resultSet = result as mysql.ResultSetHeader;
+
+    return {
+        lastID: resultSet.insertId ?? 0,
+        changes: resultSet.affectedRows ?? 0,
+    };
 }
 
-export function getAsync<T>(db: sqlite3.Database, sql: string, params: any[] = []) {
-    return new Promise<T | undefined>((resolve, reject) => {
-        db.get(sql, params, (err, row) => (err ? reject(err) : resolve(row as T)));
-    });
-}
-
-export function allAsync<T>(
-    db: sqlite3.Database,
+export async function getAsync<T>(
+    db: mysql.Pool,
     sql: string,
-    params: any[] = []
+    params: unknown[] = []
+): Promise<T | undefined> {
+
+    const [rows] = await db.query(sql, params);
+
+    const result = rows as T[];
+
+    return result[0];
+}
+
+export async function allAsync<T>(
+    db: mysql.Pool,
+    sql: string,
+    params: unknown[] = []
 ): Promise<T[]> {
-    return new Promise((resolve, reject) => {
-        db.all(sql, params, (err, rows) => {
-        if (err) return reject(err);
-        resolve(rows as T[]);
-        });
-    });
+
+    const [rows] = await db.query(sql, params);
+
+    return rows as T[];
 }

@@ -47,22 +47,37 @@ export async function updateUserById(
         setClauses.push(`${field} = ?`);
         values.push(value);
     }
-    values.push(id); // Para la cláusula WHERE
+    // values.push(id); // Para la cláusula WHERE
 
-    const sql = `UPDATE users SET ${setClauses.join(", ")}, updated_at = ? WHERE id = ?`;
-    values.splice(values.length - 1, 0, new Date().toISOString()); // Insertar updated_at antes del id
-    return new Promise((resolve, reject) => {
-        db.run(sql, values, function (err) {
-        if (err) return reject(err);
-        resolve();
-        });
-    });
+    // const sql = `UPDATE users SET ${setClauses.join(", ")}, updated_at = ? WHERE id = ?`;
+    const updatedResult = await allAsync<DbUserRow>(
+        db,
+        `UPDATE users SET
+            ${setClauses.join(", ")},
+            updated_at = ?
+        WHERE id = ?`,
+        [fieldsToUpdate.name, fieldsToUpdate.email, fieldsToUpdate.password, fieldsToUpdate.sw_admin, id]
+    );
+
+    await runAsync(db, "COMMIT");
+
+
+    // values.splice(values.length - 1, 0, new Date().toISOString()); // Insertar updated_at antes del id
+    // return new Promise((resolve, reject) => {
+    //     db.run(sql, values, function (err) {
+    //     if (err) return reject(err);
+    //     resolve();
+    //     });
+    // });
 }
 
 export async function getAllUsers(): Promise<DbUserRow[]> {
     const db = getDb();
-
+    let began = false;
+    
     try {
+        await runAsync(db, "BEGIN");
+        began = true;
         const allUsersResult = await allAsync<DbUserRow>(
             db,
             `SELECT id,
@@ -83,15 +98,20 @@ export async function getAllUsers(): Promise<DbUserRow[]> {
         );
 
         return allUsersResult;
-    }finally {
-        db.close();
-    }   
+    }catch (e) {
+        if (began) await runAsync(db, "ROLLBACK");
+        throw e;
+    }
 }
 
 export async function getUserByEmail(email: string): Promise<DbUserRow> {
     const db = getDb();
-
+    let began = false;
+    
     try {
+        await runAsync(db, "BEGIN");
+        began = true;
+
         const userResult = await getAsync<DbUserRow>(
             db,
             `SELECT id, 
@@ -119,15 +139,20 @@ export async function getUserByEmail(email: string): Promise<DbUserRow> {
         }
 
         return userResult;
-    }finally {
-        db.close();
-    }  
+    }catch (e) {
+        if (began) await runAsync(db, "ROLLBACK");
+        throw e;
+    }
 }
 
 export async function getUserById(id: number): Promise<DbUserRow> {
     const db = getDb();
-
+    let began = false;
+    
     try {
+        await runAsync(db, "BEGIN");
+        began = true;
+
         const userResult = await getAsync<DbUserRow>(
             db,
             `SELECT id, 
@@ -155,9 +180,10 @@ export async function getUserById(id: number): Promise<DbUserRow> {
         }
 
         return userResult;
-    }finally {
-        db.close();
-    }  
+    }catch (e) {
+        if (began) await runAsync(db, "ROLLBACK");
+        throw e;
+    }
 }
 
 export async function createUser({
@@ -186,9 +212,7 @@ export async function createUser({
     }catch (e) {
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
-    } finally {
-        db.close();
-    }   
+    }
 }
 
 export async function login({
@@ -197,7 +221,6 @@ export async function login({
 }: UserLogin): Promise<{ id: number; name: string, sw_admin: number, token: string, expiresAt: string, needsOnboarding: boolean }> {
     const db = getDb();
 
-    try {
         const userResult = await getAsync<DbUserRow>(
             db,
             `SELECT id, name, password, sw_admin, onboarding_completed_at
@@ -230,7 +253,4 @@ export async function login({
             expiresAt: expiresAt,
             needsOnboarding: needsOnboarding
         });
-    }finally {
-        db.close();
-    }   
 }

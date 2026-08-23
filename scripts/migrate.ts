@@ -1,31 +1,97 @@
 import fs from "fs";
 import path from "path";
-import sqlite3 from "sqlite3";
+import mysql from "mysql2/promise";
+import nextEnv from "@next/env";
 
-const dbPath = path.join(process.cwd(), "db", "miscuentas.sqlite");
 const migrationsDir = path.join(process.cwd(), "db", "migrations");
+const { loadEnvConfig } = nextEnv;
 
-const db = new sqlite3.Database(dbPath);
+loadEnvConfig(process.cwd());
+
+const pool = mysql.createPool({
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT),
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+
+    // Permite ejecutar varios comandos SQL dentro del archivo
+    multipleStatements: true,
+});
 
 async function applyMigrations() {
-    const files = fs
-        .readdirSync(migrationsDir)
-        .filter((f) => f.endsWith(".sql"))
-        .sort(); //permite que se ejecute en orden alfabetico
+    const connection = await pool.getConnection();
 
-    for (const file of files) {
-        console.log("Ejecutando migración:", file);
-        const sql = fs.readFileSync(path.join(migrationsDir, file), "utf8");
+    try {
+        // Crear tabla de control de migraciones
+        await connection.query(`
+            CREATE TABLE IF NOT EXISTS migrations (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(255) NOT NULL UNIQUE,
+                executed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
 
-        await new Promise<void>((resolve, reject) => {
-        db.exec(sql, (err) => {
-            if (err) return reject(err);
-            resolve();
-        });
-        });
+        const files = fs
+            .readdirSync(migrationsDir)
+            .filter((file) => file.endsWith(".sql"))
+            .sort();
+
+        for (const file of files) {
+
+            // Verificar si ya fue ejecutada
+            const [rows] = await connection.query(
+                `SELECT id FROM migrations WHERE name = ?`,
+                [file]
+            );
+
+            const migrations = rows as { id: number }[];
+
+            if (migrations.length > 0) {
+                console.log(`⏭️ Migración ya ejecutada: ${file}`);
+                continue;
+            }
+
+            console.log(`🚀 Ejecutando migración: ${file}`);
+
+            const sql = fs.readFileSync(
+                path.join(migrationsDir, file),
+                "utf8"
+            );
+
+            try {
+
+                await connection.query(sql);
+
+                await connection.query(
+                    `INSERT INTO migrations (name) VALUES (?)`,
+                    [file]
+                );
+
+                console.log(`✅ Migración completada: ${file}`);
+
+            } catch (error) {
+
+                console.error(`❌ Error en migración: ${file}`);
+                throw error;
+
+            }
+        }
+
+        console.log("🎉 Migraciones realizadas correctamente");
+
+    } finally {
+        connection.release();
+        await pool.end();
     }
-
-    console.log("Migraciones realizadas ✔");
 }
 
-applyMigrations().finally(() => db.close());
+applyMigrations()
+    .catch((error) => {
+        console.error("❌ Error ejecutando migraciones:", error);
+        process.exit(1);
+    });

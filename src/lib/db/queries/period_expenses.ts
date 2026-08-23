@@ -71,11 +71,11 @@ export async function createPeriodExpenses(periodExpenses: BdNewPeriodExpenseRow
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
-        db.close();
+        //db.close();
     }  
 }
 
-export async function getPeriodExpensesByUser(id: number): Promise<BdPeriodExpensesRow[]> {
+export async function getPeriodExpensesByUser(id: number, periodId: number): Promise<BdPeriodExpensesRow[]> {
     const db = getDb();
 //modificar la columna income_date esta mal nombrada
     try {
@@ -95,8 +95,8 @@ export async function getPeriodExpensesByUser(id: number): Promise<BdPeriodExpen
             INNER JOIN periods p ON pe.period_id = p.id
             INNER JOIN expense_states es ON es.id = pe.expense_state_id
             INNER JOIN expense_categories ec ON e.expense_category_id = ec.id
-            WHERE e.user_id = ? `,
-            [id],
+            WHERE e.user_id = ? and pe.period_id= ?`,
+            [id, periodId],
         );
 
         if(!allExpensesResult){
@@ -105,7 +105,7 @@ export async function getPeriodExpensesByUser(id: number): Promise<BdPeriodExpen
 
         return allExpensesResult;
     }finally {
-        db.close();
+        //db.close();
     }   
 }
 
@@ -120,9 +120,12 @@ export async function updatePeriodExpense(id: number, data: DbUpdatePeriodExpens
 
         const updateResult = await runAsync(
             db,
-            `UPDATE period_expenses SET
-            (expense_date, amount, expense_state_id, updated_at) = (?, ?, ?, ?)
-            WHERE id = ?`,
+        `UPDATE period_expenses 
+        SET expense_date = ?,
+            amount = ?,
+            expense_state_id = ?,
+            updated_at = ?
+        WHERE id = ?`,
             [data.expense_date, data.amount, data.expense_state_id, isNow(), id],
         );
         await runAsync(db, "COMMIT");
@@ -135,6 +138,6 @@ export async function updatePeriodExpense(id: number, data: DbUpdatePeriodExpens
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
-        db.close();
+        //db.close();
     }  
 }

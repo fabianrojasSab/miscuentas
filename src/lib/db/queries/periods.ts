@@ -55,8 +55,8 @@ export async function createPeriod({
 
         const period = await runAsync(
             db,
-            `INSERT INTO periods (name, description, period_type, parent_id, year, month, week, day, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO periods (name, description, period_type, parent_id, year, month, week, day, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [name, description, period_type, parent_id, year, month, week, day, isNow()],
         );
         await runAsync(db, "COMMIT");
@@ -66,7 +66,7 @@ export async function createPeriod({
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
-        db.close();
+        //db.close();
     }  
 }
 
@@ -87,7 +87,7 @@ export async function getAllPeriods(): Promise<DbPeriodRow[]> {
 
         return allPeriodsResult;
     }finally {
-        db.close();
+        //db.close();
     }   
 }
 
@@ -110,7 +110,7 @@ export async function getPeriodByYear(year: number): Promise<DbPeriodRow> {
 
         return periodsResult;
     }finally {
-        db.close();
+        //db.close();
     }   
 }
 
@@ -133,7 +133,7 @@ export async function getPeriodByMonth(month: number, year: number): Promise<DbP
 
         return periodsResult;
     }finally {
-        db.close();
+        //db.close();
     }   
 }
 
@@ -160,7 +160,7 @@ export async function deletePeriod(id: number): Promise<{ id: number }> {
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
-        db.close();
+        //db.close();
     }  
 }
 
@@ -175,15 +175,15 @@ export async function updatePeriod(id: number, data: DbUpdateIncomeRow): Promise
 
         const updateResult = await runAsync(
             db,
-            `UPDATE periods SET (
-            name,
-            description,
-            period_type,
-            year,
-            month,
-            week,
-            day,
-            updated_at) = (?, ?, ?, ?, ?, ?, ?, ?)
+            `UPDATE periods SET
+            name = ?,
+            description = ?,
+            period_type = ?,
+            year = ?,
+            month = ?,
+            week = ?,
+            day = ?,
+            updated_at = ?
             WHERE id = ?`,
             [data.name, data.description, data.period_type, data.year, data.month, data.week, data.day, isNow(), id],
         );
@@ -197,7 +197,7 @@ export async function updatePeriod(id: number, data: DbUpdateIncomeRow): Promise
         if (began) await runAsync(db, "ROLLBACK");
         throw e;
     } finally {
-        db.close();
+        //db.close();
     }  
 }
 
@@ -219,6 +219,6 @@ export async function getPeriodsYearly(): Promise<DbPeriodRow[]> {
 
         return periodsResult;
     }finally {
-        db.close();
+        //db.close();
     }   
 }

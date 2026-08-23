@@ -133,30 +133,32 @@ export const TableAllPeriods = ({ onEdit, reload }: Props) => {
             ) : periods.length === 0 ? (
                 <p>No hay ingresos registrados.</p>
             ) : (
-                <table className="w-full border">
-                <thead>
-                    <tr>
-                    <th className="border p-2">Nombre</th>
-                    <th className="border p-2">Descripción</th>
-                    <th className="border p-2">Tipo</th>
-                    <th className="border p-2">valor</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {periods.map((inc) => (
-                    <tr key={inc.id}>
-                        <td className="border p-2">{inc.name}</td>
-                        <td className="border p-2">{inc.description ?? "-"}</td>
-                        <td className="border p-2">{getPeriodType(inc.period_type)}</td>
-                        <td className="border p-2">{getPeriodValue(inc)}</td>
-                        <td className="border p-2">
-                            <button className="bg-blue-500 text-white px-2 py-1 rounded mr-2" onClick={() => handleUpdateIncome(inc)}>Editar</button>
-                            <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => handleDeletePeriod(inc.id)}>Eliminar</button>
-                        </td>
-                    </tr>
-                    ))}
-                </tbody>
-                </table>
+                <div className="w-full overflow-x-auto rounded-lg border bg-card shadow-sm">
+                    <table className="w-full min-w-[600px]">
+                        <thead className="bg-muted/50">
+                            <tr>
+                            <th className="px-4 py-3 text-left text-sm font-semibold">Nombre</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold">Descripción</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold">Tipo</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold">valor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {periods.map((inc) => (
+                            <tr key={inc.id}>
+                                <td className="border p-2">{inc.name}</td>
+                                <td className="px-4 py-3 text-sm text-muted-foreground">{inc.description ?? "-"}</td>
+                                <td className="border p-2">{getPeriodType(inc.period_type)}</td>
+                                <td className="border p-2">{getPeriodValue(inc)}</td>
+                                <td className="border p-2">
+                                    <button className="bg-blue-500 text-white px-2 py-1 rounded mr-2" onClick={() => handleUpdateIncome(inc)}>Editar</button>
+                                    <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => handleDeletePeriod(inc.id)}>Eliminar</button>
+                                </td>
+                            </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             )}
         </div>
     )

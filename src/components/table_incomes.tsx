@@ -71,31 +71,55 @@ export const TableIncomesByUser = ({ onEdit, reload }: Props) =>{
     
 
     return(
-        <div>
+        <div className=" max-w-md mx-auto">
             {error && <p className="text-red-600">{error}</p>}
             {loading ? (
                 <p>Cargando...</p>
             ) : incomes.length === 0 ? (
                 <p>No hay ingresos registrados.</p>
             ) : (
-                <table className="w-full border">
-                <thead>
-                    <tr>
-                    <th className="border p-2">Fecha</th>
-                    <th className="border p-2">Monto</th>
-                    <th className="border p-2">Descripción</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {incomes.map((inc) => (
-                    <tr key={inc.id}>
-                        <td className="border p-2">{inc.income_date}</td>
-                        <td className="border p-2">{inc.amount}</td>
-                        <td className="border p-2">{inc.description ?? "-"}</td>
-                    </tr>
-                    ))}
-                </tbody>
-                </table>
+                <div className="w-full overflow-x-auto rounded-lg border bg-card shadow-sm">
+                    <table className="w-full min-w-[500px]">
+                        <thead className="bg-muted/50">
+                            <tr>
+                                <th className="px-2 py-3 text-left text-sm font-semibold">
+                                    Fecha
+                                </th>
+                                <th className="px-4 py-3 text-left text-sm font-semibold">
+                                    Monto
+                                </th>
+                                <th className="px-4 py-3 text-left text-sm font-semibold">
+                                    Descripción
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {incomes.map((inc) => (
+                                <tr
+                                    key={inc.id}
+                                    
+                                >
+                                    <td className="p-2">
+                                        {inc.income_date}
+                                    </td>
+
+                                    <td className="px-4 py-3 text-left text-sm font-medium">
+                                        {Number(inc.amount).toLocaleString("es-CO", {
+                                            style: "currency",
+                                            currency: "COP",
+                                            minimumFractionDigits: 0,
+                                        })}
+                                    </td>
+
+                                    <td className="px-4 py-3 text-sm text-muted-foreground">
+                                        {inc.description || "-"}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             )}
         </div>
     )
