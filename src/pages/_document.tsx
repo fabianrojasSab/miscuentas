@@ -7,7 +7,7 @@ export default function Document() {
       <body className="antialiased">
         <noscript>
             <iframe
-                src="https://www.googletagmanager.com/ns.html?id=GTM-MRT465Q3"
+                src="https://www.googletagmanager.com/ns.html?id=G-NLFHM81592"
                 height="0"
                 width="0"
                 style={{

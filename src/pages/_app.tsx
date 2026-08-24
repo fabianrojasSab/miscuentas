@@ -35,7 +35,7 @@ export default function App({
                         document,
                         'script',
                         'dataLayer',
-                        'GTM-MRT465Q3'
+                        'G-NLFHM81592'
                     );
                 `}
             </Script>
