@@ -79,7 +79,7 @@ export const FormExpenses = ({ createExpense, expenseToEdit, UpdateExpense }: Pr
 
         const body : ExpensesForm = {
             name: form.name_expense.value,
-            amount: form.amount.value,
+            amount: expenses?.amount ?? 0,
             expense_date: form.date.value,
             description: form.description.value ?? "",
             expense_category_id: Number(form.expense_category_id.value),
@@ -197,15 +197,27 @@ export const FormExpenses = ({ createExpense, expenseToEdit, UpdateExpense }: Pr
                     <label className="text-sm font-medium">Valor</label>
                     <Input
                         className="mb-4"
-                        type="number"
+                        type="text"
+                        inputMode="numeric"
                         name="amount"
-                        value={expenses?.amount ?? ""}
-                        onChange={(e) =>
-                            setExpenses(prev => ({
-                                ...prev!,
-                                amount: Number(e.target.value)
-                            }))
+                        value={
+                            expenses?.amount !== undefined &&
+                            expenses?.amount !== null
+                                ? expenses.amount.toLocaleString("en-US")
+                                : ""
                         }
+                        onChange={(e) => {
+                            // Elimina las comas antes de convertir el valor a número
+                            const rawValue = e.target.value.replace(/,/g, "");
+
+                            // Solo permite números o un campo vacío
+                            if (rawValue === "" || /^\d+$/.test(rawValue)) {
+                                setExpenses((prev) => ({
+                                    ...prev!,
+                                    amount: rawValue === "" ? 0 : Number(rawValue),
+                                }));
+                            }
+                        }}
                     />
                 </div>
                 
@@ -264,7 +276,7 @@ export const FormExpensesFixed = ({ createExpense, expenseToEdit, UpdateExpense 
 
         const body : ExpensesForm = {
             name: form.name_expense.value,
-            amount: form.amount.value,
+            amount: expenses?.amount ?? 0,
             expense_date: form.date.value,
             description: form.description.value ?? "",
             expense_category_id: Number(form.expense_category_id.value),
@@ -382,15 +394,28 @@ export const FormExpensesFixed = ({ createExpense, expenseToEdit, UpdateExpense 
                     <label className="text-sm font-medium">Valor</label>
                     <Input
                         className="mb-4"
-                        type="number"
+                        type="text"
+                        inputMode="numeric"
                         name="amount"
-                        value={expenses?.amount ?? ""}
-                        onChange={(e) =>
-                            setExpenses(prev => ({
-                                ...prev!,
-                                amount: Number(e.target.value)
-                            }))
+                        placeholder="Ej: 1500,000"
+                        value={
+                            expenses?.amount !== undefined &&
+                            expenses?.amount !== null
+                                ? expenses.amount.toLocaleString("en-US")
+                                : ""
                         }
+                        onChange={(e) => {
+                            // Elimina las comas antes de convertir el valor a número
+                            const rawValue = e.target.value.replace(/,/g, "");
+
+                            // Solo permite números o un campo vacío
+                            if (rawValue === "" || /^\d+$/.test(rawValue)) {
+                                setExpenses((prev) => ({
+                                    ...prev!,
+                                    amount: rawValue === "" ? 0 : Number(rawValue),
+                                }));
+                            }
+                        }}
                     />
                 </div>
                 
