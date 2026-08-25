@@ -38,7 +38,7 @@ export const FormIncome = ({ createIncome, incomeToEdit, UpdateIncome }: Props) 
         const form = e.currentTarget;
 
         const body : IncomesForm = {
-            amount: form.amount.value,
+            amount: income?.amount ?? 0,
             income_date: form.date.value,
             description: form.description.value,
         };
@@ -91,18 +91,27 @@ export const FormIncome = ({ createIncome, incomeToEdit, UpdateIncome }: Props) 
 
                     <Input
                         id="amount"
-                        type="number"
+                        type="text"
+                        inputMode="numeric"
                         name="amount"
                         min="0"
                         step="0.01"
-                        placeholder="Ej: 1500000"
-                        value={income?.amount ?? ""}
-                        onChange={(e) =>
-                            setIncome((prev) => ({
-                                ...prev!,
-                                amount: Number(e.target.value),
-                            }))
+                        placeholder="Ej: 1500,000"
+                        value={
+                            income?.amount !== undefined && income?.amount !== null
+                                ? income.amount.toLocaleString("en-US")
+                                : ""
                         }
+                        onChange={(e) => {
+                            const rawValue = e.target.value.replace(/,/g, "");
+
+                            if (rawValue === "" || /^\d+$/.test(rawValue)) {
+                                setIncome((prev) => ({
+                                    ...prev!,
+                                    amount: rawValue === "" ? 0 : Number(rawValue),
+                                }));
+                            }
+                        }}
                         required
                     />
                 </div>
