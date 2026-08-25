@@ -127,18 +127,36 @@ export default function Dasboard () {
     async function handleLoadPeriodExpenses(){
         setError(null);
         setLoading(true);
+        let date = new Date();
+        let year = date.getFullYear();
+        let month = date.getMonth() + 1;
+
         try {
-            const res = await fetch(`/api/periodExpenses`, {
+            //consulta y valida si hay un periodo del mes actual, arreglar para que valide con el mes actual
+            const res = await fetch(`/api/periods?month=${month}&year=${year}`, {
                 method: "GET",
             });
-            const dataPeriodExpenses = await res.json();
+            const dataPeriodsMonth = await res.json();
 
             if (!res.ok) {
-                setError(dataPeriodExpenses.error);
+                setError(dataPeriodsMonth.error);
                 return;
             }
+            setPeriodMonth(dataPeriodsMonth.periodBymonth);
+            if(Object.keys(dataPeriodsMonth).length != 0){
 
-            setPeriodExpenses(dataPeriodExpenses.periodExpenses ?? []);
+                const res = await fetch(`/api/periodExpenses?periodId=${dataPeriodsMonth.periodBymonth.id}`, {
+                    method: "GET",
+                });
+                const dataPeriodExpenses = await res.json();
+    
+                if (!res.ok) {
+                    setError(dataPeriodExpenses.error);
+                    return;
+                }
+    
+                setPeriodExpenses(dataPeriodExpenses.periodExpenses ?? []);
+            }
         } catch (err) {
             setError("!Informacion de ingresos vacia¡");
             console.log(err);
@@ -218,7 +236,7 @@ export default function Dasboard () {
                 }
             }
         } catch (err) {
-            setError("!Informacion de ingresos vacia¡");
+            setError("!Informacion de gastos vacia¡");
             console.log(err);
             setTimeout(() => setError(null), 5000);
         }finally {

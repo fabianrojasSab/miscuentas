@@ -51,7 +51,7 @@ export default function Incomes(){
 
         const body = {
             id: dataUser.user.id,
-            Income: income
+            income: income
         };
 
         try {
