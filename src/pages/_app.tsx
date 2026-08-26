@@ -1,6 +1,7 @@
 import "@/styles/globals.css";
 import Script from "next/script";
 import type { AppProps } from "next/app";
+import { Footer } from "@/components/Footer";
 
 export default function App({
     Component,
@@ -41,6 +42,8 @@ export default function App({
             </Script>
 
             <Component {...pageProps} />
+
+            <Footer />
         </>
     );
 }
