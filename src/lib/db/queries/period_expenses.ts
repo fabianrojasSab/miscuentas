@@ -109,6 +109,40 @@ export async function getPeriodExpensesByUser(id: number, periodId: number): Pro
     }   
 }
 
+export async function getPeriodExpensesNoPayed(id: number, periodId: number): Promise<BdPeriodExpensesRow[]> {
+    const db = getDb();
+
+    try {
+        const allExpensesResult = await allAsync<BdPeriodExpensesRow>(
+            db,
+            `SELECT
+                pe.id,
+                p.month,
+                e.name,
+                ec.name as category_name,
+                pe.expense_date,
+                pe.amount,
+                es.name as state,
+                ec.category_type
+            FROM period_expenses pe
+            INNER JOIN expenses e ON e.id = pe.expense_id
+            INNER JOIN periods p ON pe.period_id = p.id
+            INNER JOIN expense_states es ON es.id = pe.expense_state_id
+            INNER JOIN expense_categories ec ON e.expense_category_id = ec.id
+            WHERE e.user_id = ? and pe.period_id != ? and pe.expense_state_id != 2`,
+            [id, periodId],
+        );
+
+        if(!allExpensesResult){
+            throw new Error("No hay gastos registrados")
+        }
+
+        return allExpensesResult;
+    }finally {
+        //db.close();
+    }   
+}
+
 export async function updatePeriodExpense(id: number, data: DbUpdatePeriodExpenseRow) {
     const db = getDb();
     const isNow = () => new Date().toISOString();

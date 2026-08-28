@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { parse } from "cookie";
 import { getUserBySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { get } from "http";
-import { createPeriodExpenses, getPeriodExpensesByUser, updatePeriodExpense } from "@/lib/db/queries/period_expenses";
+import { createPeriodExpenses, getPeriodExpensesByUser, getPeriodExpensesNoPayed, updatePeriodExpense } from "@/lib/db/queries/period_expenses";
 
 type IncomeForm = {
     amount: number;
@@ -70,7 +70,13 @@ export default async function handler(
             });
         }
         case "GET": {
-            const { periodId } = req.query;
+            const { periodId, noPayed } = req.query;
+
+            if(noPayed === "true"){
+                const periodExpenses =  await getPeriodExpensesNoPayed(user.id, Number(periodId))
+
+                return res.status(200).json({ periodExpenses });
+            }
 
             const periodExpenses =  await getPeriodExpensesByUser(user.id, Number(periodId))
 

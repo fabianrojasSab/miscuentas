@@ -59,6 +59,7 @@ export default function Dasboard () {
     const [reloadTable, setReloadTable] = useState(false);
     const [periodExpenses, setPeriodExpenses] = useState<BdPeriodExpensesRow[]>([]);
     const [success, setSuccess] = useState<string | null>(null);
+    const [periodExpensesNoPayed, setPeriodExpensesNoPayed] = useState<BdPeriodExpensesRow[]>([]);
 
     //Funcion para calcular el total a pagar de los gastos del periodo teniendo el cuenta el estado del gasto
     function getTotalPeriodExpenses(
@@ -166,6 +167,48 @@ export default function Dasboard () {
         }
     }
 
+    async function handleLoadPeriodExpensesNoPayed(){
+        setError(null);
+        setLoading(true);
+        let date = new Date();
+        let year = date.getFullYear();
+        let month = date.getMonth() + 1;
+
+        try {
+            //consulta y valida si hay un periodo del mes actual, arreglar para que valide con el mes actual
+            const res = await fetch(`/api/periods?month=${month}&year=${year}`, {
+                method: "GET",
+            });
+            const dataPeriodsMonth = await res.json();
+
+            if (!res.ok) {
+                setError(dataPeriodsMonth.error);
+                return;
+            }
+            setPeriodMonth(dataPeriodsMonth.periodBymonth);
+            if(Object.keys(dataPeriodsMonth).length != 0){
+
+                const res = await fetch(`/api/periodExpenses?periodId=${dataPeriodsMonth.periodBymonth.id}&noPayed=true`, {
+                    method: "GET",
+                });
+                const dataPeriodExpenses = await res.json();
+    
+                if (!res.ok) {
+                    setError(dataPeriodExpenses.error);
+                    return;
+                }
+    
+                setPeriodExpensesNoPayed(dataPeriodExpenses.periodExpenses ?? []);
+            }
+        } catch (err) {
+            setError("!Informacion de ingresos vacia¡");
+            console.log(err);
+            setTimeout(() => setError(null), 5000);
+        }finally {
+            setLoading(false);
+        }
+    }
+
     async function handleSearchPeriod () {
         setError(null);
         setLoading(true);
@@ -232,6 +275,7 @@ export default function Dasboard () {
                         }
                     }else{
                         setPeriodExpenses(dataPeriodExpenses.periodExpenses ?? []);
+                        handleLoadPeriodExpensesNoPayed();
                     }
                 }
             }
@@ -464,6 +508,95 @@ return (
                                     <tr
                                         key={inc.id}
                                         className="border-t transition-colors hover:bg-muted/50"
+                                    >
+                                        <td className="px-4 py-3">
+                                            {inc.name}
+                                        </td>
+
+                                        <td className="px-4 py-3 text-left font-medium">
+                                            {Number(inc.amount).toLocaleString(
+                                                "es-CO",
+                                                {
+                                                    style: "currency",
+                                                    currency: "COP",
+                                                    minimumFractionDigits: 0,
+                                                }
+                                            )}
+                                        </td>
+
+                                        <td className="px-4 py-3">
+                                            <span className="rounded-full bg-muted px-3 py-1 text-sm">
+                                                {inc.state}
+                                            </span>
+                                        </td>
+
+                                        <td className="px-4 py-3 text-center">
+                                            {inc.state === "Pendiente" ? (
+                                                <Button
+                                                    size="sm"
+                                                    onClick={() =>
+                                                        handleCheckpay(inc)
+                                                    }
+                                                >
+                                                    Pagar
+                                                </Button>
+                                            ) : (
+                                                <span className="text-sm text-muted-foreground">
+                                                    Pagado
+                                                </span>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </section>
+
+            {/* Tabla de gastos de meses anteriores */}
+            <section className="space-y-4">
+                <div>
+                    <h2 className="text-xl font-semibold">
+                        Gastos Pendientes
+                    </h2>
+
+                    <p className="text-sm text-muted-foreground">
+                        Consulta y administra los gastos que quedaron pendientes de pagar de meses anteriores
+                    </p>
+                </div>
+
+                {periodExpensesNoPayed.length === 0 ? (
+                    <div className="rounded-xl border border-dashed p-8 text-center">
+                        <p className="text-muted-foreground">
+                            No hay gastos registrados para este período.
+                        </p>
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto rounded-xl border bg-card shadow-sm">
+                        <table className="w-full min-w-[700px]">
+                            <thead className="bg-muted/50">
+                                <tr>
+                                    <th className="px-4 py-3 text-left text-sm font-semibold">
+                                        Gasto
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-sm font-semibold">
+                                        Monto
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-sm font-semibold">
+                                        Estado
+                                    </th>
+                                    <th className="px-4 py-3 text-center text-sm font-semibold">
+                                        Acción
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {periodExpensesNoPayed.map((inc) => (
+                                    <tr
+                                        key={inc.id}
+                                        className="border-t transition-colors hover:bg-muted/50 text-destructive"
                                     >
                                         <td className="px-4 py-3">
                                             {inc.name}
