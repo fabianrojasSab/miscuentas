@@ -194,7 +194,7 @@ export async function updateExpense(id: number, data: DbUpdateExpenseRow): Promi
     }  
 }
 
-export async function createExpenseVariable(id: number, newExpense: BdNewExpenseRow, idPeriod: number): Promise<{ id: number }> {
+export async function createExpenseVariable(id: number, newExpense: BdNewExpenseRow, idPeriod: number, expense_state_id: number): Promise<{ id: number }> {
     const db = getDb();
     const isNow = () => new Date().toISOString();
     let began = false;
@@ -227,7 +227,7 @@ export async function createExpenseVariable(id: number, newExpense: BdNewExpense
                 expense.lastID,
                 newExpense.date,
                 newExpense.amount,
-                2,
+                expense_state_id,
                 isNow()
             ]
         );

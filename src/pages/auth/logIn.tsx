@@ -50,7 +50,7 @@ export default function LogIn() {
     }
 
     return (
-        <div>
+        <div className="my-4">
             <Header />
             <div className="w-full max-w-md mx-auto">
                 <h1 className="text-5xl font-bold text-gray-900 mb-10">Iniciar sesion</h1>
