@@ -52,7 +52,7 @@ export default async function handler(
             }
 
             if(dashboard === true ) {
-                const expenseResult = await createExpenseVariable(id, newData, idPeriod)
+                const expenseResult = await createExpenseVariable(id, newData, idPeriod, 1)
 
                 return res.status(200).json({
                     success: true,
