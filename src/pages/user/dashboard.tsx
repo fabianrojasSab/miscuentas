@@ -63,13 +63,22 @@ export default function Dasboard () {
 
     //Funcion para calcular el total a pagar de los gastos del periodo teniendo el cuenta el estado del gasto
     function getTotalPeriodExpenses(
-        periodExpenses: BdPeriodExpensesRow[]
+        periodExpenses: BdPeriodExpensesRow[],
+        periodExpensesNoPayed: BdPeriodExpensesRow[]
     ): number {
-        return periodExpenses
+        const totaolPeriodExpenses = periodExpenses
             .filter((expense) => expense.state === "Pendiente")
             .reduce((total, expense) => {
                 return total + Number(expense.amount);
             }, 0);
+
+        const totaolPeriodExpensesNoPayed = periodExpensesNoPayed
+            .filter((expenseNoPayed) => expenseNoPayed.state === "Pendiente")
+            .reduce((total, expenseNoPayed) => {
+                return total + Number(expenseNoPayed.amount);
+            }, 0);
+
+        return totaolPeriodExpenses + totaolPeriodExpensesNoPayed;
     }
 
     function getCategoryTypeLabel(type: ExpenseCategoryType): string {
@@ -453,7 +462,7 @@ return (
                     </p>
 
                     <p className="mt-1 text-3xl font-bold">
-                        {getTotalPeriodExpenses(periodExpenses).toLocaleString(
+                        {getTotalPeriodExpenses(periodExpenses, periodExpensesNoPayed).toLocaleString(
                             "es-CO",
                             {
                                 style: "currency",
@@ -555,7 +564,6 @@ return (
             </section>
 
             {/* Tabla de gastos de meses anteriores */}
-
                 {periodExpensesNoPayed.length === 0 ? (
                     <>
                     </>
