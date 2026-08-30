@@ -61,7 +61,7 @@ export default function Dasboard () {
     const [success, setSuccess] = useState<string | null>(null);
     const [periodExpensesNoPayed, setPeriodExpensesNoPayed] = useState<BdPeriodExpensesRow[]>([]);
 
-    //Funcion para calcular el total a pagar de los gastos del periodo teniendo el cuenta el estado del gasto
+    //Funcion para calcular el total a pagar de los gastos del mes y los gastos pendientes teniendo el cuenta el estado del gasto
     function getTotalPeriodExpenses(
         periodExpenses: BdPeriodExpensesRow[],
         periodExpensesNoPayed: BdPeriodExpensesRow[]
@@ -339,6 +339,7 @@ export default function Dasboard () {
                 return;
             }
 
+            handleLoadPeriodExpenses();
             setSuccess(data.id);
             setTimeout(() => setSuccess(null), 5000);
 

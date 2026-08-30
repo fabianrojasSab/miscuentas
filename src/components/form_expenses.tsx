@@ -92,6 +92,7 @@ export const FormExpenses = ({ createExpense, expenseToEdit, UpdateExpense }: Pr
         }
 
         setExpenses(null);
+        setCategory("");
     }
 
     useEffect(() => {
