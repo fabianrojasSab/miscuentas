@@ -4,7 +4,7 @@ import { FormIncome } from "@/components/form_incomes";
 import { Header } from "@/components/header";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { FormExpenses } from "@/components/form_expenses";
+import { FormExpensesFixed } from "@/components/form_expenses";
 
 type BankAccountForm = {
     account_number: string,
@@ -274,7 +274,7 @@ export default function OnBoarding(){
                             </p>
                         </div>
 
-                        <FormExpenses
+                        <FormExpensesFixed
                             createExpense={handleCreateExpenses}
                             expenseToEdit={expenses}
                             UpdateExpense={updateExpenses}

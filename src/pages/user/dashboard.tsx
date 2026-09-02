@@ -1,7 +1,8 @@
 import { Button } from "@/components/buttons";
-import { FormExpenses } from "@/components/form_expenses";
+import { FormExpensesVariable } from "@/components/form_expenses";
 import { Header } from "@/components/header";
 import { ExpenseCategoryType } from "@/emuns/ExpenseCategoryType";
+import { Eye } from "lucide-react";
 import { useState } from "react";
 
 type PeriodRow = {
@@ -281,6 +282,10 @@ export default function Dasboard () {
                                 body: JSON.stringify(dataToSend),
                             });
                             const data = await res.json();
+
+                            if(data){
+                                handleLoadPeriodExpenses();
+                            }
                         }
                     }else{
                         setPeriodExpenses(dataPeriodExpenses.periodExpenses ?? []);
@@ -371,7 +376,7 @@ return (
             </section>
 
             {/* Acciones principales */}
-            <section className="flex flex-wrap gap-3">
+            <section className="flex">
                 <Button href="/user/incomes">
                     Registrar ingreso
                 </Button>
@@ -381,10 +386,11 @@ return (
                 </Button>
 
                 <Button
-                    variant="transparent"
+                    variant="color"
                     onClick={handleSearchPeriod}
                 >
-                    Consultar gastos del mes
+                    <Eye/>  
+                    gastos del mes
                 </Button>
             </section>
 
@@ -434,11 +440,11 @@ return (
                     </h2>
 
                     <p className="text-sm text-muted-foreground">
-                        Completa la información del gasto.
+                        Registra tus gastos inesperados.
                     </p>
                 </div>
 
-                <FormExpenses
+                <FormExpensesVariable
                     createExpense={handleCreateExpenseVariable}
                     expenseToEdit={expenseToEdit}
                     UpdateExpense={handleUpdateExpense}
