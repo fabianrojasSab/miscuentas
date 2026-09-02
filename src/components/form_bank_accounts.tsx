@@ -24,6 +24,9 @@ type BankAccountRow = {
     account_type: number,
     bank_name: string,
     account_balance: string,
+    created_at: string,
+    updated_at: string,
+    user_name?: string,
 };
 
 type Props = {
