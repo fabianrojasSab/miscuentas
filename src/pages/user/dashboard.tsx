@@ -1,5 +1,6 @@
 import { Button } from "@/components/buttons";
 import { FormExpensesVariable } from "@/components/form_expenses";
+import { FormPeriodExpenseVariableByUser } from "@/components/form_periodExpenses";
 import { Header } from "@/components/header";
 import { ExpenseCategoryType } from "@/emuns/ExpenseCategoryType";
 import { Eye } from "lucide-react";
@@ -304,7 +305,7 @@ export default function Dasboard () {
     }
 
     //Funcion para crear un gasto variable
-    async function handleCreateExpenseVariable(expense: ExpensesForm) {
+    async function handleCreatePeriodExpenseVariable(expense: ExpensesForm) {
         const res = await fetch("/api/me");
         const dataUser = await res.json();        
         let date = new Date();
@@ -327,10 +328,9 @@ export default function Dasboard () {
                 id: dataUser.user.id,
                 expense: expense,
                 idPeriod: dataPeriodsMonth.periodBymonth.id,
-                dashboard: true,
             }
     
-            res = await fetch("/api/expenses", {
+            res = await fetch("/api/periodExpense", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -444,10 +444,10 @@ return (
                     </p>
                 </div>
 
-                <FormExpensesVariable
-                    createExpense={handleCreateExpenseVariable}
-                    expenseToEdit={expenseToEdit}
-                    UpdateExpense={handleUpdateExpense}
+                <FormPeriodExpenseVariableByUser
+                    createPeriodExpense={handleCreatePeriodExpenseVariable}
+                    periodExpenseToEdit={expenseToEdit}
+                    UpdatePeriodExpense={handleUpdateExpense}
                 />
             </section>
 

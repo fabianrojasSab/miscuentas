@@ -27,7 +27,16 @@ export type BdPeriodExpensesRow = {
     category_type: number,
 }
 
-export async function createPeriodExpenses(periodExpenses: BdNewPeriodExpenseRow[]): Promise<{ inserted: number }>  {
+export type BdNewExpenseRow = {
+    userId: number,
+    category: number,
+    name: string,
+    description: string,
+    date: string,
+    amount:number
+};
+
+export async function createMasivePeriodExpenses(periodExpenses: BdNewPeriodExpenseRow[]): Promise<{ inserted: number }>  {
     const db = getDb();
     const isNow = () => new Date().toISOString();
     let began = false;
@@ -168,6 +177,55 @@ export async function updatePeriodExpense(id: number, data: DbUpdatePeriodExpens
             throw new Error("No se encontró el gasto a actualizar");
         }
         return {id};
+    }catch (e) {
+        if (began) await runAsync(db, "ROLLBACK");
+        throw e;
+    } finally {
+        //db.close();
+    }  
+}
+
+export async function createPeriodExpenseVariable(id: number, newExpense: BdNewExpenseRow, idPeriod: number, expense_state_id: number): Promise<{ id: number }> {
+    const db = getDb();
+    const isNow = () => new Date().toISOString();
+    let began = false;
+
+    try {
+        await runAsync(db, "BEGIN");
+        began = true;
+
+        const expense = await runAsync(
+            db,
+            `INSERT INTO expenses (user_id, expense_category_id, name, description, expense_date, amount, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [id, newExpense.category, newExpense.name, newExpense.description, newExpense.date, newExpense.amount, isNow(), isNow()],
+        );
+
+        const periodExpense = await runAsync(
+            db,
+            `INSERT INTO period_expenses
+            (
+                period_id,
+                expense_id,
+                expense_date,
+                amount,
+                expense_state_id,
+                created_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?)`,
+            [
+                idPeriod,
+                expense.lastID,
+                newExpense.date,
+                newExpense.amount,
+                expense_state_id,
+                isNow()
+            ]
+        );
+
+        await runAsync(db, "COMMIT");
+
+        return {id: periodExpense.lastID};
     }catch (e) {
         if (began) await runAsync(db, "ROLLBACK");
         throw e;

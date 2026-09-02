@@ -14,6 +14,7 @@ export default function Dashboard () {
                     <Button href="/admin/categories">Administrar categorias</Button>
                     <Button href="/admin/periods">Administrar periodos</Button>
                     <Button href="/admin/bankAccounts">Administrar cuentas de banco</Button>
+                    <Button href="/admin/expensesPeriods">Administrar gastos por periodo</Button>
                 </section>
             </main>
         </div>

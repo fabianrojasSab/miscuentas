@@ -1,6 +1,6 @@
 import { FormBankAccount } from "@/components/form_bank_accounts";
 import { Header } from "@/components/header";
-import { TableAllBankAccounts } from "@/components/tabla_bankAccounts";
+import { TableAllBankAccounts } from "@/components/table_bankAccounts";
 import { useState } from "react";
 
 type BankAccountForm = {
