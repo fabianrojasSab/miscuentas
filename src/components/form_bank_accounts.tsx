@@ -32,7 +32,7 @@ type Props = {
     UpdateBankAccount: (account: BankAccountForm) => void;
 };
 
-export const BankAccounts = ({createBankAccount, bankAccontToEdit, UpdateBankAccount }: Props) =>{
+export const FormBankAccount = ({createBankAccount, bankAccontToEdit, UpdateBankAccount }: Props) =>{
     const [error, setError] = useState<string | null>(null);
 
 
