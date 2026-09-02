@@ -254,25 +254,41 @@ export const FormPeriodExpenseVariableByUser = ({ createPeriodExpense, periodExp
 }
 
 //Componente para la vista del administrador
-export const FormPeriodExpense = ({ createPeriodExpense, periodExpenseToEdit, UpdatePeriodExpense }: Props) => {
+export const FormPeriodExpense = ({
+    createPeriodExpense,
+    periodExpenseToEdit,
+    UpdatePeriodExpense,
+}: Props) => {
     const [error, setError] = useState<string | null>(null);
+
+    // Datos disponibles
     const [expenses, setExpenses] = useState<ExpensesForm[]>([]);
-    const [expense, setExpense] = useState<ExpensesForm>();
-    const [categories, setCategories] = useState<CategoryRow[]>([]);
-    const [category, setCategory] = useState("");
-    const [loading, setLoading] = useState<boolean>(false);
-    const [period, setPeriod] = useState<PeriodRow |null>();
-    const [periodsMonthly, setPeriodsMonthly] = useState<PeriodRow []>([]);
+    const [periodsMonthly, setPeriodsMonthly] = useState<PeriodRow[]>([]);
 
-    //Funcion para obtener todos los periodos anuales
-    async function handleGetPeriodsYearly() {
-        setError(null);
-        setLoading(true);
+    // Selecciones
+    const [selectedExpenseId, setSelectedExpenseId] = useState<number | null>(
+        null
+    );
 
+    const [selectedPeriodId, setSelectedPeriodId] = useState<number | null>(
+        null
+    );
+
+    // Datos del formulario
+    const [formData, setFormData] = useState({
+        amount: 0,
+        expense_date: new Date().toISOString().split("T")[0],
+    });
+
+    const [loading, setLoading] = useState(false);
+
+    /*
+     * Obtener períodos mensuales
+     */
+    async function handleGetPeriodsMonthly() {
         try {
-            const res = await fetch(`/api/periods?month=true`, {
-                method: "GET",
-            });
+            const res = await fetch("/api/periods?month=true");
+
             const data = await res.json();
 
             if (!res.ok) {
@@ -282,23 +298,18 @@ export const FormPeriodExpense = ({ createPeriodExpense, periodExpenseToEdit, Up
 
             setPeriodsMonthly(data.periodBymonth ?? []);
         } catch (err) {
-            setError("!Informacion de periodos vacia¡");
-            console.log(err);
-            setTimeout(() => setError(null), 5000);
-        }finally {
-            setLoading(false);
+            console.error(err);
+            setError("No se pudieron cargar los períodos.");
         }
     }
 
-
-    //Funcion para cargar los gastos
-    async function handleLoadExpenses(){
-        setError(null);
-        setLoading(true);
+    /*
+     * Obtener gastos configurados
+     */
+    async function handleLoadExpenses() {
         try {
-            const res = await fetch("/api/expenses", {
-                method: "GET",
-            });
+            const res = await fetch("/api/expenses");
+
             const data = await res.json();
 
             if (!res.ok) {
@@ -308,178 +319,208 @@ export const FormPeriodExpense = ({ createPeriodExpense, periodExpenseToEdit, Up
 
             setExpenses(data.expenses ?? []);
         } catch (err) {
-            setError("!Informacion de gastos vacia¡");
-            console.log(err);
-            setTimeout(() => setError(null), 5000);
-        }finally {
-            setLoading(false);
+            console.error(err);
+            setError("No se pudieron cargar los gastos.");
         }
     }
 
-    async function handleLoadCategories(){
-        setError(null);
-        setLoading(true);
-        try {
-            const res = await fetch("/api/categories", {
-                method: "GET",
-            });
-            const data = await res.json();
+    /*
+     * Cuando seleccionamos un gasto
+     */
+    function handleExpenseChange(value: string) {
+        const expenseId = Number(value);
 
-            if (!res.ok) {
-                setError(data.error);
-                return;
-            }
+        setSelectedExpenseId(expenseId);
 
-            setCategories(data.categories ?? []);
-        } catch (err) {
-            setError("!Informacion de ingresos vacia¡");
-            console.log(err);
-            setTimeout(() => setError(null), 5000);
-        }finally {
-            setLoading(false);
-        }
+        const selectedExpense = expenses.find(
+            (expense) => expense.id === expenseId
+        );
+
+        if (!selectedExpense) return;
+
+        setFormData({
+            amount: Number(selectedExpense.amount),
+            expense_date:
+                selectedExpense.expense_date ??
+                new Date().toISOString().split("T")[0],
+        });
     }
 
-    async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    /*
+     * Cuando seleccionamos un período
+     */
+    function handlePeriodChange(value: string) {
+        setSelectedPeriodId(Number(value));
+    }
+
+    /*
+     * Crear gasto del período
+     */
+    async function handleSubmit(
+        e: React.FormEvent<HTMLFormElement>
+    ) {
         e.preventDefault();
+
         setError(null);
 
-        const form = e.currentTarget;
+        if (!selectedPeriodId) {
+            setError("Debes seleccionar un período.");
+            return;
+        }
 
-        const body : ExpensesForm = {
-            name: form.name_expense.value,
-            amount: expenses?.amount ?? 0,
-            expense_date: form.date.value,
-            description: form.description.value ?? "",
-            expense_category_id: Number(form.expense_category_id.value),
+        if (!selectedExpenseId) {
+            setError("Debes seleccionar un gasto.");
+            return;
+        }
+
+        if (!formData.amount || formData.amount <= 0) {
+            setError("El valor del gasto debe ser mayor a cero.");
+            return;
+        }
+
+        const body = {
+            period_id: selectedPeriodId,
+            expense_id: selectedExpenseId,
+            expense_date: formData.expense_date,
+            amount: formData.amount,
+            expense_state_id: 1,
         };
 
-        if (periodExpenseToEdit) {
-            UpdatePeriodExpense(body);
-        } else {
-            createPeriodExpense(body);
-        }
+        try {
+            if (periodExpenseToEdit) {
+                await UpdatePeriodExpense(body);
+            } else {
+                await createPeriodExpense(body);
+            }
 
-        setExpenses([]);
-        setCategory("");
+            // Limpiar formulario
+            setSelectedExpenseId(null);
+            setSelectedPeriodId(null);
+
+            setFormData({
+                amount: 0,
+                expense_date: new Date()
+                    .toISOString()
+                    .split("T")[0],
+            });
+        } catch (err) {
+            console.error(err);
+            setError("No se pudo guardar el gasto.");
+        }
     }
 
+    /*
+     * Cargar información inicial
+     */
     useEffect(() => {
-        handleLoadExpenses()
-        handleLoadCategories()
-        // if (periodExpenseToEdit) {
-        //     setExpenses({
-        //         name: periodExpenseToEdit.name,
-        //         amount: periodExpenseToEdit.amount,
-        //         expense_date: periodExpenseToEdit.expense_date,
-        //         description: periodExpenseToEdit.description ?? "",
-        //         expense_category_id: periodExpenseToEdit.expense_category_id,
-        //     });
-        // }
-    }, [periodExpenseToEdit]);
+        async function loadData() {
+            setLoading(true);
 
-    return(
-        <div className="w-full max-w-md mx-auto bg-card rounded-lg">
-            <form className="space-y-5 rounded-lg border p-6 shadow-sm" onSubmit={handleSubmit}>
-                {/* Periodo */}
-                <div className="space-y-2">
-                    <label className="text-sm font-medium">Periodo</label>
-                    {loading ? (
-                        <p>Cargando...</p>
-                    ) : (
-                        <Select
-                            name="year"
-                            value={
-                                period?.year != null
-                                    ? String(period.year)
-                                    : ""
-                            }
-                            onValueChange={(value) => {
-                                const selectedPeriod = periodsMonthly.find(
-                                    (item) => String(item.year) === value
-                                );
+            try {
+                await Promise.all([
+                    handleGetPeriodsMonthly(),
+                    handleLoadExpenses(),
+                ]);
+            } finally {
+                setLoading(false);
+            }
+        }
 
-                                if (!selectedPeriod) return;
+        loadData();
+    }, []);
 
-                                setPeriod(prev => ({
-                                    ...prev!,
-                                    parent_id: selectedPeriod.id,
-                                    year: selectedPeriod.year,
-                                }));
-                            }}
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder="Selecciona un tipo" />
-                            </SelectTrigger>
+    return (
+        <div className="mx-auto w-full max-w-md">
+            <form
+                onSubmit={handleSubmit}
+                className="space-y-5 rounded-xl border bg-card p-6 shadow-sm"
+            >
+                {/* Título */}
+                <div>
+                    <h2 className="text-xl font-semibold">
+                        Registrar gasto del período
+                    </h2>
 
-                            <SelectContent>
-                                {periodsMonthly.map( period =>{
-                                    return(
-                                        <SelectItem value={String(period.year)} key={period.id}>
-                                            {period.year}
-                                        </SelectItem>
-                                    )})
-                                }
-                            </SelectContent>
-                        </Select>
-                    )}
+                    <p className="text-sm text-muted-foreground">
+                        Selecciona el período y el gasto que deseas registrar.
+                    </p>
                 </div>
 
-                {/* gastos */}
+                {/* Período */}
                 <div className="space-y-2">
-                    <label className="text-sm font-medium">Gatos</label>
-                    {loading ? (
-                        <p>Cargando...</p>
-                    ) : (
-                        <Select
-                            name="expense_category_id"
-                            value={expense?.name != null
-                                    ? String(expense.name)
-                                    : ""
-                            }
-                            onValueChange={(value) => {
-                                const selectedPeriod = expenses.find(
-                                    (item) => String(item.name) === value
-                                );
+                    <label className="text-sm font-medium">
+                        Período
+                    </label>
 
-                                if (!selectedPeriod) return;
+                    <Select
+                        value={
+                            selectedPeriodId
+                                ? String(selectedPeriodId)
+                                : ""
+                        }
+                        onValueChange={handlePeriodChange}
+                    >
+                        <SelectTrigger>
+                            <SelectValue placeholder="Selecciona un período" />
+                        </SelectTrigger>
 
-                                // setExpense(prev => ({
-                                //     ...prev!,
-                                //     parent_id: selectedPeriod.id,
-                                //     year: selectedPeriod.year,
-                                // }));
-                            }}
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder="Selecciona una Categoria" />
-                            </SelectTrigger>
-
-                            <SelectContent>
-                                {expenses.map( expense =>{
-                                    return(
-                                        <SelectItem value={String(expense.name)} key={expense.expense_category_id}>
-                                            {expense.name}
-                                        </SelectItem>
-                                    )})
-                                }
-                            </SelectContent>
-                        </Select>
-                    )}
+                        <SelectContent>
+                            {periodsMonthly.map((period) => (
+                                <SelectItem
+                                    key={period.id}
+                                    value={String(period.id)}
+                                >
+                                    {period.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
 
-                {/* Fecha gasto */}
+                {/* Gasto */}
                 <div className="space-y-2">
-                    <label className="text-sm font-medium">Fecha a pagar</label>
+                    <label className="text-sm font-medium">
+                        Gasto
+                    </label>
+
+                    <Select
+                        value={
+                            selectedExpenseId
+                                ? String(selectedExpenseId)
+                                : ""
+                        }
+                        onValueChange={handleExpenseChange}
+                    >
+                        <SelectTrigger>
+                            <SelectValue placeholder="Selecciona un gasto" />
+                        </SelectTrigger>
+
+                        <SelectContent>
+                            {expenses.map((expense) => (
+                                <SelectItem
+                                    key={expense.id}
+                                    value={String(expense.id)}
+                                >
+                                    {expense.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                {/* Fecha */}
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                        Fecha a pagar
+                    </label>
+
                     <Input
-                        className="mb-4"
                         type="date"
-                        name="date"
-                        value={expenses?.expense_date ?? new Date().toISOString().split("T")[0]}
+                        value={formData.expense_date}
                         onChange={(e) =>
-                            setExpenses(prev => ({
-                                ...prev!,
-                                expense_date: e.target.value
+                            setFormData((prev) => ({
+                                ...prev,
+                                expense_date: e.target.value,
                             }))
                         }
                     />
@@ -487,44 +528,51 @@ export const FormPeriodExpense = ({ createPeriodExpense, periodExpenseToEdit, Up
 
                 {/* Valor */}
                 <div className="space-y-2">
-                    <label className="text-sm font-medium">Valor</label>
+                    <label className="text-sm font-medium">
+                        Valor
+                    </label>
+
                     <Input
-                        className="mb-4"
                         type="text"
                         inputMode="numeric"
-                        name="amount"
                         value={
-                            expense?.amount !== undefined &&
-                            expense?.amount !== null
-                                ? expense.amount.toLocaleString("en-US")
+                            formData.amount
+                                ? formData.amount.toLocaleString("es-CO")
                                 : ""
                         }
                         onChange={(e) => {
-                            // Elimina las comas antes de convertir el valor a número
-                            const rawValue = e.target.value.replace(/,/g, "");
+                            const rawValue =
+                                e.target.value.replace(/\D/g, "");
 
-                            // Solo permite números o un campo vacío
-                            if (rawValue === "" || /^\d+$/.test(rawValue)) {
-                                setExpenses((prev) => ({
-                                    ...prev!,
-                                    amount: rawValue === "" ? 0 : Number(rawValue),
-                                }));
-                            }
+                            setFormData((prev) => ({
+                                ...prev,
+                                amount:
+                                    rawValue === ""
+                                        ? 0
+                                        : Number(rawValue),
+                            }));
                         }}
                     />
                 </div>
-                
+
                 {/* Error */}
                 {error && (
                     <p className="rounded-md bg-red-50 p-3 text-sm text-red-600">
                         {error}
                     </p>
                 )}
-        
-                <Button type="submit" >
-                    {periodExpenseToEdit ? "Actualizar gasto" : "Crear gasto"}
+
+                {/* Botón */}
+                <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={loading}
+                >
+                    {periodExpenseToEdit
+                        ? "Actualizar gasto"
+                        : "Registrar gasto"}
                 </Button>
             </form>
         </div>
-    )
-}
+    );
+};
