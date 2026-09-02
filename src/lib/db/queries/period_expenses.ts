@@ -233,3 +233,30 @@ export async function createPeriodExpenseVariable(id: number, newExpense: BdNewE
         //db.close();
     }  
 }
+
+export async function deletePeriodExpense(id: number): Promise<{ id: number }> {
+    const db = getDb();
+    let began = false;
+
+    try {
+        await runAsync(db, "BEGIN");
+        began = true;
+
+        const deleteResult = await runAsync(
+            db,
+            `DELETE FROM period_expenses WHERE id = ?`,
+            [id],
+        );
+        await runAsync(db, "COMMIT");
+        
+        if(deleteResult.changes === 0){
+            throw new Error("No se encontró el gasto a eliminar");
+        }
+        return {id};
+    }catch (e) {
+        if (began) await runAsync(db, "ROLLBACK");
+        throw e;
+    } finally {
+        //db.close();
+    }  
+}

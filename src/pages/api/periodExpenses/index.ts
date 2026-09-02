@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { parse } from "cookie";
 import { getUserBySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { get } from "http";
-import { createMasivePeriodExpenses, createPeriodExpenseVariable, getPeriodExpensesByUser, getPeriodExpensesNoPayed, updatePeriodExpense } from "@/lib/db/queries/period_expenses";
+import { createMasivePeriodExpenses, createPeriodExpenseVariable, deletePeriodExpense, getPeriodExpensesByUser, getPeriodExpensesNoPayed, updatePeriodExpense } from "@/lib/db/queries/period_expenses";
 
 type IncomeForm = {
     amount: number;
@@ -132,11 +132,11 @@ export default async function handler(
                 .json({ error: "Faltan campos obligatorios" + id });
             }
 
-            const incomeDeleted = await deleteIncomes(id);
+            const periodExpenseDeleted = await deletePeriodExpense(id);
 
             return res.status(200).json({
                 success: true,
-                id: incomeDeleted.id
+                id: periodExpenseDeleted.id
             });
         }
         case "PUT": {
