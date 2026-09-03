@@ -1,5 +1,5 @@
 import { Button } from "@/components/buttons";
-import { FormBankAccount } from "@/components/form_bank_accounts";
+import { FormBankAccountUser } from "@/components/form_bank_accounts";
 import { FormIncome } from "@/components/form_incomes";
 import { Header } from "@/components/header";
 import { useEffect, useState } from "react";
@@ -244,7 +244,7 @@ export default function OnBoarding(){
         <div className="mb-6">
             <Header/>
             {bankAccount === null ? (
-                <FormBankAccount createBankAccount={handleCreatebankAccount} bankAccontToEdit={bankAccount} UpdateBankAccount={updateBankAccount} />
+                <FormBankAccountUser createBankAccount={handleCreatebankAccount} bankAccontToEdit={bankAccount} UpdateBankAccount={updateBankAccount} />
             ) : income === null ? (
                 <FormIncome createIncome={handleCreateIncome} incomeToEdit={income} UpdateIncome={updateIncome}/>
             ) : readyToContinue === false ? (
