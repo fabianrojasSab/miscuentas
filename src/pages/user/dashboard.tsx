@@ -327,10 +327,10 @@ export default function Dasboard () {
             const dataToSend = {
                 id: dataUser.user.id,
                 expense: expense,
-                idPeriod: dataPeriodsMonth.periodBymonth.id,
+                periodId: dataPeriodsMonth.periodBymonth.id,
             }
     
-            res = await fetch("/api/periodExpense", {
+            res = await fetch("/api/periodExpenses", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -349,7 +349,7 @@ export default function Dasboard () {
             setTimeout(() => setSuccess(null), 5000);
 
         } catch (err) {
-            setError("Error al iniciar sesión. Por favor, inténtalo de nuevo.");
+            setError("Error al crear el gasto variable. Por favor, inténtalo de nuevo.");
             setTimeout(() => setError(null), 5000);
         }
     }
@@ -394,19 +394,6 @@ return (
                 </Button>
             </section>
 
-            {/* Mensajes */}
-            {error && (
-                <div className="rounded-md border border-red-200 bg-red-50 p-4 text-red-600">
-                    {error}
-                </div>
-            )}
-
-            {success && (
-                <div className="rounded-md border border-green-200 bg-green-50 p-4 text-green-600">
-                    Ingreso con ID {success} registrado correctamente.
-                </div>
-            )}
-
             {/* Información del período */}
             <section className="rounded-xl border bg-card p-6 shadow-sm">
                 <h2 className="text-lg font-semibold">
@@ -449,6 +436,18 @@ return (
                     periodExpenseToEdit={expenseToEdit}
                     UpdatePeriodExpense={handleUpdateExpense}
                 />
+                {/* Mensajes */}
+                {error && (
+                    <div className="rounded-md border border-red-200 bg-red-50 p-4 text-red-600">
+                        {error}
+                    </div>
+                )}
+
+                {success && (
+                    <div className="rounded-md border border-green-200 bg-green-50 p-4 text-green-600">
+                        Ingreso con ID {success} registrado correctamente.
+                    </div>
+                )}
             </section>
 
             {/* Resumen */}
