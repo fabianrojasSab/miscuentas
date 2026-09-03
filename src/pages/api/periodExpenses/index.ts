@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { parse } from "cookie";
 import { getUserBySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { get } from "http";
-import { createPeriodExpenses, getPeriodExpensesByUser, getPeriodExpensesNoPayed, updatePeriodExpense } from "@/lib/db/queries/period_expenses";
+import { createMasivePeriodExpenses, createPeriodExpenseVariable, deletePeriodExpense, getPeriodExpensesByUser, getPeriodExpensesNoPayed, updatePeriodExpense } from "@/lib/db/queries/period_expenses";
 
 type IncomeForm = {
     amount: number;
@@ -27,6 +27,15 @@ export type DbUpdatePeriodExpenseRow = {
     expense_state_id: number,
 }
 
+type ExpensesForm = {
+    expense_category_id: number;
+    name: string;
+    description: string;
+    expense_date: string;
+    amount: number;
+};
+
+
 export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
@@ -43,31 +52,60 @@ export default async function handler(
         switch (req.method) {
         case "POST": {
 
-            const { periodId, expenses} = req.body as {
+            const { periodId, expenses, id, expense} = req.body as {
                 periodId: number,
                 expenses: BdNewPeriodExpenseRow[]
+                id: number,
+                expense: ExpensesForm,
             };
 
-            if (!periodId || !expenses) {
-                return res.status(400).json({
-                    error: "Datos inválidos"
+            //crea gastos del periodo masivo - usado en el onboarding
+            if(expenses){
+                if (!periodId || !expenses) {
+                    return res.status(400).json({
+                        error: "Datos inválidos"
+                    });
+                }
+
+                const periodExpenses = expenses.map((expense) => ({
+                    period_id: periodId,
+                    expense_id: expense.id,
+                    expense_date: expense.expense_date,
+                    amount: expense.amount,
+                    expense_state_id: 1,
+                }));
+
+                const periodExpenseResult = await createMasivePeriodExpenses(periodExpenses);
+
+                return res.status(200).json({
+                    success: true,
+                    id: periodExpenseResult.inserted
                 });
             }
 
-            const periodExpenses = expenses.map((expense) => ({
-                period_id: periodId,
-                expense_id: expense.id,
-                expense_date: expense.expense_date,
-                amount: expense.amount,
-                expense_state_id: 1,
-            }));
+            if(expense){
+                if (!id || !expense) {
+                    return res
+                    .status(400)
+                    .json({ error: "Faltan campos obligatorios" + id + expense});
+                }
 
-            const periodExpenseResult = await createPeriodExpenses(periodExpenses);
+                const newData = {
+                    userId: id,
+                    name: expense.name,
+                    amount: expense.amount,
+                    date: expense.expense_date,
+                    description: expense.description ?? "",
+                    category: expense.expense_category_id,
+                }
 
-            return res.status(200).json({
-                success: true,
-                id: periodExpenseResult.inserted
-            });
+                const expenseResult = await createPeriodExpenseVariable(id, newData, periodId, 1)
+
+                return res.status(200).json({
+                    success: true,
+                    id: expenseResult.id
+                });
+            }
         }
         case "GET": {
             const { periodId, noPayed } = req.query;
@@ -94,11 +132,11 @@ export default async function handler(
                 .json({ error: "Faltan campos obligatorios" + id });
             }
 
-            const incomeDeleted = await deleteIncomes(id);
+            const periodExpenseDeleted = await deletePeriodExpense(id);
 
             return res.status(200).json({
                 success: true,
-                id: incomeDeleted.id
+                id: periodExpenseDeleted.id
             });
         }
         case "PUT": {

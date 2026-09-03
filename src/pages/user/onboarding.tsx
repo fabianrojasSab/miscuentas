@@ -1,10 +1,10 @@
 import { Button } from "@/components/buttons";
-import { BankAccounts } from "@/components/form_bank_accounts";
+import { FormBankAccountUser } from "@/components/form_bank_accounts";
 import { FormIncome } from "@/components/form_incomes";
 import { Header } from "@/components/header";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { FormExpenses } from "@/components/form_expenses";
+import { FormExpensesFixed } from "@/components/form_expenses";
 
 type BankAccountForm = {
     account_number: string,
@@ -244,7 +244,7 @@ export default function OnBoarding(){
         <div className="mb-6">
             <Header/>
             {bankAccount === null ? (
-                <BankAccounts createBankAccount={handleCreatebankAccount} bankAccontToEdit={bankAccount} UpdateBankAccount={updateBankAccount} />
+                <FormBankAccountUser createBankAccount={handleCreatebankAccount} bankAccontToEdit={bankAccount} UpdateBankAccount={updateBankAccount} />
             ) : income === null ? (
                 <FormIncome createIncome={handleCreateIncome} incomeToEdit={income} UpdateIncome={updateIncome}/>
             ) : readyToContinue === false ? (
@@ -274,7 +274,7 @@ export default function OnBoarding(){
                             </p>
                         </div>
 
-                        <FormExpenses
+                        <FormExpensesFixed
                             createExpense={handleCreateExpenses}
                             expenseToEdit={expenses}
                             UpdateExpense={updateExpenses}

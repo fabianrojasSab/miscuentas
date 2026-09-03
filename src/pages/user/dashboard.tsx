@@ -1,7 +1,9 @@
 import { Button } from "@/components/buttons";
-import { FormExpenses } from "@/components/form_expenses";
+import { FormExpensesVariable } from "@/components/form_expenses";
+import { FormPeriodExpenseVariableByUser } from "@/components/form_periodExpenses";
 import { Header } from "@/components/header";
 import { ExpenseCategoryType } from "@/emuns/ExpenseCategoryType";
+import { Eye } from "lucide-react";
 import { useState } from "react";
 
 type PeriodRow = {
@@ -281,6 +283,10 @@ export default function Dasboard () {
                                 body: JSON.stringify(dataToSend),
                             });
                             const data = await res.json();
+
+                            if(data){
+                                handleLoadPeriodExpenses();
+                            }
                         }
                     }else{
                         setPeriodExpenses(dataPeriodExpenses.periodExpenses ?? []);
@@ -299,7 +305,7 @@ export default function Dasboard () {
     }
 
     //Funcion para crear un gasto variable
-    async function handleCreateExpenseVariable(expense: ExpensesForm) {
+    async function handleCreatePeriodExpenseVariable(expense: ExpensesForm) {
         const res = await fetch("/api/me");
         const dataUser = await res.json();        
         let date = new Date();
@@ -321,11 +327,10 @@ export default function Dasboard () {
             const dataToSend = {
                 id: dataUser.user.id,
                 expense: expense,
-                idPeriod: dataPeriodsMonth.periodBymonth.id,
-                dashboard: true,
+                periodId: dataPeriodsMonth.periodBymonth.id,
             }
     
-            res = await fetch("/api/expenses", {
+            res = await fetch("/api/periodExpenses", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -344,7 +349,7 @@ export default function Dasboard () {
             setTimeout(() => setSuccess(null), 5000);
 
         } catch (err) {
-            setError("Error al iniciar sesión. Por favor, inténtalo de nuevo.");
+            setError("Error al crear el gasto variable. Por favor, inténtalo de nuevo.");
             setTimeout(() => setError(null), 5000);
         }
     }
@@ -371,7 +376,7 @@ return (
             </section>
 
             {/* Acciones principales */}
-            <section className="flex flex-wrap gap-3">
+            <section className="flex">
                 <Button href="/user/incomes">
                     Registrar ingreso
                 </Button>
@@ -381,25 +386,13 @@ return (
                 </Button>
 
                 <Button
-                    variant="transparent"
+                    variant="color"
                     onClick={handleSearchPeriod}
                 >
-                    Consultar gastos del mes
+                    <Eye/>  
+                    gastos del mes
                 </Button>
             </section>
-
-            {/* Mensajes */}
-            {error && (
-                <div className="rounded-md border border-red-200 bg-red-50 p-4 text-red-600">
-                    {error}
-                </div>
-            )}
-
-            {success && (
-                <div className="rounded-md border border-green-200 bg-green-50 p-4 text-green-600">
-                    Ingreso con ID {success} registrado correctamente.
-                </div>
-            )}
 
             {/* Información del período */}
             <section className="rounded-xl border bg-card p-6 shadow-sm">
@@ -434,15 +427,27 @@ return (
                     </h2>
 
                     <p className="text-sm text-muted-foreground">
-                        Completa la información del gasto.
+                        Registra tus gastos inesperados.
                     </p>
                 </div>
 
-                <FormExpenses
-                    createExpense={handleCreateExpenseVariable}
-                    expenseToEdit={expenseToEdit}
-                    UpdateExpense={handleUpdateExpense}
+                <FormPeriodExpenseVariableByUser
+                    createPeriodExpense={handleCreatePeriodExpenseVariable}
+                    periodExpenseToEdit={expenseToEdit}
+                    UpdatePeriodExpense={handleUpdateExpense}
                 />
+                {/* Mensajes */}
+                {error && (
+                    <div className="rounded-md border border-red-200 bg-red-50 p-4 text-red-600">
+                        {error}
+                    </div>
+                )}
+
+                {success && (
+                    <div className="rounded-md border border-green-200 bg-green-50 p-4 text-green-600">
+                        Ingreso con ID {success} registrado correctamente.
+                    </div>
+                )}
             </section>
 
             {/* Resumen */}
@@ -494,160 +499,160 @@ return (
                         </p>
                     </div>
                 ) : (
-                    <div className="overflow-x-auto rounded-xl border bg-card shadow-sm">
-                        <table className="w-full min-w-[700px]">
-                            <thead className="bg-muted/50">
-                                <tr>
-                                    <th className="px-4 py-3 text-left text-sm font-semibold">
-                                        Gasto
-                                    </th>
-                                    <th className="px-4 py-3 text-left text-sm font-semibold">
-                                        Monto
-                                    </th>
-                                    <th className="px-4 py-3 text-left text-sm font-semibold">
-                                        Estado
-                                    </th>
-                                    <th className="px-4 py-3 text-center text-sm font-semibold">
-                                        Acción
-                                    </th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                {periodExpenses.map((inc) => (
-                                    <tr
-                                        key={inc.id}
-                                        className="border-t transition-colors hover:bg-muted/50"
-                                    >
-                                        <td className="px-4 py-3">
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {periodExpenses.map((inc) => (
+                            <div
+                                key={inc.id}
+                                className="rounded-xl border bg-card p-5 shadow-sm transition-all hover:shadow-md"
+                            >
+                                {/* Encabezado */}
+                                <div className="flex items-start justify-between gap-4">
+                                    <div className="min-w-0">
+                                        <h3 className="truncate font-semibold">
                                             {inc.name}
-                                        </td>
+                                        </h3>
 
-                                        <td className="px-4 py-3 text-left font-medium">
-                                            {Number(inc.amount).toLocaleString(
-                                                "es-CO",
-                                                {
-                                                    style: "currency",
-                                                    currency: "COP",
-                                                    minimumFractionDigits: 0,
-                                                }
-                                            )}
-                                        </td>
+                                        <p className="mt-1 text-sm text-muted-foreground">
+                                            Gasto del período
+                                        </p>
+                                    </div>
 
-                                        <td className="px-4 py-3">
-                                            <span className="rounded-full bg-muted px-3 py-1 text-sm">
-                                                {inc.state}
+                                    {/* Estado */}
+                                    <span
+                                        className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${
+                                            inc.state === "Pendiente"
+                                                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+                                                : "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                                        }`}
+                                    >
+                                        {inc.state}
+                                    </span>
+                                </div>
+
+                                {/* Monto */}
+                                <div className="mt-5">
+                                    <p className="text-sm text-muted-foreground">
+                                        Monto
+                                    </p>
+
+                                    <p className="mt-1 text-2xl font-bold">
+                                        {Number(inc.amount).toLocaleString(
+                                            "es-CO",
+                                            {
+                                                style: "currency",
+                                                currency: "COP",
+                                                minimumFractionDigits: 0,
+                                            }
+                                        )}
+                                    </p>
+                                </div>
+
+                                {/* Acción */}
+                                <div className="mt-5 border-t pt-4">
+                                    {inc.state === "Pendiente" ? (
+                                        <Button
+                                            className="w-full"
+                                            onClick={() => handleCheckpay(inc)}
+                                        >
+                                            Pagar
+                                        </Button>
+                                    ) : (
+                                        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                                            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                                                ✓
                                             </span>
-                                        </td>
 
-                                        <td className="px-4 py-3 text-center">
-                                            {inc.state === "Pendiente" ? (
-                                                <Button
-                                                    size="sm"
-                                                    onClick={() =>
-                                                        handleCheckpay(inc)
-                                                    }
-                                                >
-                                                    Pagar
-                                                </Button>
-                                            ) : (
-                                                <span className="text-sm text-muted-foreground">
-                                                    Pagado
-                                                </span>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                            Gasto pagado
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 )}
             </section>
 
-            {/* Tabla de gastos de meses anteriores */}
-                {periodExpensesNoPayed.length === 0 ? (
-                    <>
-                    </>
-                ) : (
-                    <section className="space-y-4">
-                        <div>
-                            <h2 className="text-xl font-semibold">
-                                Gastos Pendientes
-                            </h2>
+            {/* Gastos pendientes de meses anteriores */}
+            {periodExpensesNoPayed.length === 0 ? null : (
+                <section className="space-y-4">
+                    <div>
+                        <h2 className="text-xl font-semibold">
+                            Gastos Pendientes
+                        </h2>
 
-                            <p className="text-sm text-muted-foreground">
-                                Consulta y administra los gastos que quedaron pendientes de pagar de meses anteriores
-                            </p>
-                        </div>
-                            <div className="overflow-x-auto rounded-xl border bg-card shadow-sm">
-                                <table className="w-full min-w-[700px]">
-                                    <thead className="bg-muted/50">
-                                        <tr>
-                                            <th className="px-4 py-3 text-left text-sm font-semibold">
-                                                Gasto
-                                            </th>
-                                            <th className="px-4 py-3 text-left text-sm font-semibold">
-                                                Monto
-                                            </th>
-                                            <th className="px-4 py-3 text-left text-sm font-semibold">
-                                                Estado
-                                            </th>
-                                            <th className="px-4 py-3 text-center text-sm font-semibold">
-                                                Acción
-                                            </th>
-                                        </tr>
-                                    </thead>
+                        <p className="text-sm text-muted-foreground">
+                            Consulta y administra los gastos que quedaron pendientes
+                            de pagar de meses anteriores.
+                        </p>
+                    </div>
 
-                                    <tbody>
-                                        {periodExpensesNoPayed.map((inc) => (
-                                            <tr
-                                                key={inc.id}
-                                                className="border-t transition-colors hover:bg-muted/50 text-destructive"
-                                            >
-                                                <td className="px-4 py-3">
-                                                    {inc.name}
-                                                </td>
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {periodExpensesNoPayed.map((inc) => (
+                            <div
+                                key={inc.id}
+                                className="rounded-xl border border-destructive/30 bg-card p-5 shadow-sm transition-all hover:shadow-md"
+                            >
+                                {/* Encabezado */}
+                                <div className="flex items-start justify-between gap-4">
+                                    <div className="min-w-0">
+                                        <h3 className="truncate font-semibold">
+                                            {inc.name}
+                                        </h3>
 
-                                                <td className="px-4 py-3 text-left font-medium">
-                                                    {Number(inc.amount).toLocaleString(
-                                                        "es-CO",
-                                                        {
-                                                            style: "currency",
-                                                            currency: "COP",
-                                                            minimumFractionDigits: 0,
-                                                        }
-                                                    )}
-                                                </td>
+                                        <p className="mt-1 text-sm text-muted-foreground">
+                                            Gasto pendiente
+                                        </p>
+                                    </div>
 
-                                                <td className="px-4 py-3">
-                                                    <span className="rounded-full bg-muted px-3 py-1 text-sm">
-                                                        {inc.state}
-                                                    </span>
-                                                </td>
+                                    {/* Estado */}
+                                    <span className="shrink-0 rounded-full bg-destructive/10 px-3 py-1 text-xs font-medium text-destructive">
+                                        {inc.state}
+                                    </span>
+                                </div>
 
-                                                <td className="px-4 py-3 text-center">
-                                                    {inc.state === "Pendiente" ? (
-                                                        <Button
-                                                            size="sm"
-                                                            onClick={() =>
-                                                                handleCheckpay(inc)
-                                                            }
-                                                        >
-                                                            Pagar
-                                                        </Button>
-                                                    ) : (
-                                                        <span className="text-sm text-muted-foreground">
-                                                            Pagado
-                                                        </span>
-                                                    )}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                {/* Monto */}
+                                <div className="mt-5">
+                                    <p className="text-sm text-muted-foreground">
+                                        Monto pendiente
+                                    </p>
+
+                                    <p className="mt-1 text-2xl font-bold text-destructive">
+                                        {Number(inc.amount).toLocaleString(
+                                            "es-CO",
+                                            {
+                                                style: "currency",
+                                                currency: "COP",
+                                                minimumFractionDigits: 0,
+                                            }
+                                        )}
+                                    </p>
+                                </div>
+
+                                {/* Acción */}
+                                <div className="mt-5 border-t pt-4">
+                                    {inc.state === "Pendiente" ? (
+                                        <Button
+                                            className="w-full"
+                                            size="sm"
+                                            onClick={() => handleCheckpay(inc)}
+                                        >
+                                            Pagar gasto
+                                        </Button>
+                                    ) : (
+                                        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                                            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                                                ✓
+                                            </span>
+
+                                            Gasto pagado
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                    </section>
-                )}
+                        ))}
+                    </div>
+                </section>
+            )}
         </main>
     </div>
 );
