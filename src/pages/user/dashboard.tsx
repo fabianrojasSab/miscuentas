@@ -3,7 +3,7 @@ import { FormExpensesVariable } from "@/components/form_expenses";
 import { FormPeriodExpenseVariableByUser } from "@/components/form_periodExpenses";
 import { Header } from "@/components/header";
 import { ExpenseCategoryType } from "@/emuns/ExpenseCategoryType";
-import { Eye } from "lucide-react";
+import { Eye, X } from "lucide-react";
 import { useState } from "react";
 
 type PeriodRow = {
@@ -503,10 +503,22 @@ return (
                         {periodExpenses.map((inc) => (
                             <div
                                 key={inc.id}
-                                className="rounded-xl border bg-card p-5 shadow-sm transition-all hover:shadow-md"
+                                className="relative rounded-xl border bg-card p-5 shadow-sm transition-all hover:shadow-md"
                             >
+                                {/* Botón eliminar */}
+                                <Button
+                                    type="button"
+                                    variant={"default"}
+                                    size="icon"
+                                    className="absolute right-3 top-3 rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                                    // onClick={() => handleDeletePeriodExpense(inc.id)}
+                                    title="Eliminar gasto"
+                                >
+                                    <X className="h-4 w-4" />
+                                </Button>
+
                                 {/* Encabezado */}
-                                <div className="flex items-start justify-between gap-4">
+                                <div className="flex items-start justify-between gap-4 pr-8">
                                     <div className="min-w-0">
                                         <h3 className="truncate font-semibold">
                                             {inc.name}
