@@ -59,6 +59,7 @@ export default function SignUp() {
             );
         } finally {
             setLoading(false);
+            setTimeout(() => setError(null), 5000);
         }
     }
 
@@ -180,7 +181,7 @@ export default function SignUp() {
                             <Button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full"
+                                variant="default"
                             >
                                 {loading
                                     ? "Creando cuenta..."
