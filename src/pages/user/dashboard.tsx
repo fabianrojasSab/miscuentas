@@ -579,7 +579,7 @@ return (
                                         </h3>
 
                                         <p className="mt-1 text-sm text-muted-foreground">
-                                            Gasto del período
+                                            {inc.category_name}
                                         </p>
                                     </div>
 
