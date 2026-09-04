@@ -242,3 +242,27 @@ export async function createExpenseVariable(id: number, newExpense: BdNewExpense
         //db.close();
     }  
 }
+
+export async function getFixedExpensesByUser(id: number): Promise<BdNewExpenseRow[]> {
+    const db = getDb();
+
+    try {
+        const allExpensesResult = await allAsync<BdNewExpenseRow>(
+            db,
+            `SELECT
+                *
+            FROM expenses e
+            INNER JOIN expense_categories ec ON e.expense_category_id = ec.id
+            WHERE user_id = ? and ec.category_type = 1`,
+            [id],
+        );
+
+        if(!allExpensesResult){
+            throw new Error("No hay gastos registrados")
+        }
+
+        return allExpensesResult;
+    }finally {
+        //db.close();
+    }   
+}

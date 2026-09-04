@@ -1,6 +1,6 @@
 import { FormExpensesFixed } from "@/components/form_expenses";
 import { Header } from "@/components/header";
-import { TableAllExpensesByUser, TableExpensesByUser } from "@/components/table_expenses";
+import { TableExpensesFixedByUser } from "@/components/table_expenses";
 import { useState } from "react";
 
 type ExpensesForm = {
@@ -36,37 +36,52 @@ export default function Expenses(){
     const [expenseToEdit, setExpenseToEdit] = useState<ExpenseRow | null>(null);
     const [reloadTable, setReloadTable] = useState(false);
 
-    async function handleCreateExpense(expense: OnboardingData["expenses"]) {
-
+    //funcion que crea el gasto fijo y registra el gasto del periodo al tiempo
+    async function handleCreatePeriodExpense(expense: ExpensesForm) {
         const res = await fetch("/api/me");
-        const dataUser = await res.json();
-
-        const body = {
-            id: dataUser.user.id,
-            expense: expense
-        };
+        const dataUser = await res.json();        
+        let date = new Date();
+        let year = date.getFullYear();
+        let month = date.getMonth() + 1;
 
         try {
-            const res = await fetch("/api/expenses", {
+            //consulta y valida si hay un periodo del mes actual, arreglar para que valide con el mes actual
+            let res = await fetch(`/api/periods?month=${month}&year=${year}`, {
+                method: "GET",
+            });
+            const dataPeriodsMonth = await res.json();
+
+            if (!res.ok) {
+                setError(dataPeriodsMonth.error);
+                return;
+            }
+
+            const dataToSend = {
+                id: dataUser.user.id,
+                expense: expense,
+                periodId: dataPeriodsMonth.periodBymonth.id,
+            }
+    
+            res = await fetch("/api/periodExpenses", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(body),
+                body: JSON.stringify(dataToSend),
             });
             const data = await res.json();
-
-            setReloadTable(prev => !prev);
 
             if (!res.ok) {
                 setError(data.error);
                 return;
             }
 
+            setReloadTable(prev => !prev);
             setSuccess(data.id);
             setTimeout(() => setSuccess(null), 5000);
+
         } catch (err) {
-            setError("Error al iniciar sesión. Por favor, inténtalo de nuevo.");
+            setError("Error al crear el gasto variable. Por favor, inténtalo de nuevo.");
             setTimeout(() => setError(null), 5000);
         }
     }
@@ -106,7 +121,7 @@ export default function Expenses(){
     return(
         <div className="h-full mb-4">
             <Header/>
-            <FormExpensesFixed createExpense={handleCreateExpense} expenseToEdit={expenseToEdit} UpdateExpense={handleUpdateExpense}/>
+            <FormExpensesFixed createExpense={handleCreatePeriodExpense} expenseToEdit={expenseToEdit} UpdateExpense={handleUpdateExpense}/>
             {error && (
                 <p className="text-red-600 text-center">{error}</p>
             )}
@@ -114,7 +129,7 @@ export default function Expenses(){
                 <p className="text-green-600 text-center">Ingreso con ID {success} registrado</p>
             )}
             <br />
-            <TableAllExpensesByUser onEdit={setExpenseToEdit} reload={reloadTable}/>
+            <TableExpensesFixedByUser onEdit={setExpenseToEdit} reload={reloadTable}/>
         </div>
     )
 }
