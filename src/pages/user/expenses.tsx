@@ -82,6 +82,7 @@ export default function Expenses(){
 
         } catch (err) {
             setError("Error al crear el gasto variable. Por favor, inténtalo de nuevo.");
+        }finally {
             setTimeout(() => setError(null), 5000);
         }
     }
@@ -122,11 +123,17 @@ export default function Expenses(){
         <div className="h-full mb-4">
             <Header/>
             <FormExpensesFixed createExpense={handleCreatePeriodExpense} expenseToEdit={expenseToEdit} UpdateExpense={handleUpdateExpense}/>
+            {/* Mensajes */}
             {error && (
-                <p className="text-red-600 text-center">{error}</p>
+                <div className="rounded-md border border-red-200 bg-red-50 p-4 text-red-600">
+                    {error}
+                </div>
             )}
+
             {success && (
-                <p className="text-green-600 text-center">Ingreso con ID {success} registrado</p>
+                <div className="rounded-md border border-green-200 bg-green-50 p-4 text-green-600">
+                    Ingreso con ID {success} registrado correctamente.
+                </div>
             )}
             <br />
             <TableExpensesFixedByUser onEdit={setExpenseToEdit} reload={reloadTable}/>

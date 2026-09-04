@@ -2,6 +2,17 @@ import { ExpenseCategoryType } from "@/emuns/ExpenseCategoryType";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/buttons";
 import { HandCoins, X } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 type ExpensesRow = {
     id: number,
@@ -430,16 +441,32 @@ export const TableExpensesFixedByUser = ({ reload }: Props) =>{
                                 </div>
 
                                 {/* Eliminar */}
-                                <Button
-                                    type="button"
-                                    variant="transparent"
-                                    size="icon"
-                                    className="h-4 w-4 rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                                    title="Eliminar gasto"
-                                    onClick={() => handleDeleteExpense(inc.id)}
-                                >
-                                    <X className="h-4 w-4" />
-                                </Button>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                    <Button
+                                        type="button"
+                                        variant="transparent"
+                                        size="icon"
+                                        className="h-4 w-4 rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                                        title="Eliminar gasto"
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                        <AlertDialogTitle>Estas seguro que deseas eliminar el gasto?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            Esta acción es irreversible. Esto eliminará permanentemente su
+                                            cuenta de nuestros servidores.
+                                        </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleDeleteExpense(inc.id)}>Continuar</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
                             </div>
                         ))}
                     </div>
