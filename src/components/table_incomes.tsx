@@ -1,3 +1,4 @@
+import { formatMoneyCol } from "@/lib/formatMoney";
 import { useEffect, useState } from "react";
 
 type IncomeRow = {
@@ -105,11 +106,7 @@ export const TableIncomesByUser = ({ onEdit, reload }: Props) =>{
                                     </td>
 
                                     <td className="px-4 py-3 text-left text-sm font-medium">
-                                        {Number(inc.amount).toLocaleString("es-CO", {
-                                            style: "currency",
-                                            currency: "COP",
-                                            minimumFractionDigits: 0,
-                                        })}
+                                        {formatMoneyCol(inc.amount)}
                                     </td>
 
                                     <td className="px-4 py-3 text-sm text-muted-foreground">

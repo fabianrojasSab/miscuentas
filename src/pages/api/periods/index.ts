@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { parse } from "cookie";
 import { getUserBySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { PeriodType } from "@/emuns/PeriodType";
-import { createPeriod, deletePeriod, getAllPeriods, getPeriodByMonth, getPeriodByYear, getPeriodsYearly, updatePeriod } from "@/lib/db/queries/periods";
+import { createPeriod, deletePeriod, getAllPeriods, getMonthsByYear, getPeriodByMonth, getPeriodByYear, getPeriodsYearly, updatePeriod } from "@/lib/db/queries/periods";
 
 type PeriodForm = {
     name_period: string,
@@ -125,6 +125,11 @@ export default async function handler(
             const { year, period_type, month, yearly } = req.query;
 
             let periods;
+
+            if(period_type === "monthsByYear"){
+                let monthsByYear = await getMonthsByYear(Number(year));
+                return res.status(200).json({ monthsByYear });
+            }
 
             if(yearly){
                 let periodsyearly = await getPeriodsYearly();

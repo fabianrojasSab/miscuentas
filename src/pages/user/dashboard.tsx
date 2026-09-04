@@ -16,6 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { formatMoneyCol } from "@/lib/formatMoney";
 
 type PeriodRow = {
     id: number,
@@ -602,14 +603,7 @@ return (
                                     </p>
 
                                     <p className="mt-1 text-2xl font-bold">
-                                        {Number(inc.amount).toLocaleString(
-                                            "es-CO",
-                                            {
-                                                style: "currency",
-                                                currency: "COP",
-                                                minimumFractionDigits: 0,
-                                            }
-                                        )}
+                                        {formatMoneyCol(inc.amount)}
                                     </p>
                                 </div>
 
@@ -683,14 +677,7 @@ return (
                                     </p>
 
                                     <p className="mt-1 text-2xl font-bold text-destructive">
-                                        {Number(inc.amount).toLocaleString(
-                                            "es-CO",
-                                            {
-                                                style: "currency",
-                                                currency: "COP",
-                                                minimumFractionDigits: 0,
-                                            }
-                                        )}
+                                        {formatMoneyCol(inc.amount)}
                                     </p>
                                 </div>
 

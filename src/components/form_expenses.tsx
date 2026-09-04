@@ -34,6 +34,20 @@ type CategoryRow = {
     updated_at: string,
 };
 
+type PeriodRow = {
+    id: number,
+    name: string,
+    description: string,
+    period_type: number,
+    year: number,
+    month: number,
+    week: number,
+    day: number,
+    parent_id: number,
+    created_at: string,
+    updated_at: string,
+}
+
 type Props = {
     createExpense: (expense: ExpensesForm) => void;
     expenseToEdit: ExpensesRow | null;
@@ -245,6 +259,34 @@ export const FormExpensesFixed = ({ createExpense, expenseToEdit, UpdateExpense 
     const [categories, setCategories] = useState<CategoryRow[]>([]);
     const [category, setCategory] = useState("");
     const [loading, setLoading] = useState<boolean>(false);
+    const [month, setMonth] = useState("");
+    const [periodYear, setPeriodYear] = useState<PeriodRow[]>([]);
+    
+
+    const currentYear = new Date().getFullYear();
+
+    async function handleLoadMonthsPeriod () {
+        setLoading(true);
+        try {
+            //consulta y valida si hay un periodo del mes actual, arreglar para que valide con el mes actual
+            let res = await fetch(`/api/periods?period_type=monthsByYear&year=${currentYear}`, {
+                method: "GET",
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data.error);
+                return;
+            }
+
+            setPeriodYear(data.monthsByYear ?? []);
+        } catch (err) {
+            setError("Error al crear el gasto variable. Por favor, inténtalo de nuevo.");
+        }finally {
+            setTimeout(() => setError(null), 5000);
+            setLoading(false);
+        }
+    }
 
     async function handleLoadCategories(){
         setError(null);
@@ -274,12 +316,16 @@ export const FormExpensesFixed = ({ createExpense, expenseToEdit, UpdateExpense 
         e.preventDefault();
         setError(null);
 
+        // Convertir el mes seleccionado a una fecha
+        // Ejemplo: month = "8" -> 2026-08-01
+        const expenseDate = `${currentYear}-${String(month).padStart(2, "0")}-01`;
+
         const form = e.currentTarget;
 
         const body : ExpensesForm = {
             name: form.name_expense.value,
             amount: expenses?.amount ?? 0,
-            expense_date: form.date.value,
+            expense_date: expenseDate,
             description: form.description.value ?? "",
             expense_category_id: Number(form.expense_category_id.value),
         };
@@ -292,9 +338,11 @@ export const FormExpensesFixed = ({ createExpense, expenseToEdit, UpdateExpense 
 
         setExpenses(null);
         setCategory("");
+        setMonth("");
     }
 
     useEffect(() => {
+        handleLoadMonthsPeriod()
         handleLoadCategories()
         if (expenseToEdit) {
             setExpenses({
@@ -377,19 +425,39 @@ export const FormExpensesFixed = ({ createExpense, expenseToEdit, UpdateExpense 
 
                 {/* Fecha gasto */}
                 <div className="space-y-2">
-                    <label className="text-sm font-medium">Fecha gasto</label>
-                    <Input
-                        className="mb-4"
-                        type="date"
-                        name="date"
-                        value={expenses?.expense_date ?? new Date().toISOString().split("T")[0]}
-                        onChange={(e) =>
-                            setExpenses(prev => ({
-                                ...prev!,
-                                expense_date: e.target.value
-                            }))
-                        }
-                    />
+                    <label className="text-sm font-medium">
+                        Mes del gasto
+                    </label>
+                    {loading ? (
+                        <p>Cargando...</p>
+                    ) : (
+                        <Select
+                            name="expense_month"
+                            value={month}
+                            onValueChange={setMonth}
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="Selecciona un mes" />
+                            </SelectTrigger>
+
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectLabel>
+                                        {currentYear}
+                                    </SelectLabel>
+
+                                    {periodYear.map((item) => (
+                                        <SelectItem
+                                            key={item.id}
+                                            value={String(item.month)}
+                                        >
+                                            {item.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                    )}
                 </div>
 
                 {/* Valor */}
