@@ -84,10 +84,10 @@ export default async function handler(
             }
 
             if(expense){
-                if (!id || !expense) {
+                if (!id || !expense.expense_category_id || !expense.name || !expense.expense_date || !expense.amount) {
                     return res
                     .status(400)
-                    .json({ error: "Faltan campos obligatorios" + id + expense});
+                    .json({ error: "Faltan campos obligatorios"});
                 }
 
                 const newData = {

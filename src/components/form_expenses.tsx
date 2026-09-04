@@ -66,8 +66,8 @@ export const FormExpensesVariable = ({ createExpense, expenseToEdit, UpdateExpen
         } catch (err) {
             setError("!Informacion de ingresos vacia¡");
             console.log(err);
-            setTimeout(() => setError(null), 5000);
         }finally {
+            setTimeout(() => setError(null), 5000);
             setLoading(false);
         }
     }
@@ -230,7 +230,7 @@ export const FormExpensesVariable = ({ createExpense, expenseToEdit, UpdateExpen
                     </p>
                 )}
         
-                <Button type="submit" >
+                <Button type="submit" disabled={loading}>
                     {expenseToEdit ? "Actualizar gasto" : "Crear gasto"}
                 </Button>
             </form>
@@ -264,8 +264,8 @@ export const FormExpensesFixed = ({ createExpense, expenseToEdit, UpdateExpense 
         } catch (err) {
             setError("!Informacion de ingresos vacia¡");
             console.log(err);
-            setTimeout(() => setError(null), 5000);
         }finally {
+            setTimeout(() => setError(null), 5000);
             setLoading(false);
         }
     }
@@ -429,7 +429,7 @@ export const FormExpensesFixed = ({ createExpense, expenseToEdit, UpdateExpense 
                     </p>
                 )}
         
-                <Button type="submit" >
+                <Button type="submit" disabled={loading}>
                     {expenseToEdit ? "Actualizar gasto" : "Crear gasto"}
                 </Button>
             </form>
@@ -463,8 +463,8 @@ export const FormExpenses = ({ createExpense, expenseToEdit, UpdateExpense }: Pr
         } catch (err) {
             setError("!Informacion de ingresos vacia¡");
             console.log(err);
-            setTimeout(() => setError(null), 5000);
         }finally {
+            setTimeout(() => setError(null), 5000);
             setLoading(false);
         }
     }
@@ -622,12 +622,12 @@ export const FormExpenses = ({ createExpense, expenseToEdit, UpdateExpense }: Pr
                 
                 {/* Error */}
                 {error && (
-                    <p className="rounded-md bg-red-50 p-3 text-sm text-red-600">
+                    <div className="rounded-md border border-red-200 bg-red-50 p-4 text-red-600">
                         {error}
-                    </p>
+                    </div>
                 )}
         
-                <Button type="submit" >
+                <Button type="submit" disabled={loading}>
                     {expenseToEdit ? "Actualizar gasto" : "Crear gasto"}
                 </Button>
             </form>

@@ -115,11 +115,17 @@ export default function Incomes(){
         <div>
             <Header/>
             <FormIncome createIncome={handleSubmit} incomeToEdit={incomeToEdit} UpdateIncome={handleUpdateIncome}/>
+            {/* Mensajes */}
             {error && (
-                <p className="text-red-600 text-center">{error}</p>
+                <div className="rounded-md border border-red-200 bg-red-50 p-4 text-red-600">
+                    {error}
+                </div>
             )}
+
             {success && (
-                <p className="text-green-600 text-center">Ingreso con ID {success} registrado</p>
+                <div className="rounded-md border border-green-200 bg-green-50 p-4 text-green-600">
+                    Ingreso con ID {success} registrado correctamente.
+                </div>
             )}
             <br />
             <TableIncomesByUser onEdit={setIncomeToEdit} reload={reloadTable}/>

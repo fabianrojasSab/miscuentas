@@ -141,8 +141,8 @@ export default function Dasboard () {
         } catch (err) {
             setError("!Error al eliminar ingreso¡");
             console.log(err);
-            setTimeout(() => setError(null), 5000);
         } finally {
+            setTimeout(() => setError(null), 5000);
             setLoading(false);
         }
     }
@@ -183,8 +183,8 @@ export default function Dasboard () {
         } catch (err) {
             setError("!Informacion de ingresos vacia¡");
             console.log(err);
-            setTimeout(() => setError(null), 5000);
         }finally {
+            setTimeout(() => setError(null), 5000);
             setLoading(false);
         }
     }
@@ -225,8 +225,8 @@ export default function Dasboard () {
         } catch (err) {
             setError("!Informacion de ingresos vacia¡");
             console.log(err);
-            setTimeout(() => setError(null), 5000);
         }finally {
+            setTimeout(() => setError(null), 5000);
             setLoading(false);
         }
     }
@@ -308,8 +308,8 @@ export default function Dasboard () {
         } catch (err) {
             setError("!Informacion de gastos vacia¡");
             console.log(err);
-            setTimeout(() => setError(null), 5000);
         }finally {
+            setTimeout(() => setError(null), 5000);
             setLoading(false);
         }
 
