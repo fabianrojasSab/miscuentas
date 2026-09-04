@@ -223,6 +223,7 @@ export async function getPeriodsYearly(): Promise<DbPeriodRow[]> {
     }   
 }
 
+//funcion para consultar los meses del año que se pase como parametro
 export async function getMonthsByYear(year: number): Promise<DbPeriodRow[]> {
     const db = getDb();
 

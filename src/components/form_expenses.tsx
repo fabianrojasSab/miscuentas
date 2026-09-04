@@ -262,13 +262,13 @@ export const FormExpensesFixed = ({ createExpense, expenseToEdit, UpdateExpense 
     const [month, setMonth] = useState("");
     const [periodYear, setPeriodYear] = useState<PeriodRow[]>([]);
     
-
     const currentYear = new Date().getFullYear();
 
+    //Funcion para cargar al formulario el listado de meses del año actual
     async function handleLoadMonthsPeriod () {
         setLoading(true);
         try {
-            //consulta y valida si hay un periodo del mes actual, arreglar para que valide con el mes actual
+            //consulta y trae todos los meses del año en curso
             let res = await fetch(`/api/periods?period_type=monthsByYear&year=${currentYear}`, {
                 method: "GET",
             });
@@ -281,7 +281,7 @@ export const FormExpensesFixed = ({ createExpense, expenseToEdit, UpdateExpense 
 
             setPeriodYear(data.monthsByYear ?? []);
         } catch (err) {
-            setError("Error al crear el gasto variable. Por favor, inténtalo de nuevo.");
+            setError("Error al consultar los meses del año en curso. Por favor, inténtalo de nuevo.");
         }finally {
             setTimeout(() => setError(null), 5000);
             setLoading(false);
