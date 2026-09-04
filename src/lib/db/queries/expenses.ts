@@ -250,7 +250,7 @@ export async function getFixedExpensesByUser(id: number): Promise<BdNewExpenseRo
         const allExpensesResult = await allAsync<BdNewExpenseRow>(
             db,
             `SELECT
-                *
+                e.*
             FROM expenses e
             INNER JOIN expense_categories ec ON e.expense_category_id = ec.id
             WHERE user_id = ? and ec.category_type = 1`,
