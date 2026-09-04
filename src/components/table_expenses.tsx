@@ -1,5 +1,7 @@
 import { ExpenseCategoryType } from "@/emuns/ExpenseCategoryType";
 import { useEffect, useState } from "react";
+import { Button } from "@/components/buttons";
+import { HandCoins, X } from "lucide-react";
 
 type ExpensesRow = {
     id: number,
@@ -38,7 +40,7 @@ type Props = {
     reload: boolean;
 };
 
-//Componente especifico para traer los gastos del periodo del usuario
+//Componente especifico para traer los gastos del periodo del usuario (no se esta usando en ningun componente 04/09/2026)
 export const TableExpensesByUser = ({ reload }: Props) =>{
     const [error, setError] = useState<string | null>(null);
     const [expenses, setExpenses] = useState<BdExpenseRow[]>([]);
@@ -131,7 +133,7 @@ export const TableExpensesByUser = ({ reload }: Props) =>{
     )
 }
 
-//componente que muestra todos los gastos del usuario sin filtros
+//componente que muestra todos los gastos del usuario sin filtros (no se esta usando en ningun componente 04/09/2026)
 export const TableAllExpensesByUser = ({ reload }: Props) =>{
     const [error, setError] = useState<string | null>(null);
     const [expenses, setExpenses] = useState<ExpensesRow[]>([]);
@@ -313,6 +315,134 @@ export const TableAllExpenses = ({ onEdit, reload }: Props) => {
                             ))}
                         </tbody>
                     </table>
+                </div>
+            )}
+        </div>
+    )
+}
+
+//componente que muestra los gastos fijos configurados por el usuario
+export const TableExpensesFixedByUser = ({ reload }: Props) =>{
+    const [error, setError] = useState<string | null>(null);
+    const [expenses, setExpenses] = useState<ExpensesRow[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    async function loadExpenses(){
+        setError(null);
+        setLoading(true);
+        try {
+            const res = await fetch("/api/expenses?type=fixed", {
+                method: "GET",
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data.error);
+                return;
+            }
+
+        setExpenses(data.expenses ?? []);
+        } catch (err) {
+            setError("!Informacion de gastos vacia¡");
+            console.log(err);
+            setTimeout(() => setError(null), 5000);
+        }finally {
+            setLoading(false);
+        }
+    }
+
+    //Funcion para eliminar un gasto
+    async function handleDeleteExpense(id: number){
+        setError(null);
+        setLoading(true);
+        try {
+            const res = await fetch("/api/expenses", {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ id }),
+            });
+
+            if (!res.ok) {
+                throw new Error();
+            }
+
+            await loadExpenses();
+        } catch (err) {
+            setError("!Error al eliminar el gasto");
+            console.log(err);
+            setTimeout(() => setError(null), 5000);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        loadExpenses();
+    }, [reload]);
+
+    return(
+        <div className=" max-w-md mx-auto">
+            {error && <p className="text-red-600">{error}</p>}
+            {loading ? (
+                <p>Cargando...</p>
+            ) : expenses.length === 0 ? (
+                <p>No hay gastos registrados.</p>
+            ) : (
+                <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
+                    <div className="divide-y">
+                        {expenses.map((inc) => (
+                            <div
+                                key={inc.id}
+                                className="group flex items-center gap-4 px-4 py-4 transition-colors hover:bg-muted/40 sm:px-6"
+                            >
+                                {/* Icono */}
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted">
+                                    <span className="text-lg">
+                                        <HandCoins />
+                                    </span>
+                                </div>
+
+                                {/* Información del gasto */}
+                                <div className="min-w-0 flex-1">
+                                    <p className="truncate font-medium">
+                                        {inc.name ?? "-"}
+                                    </p>
+
+                                    <p className="mt-1 text-xs text-muted-foreground">
+                                        {inc.description ?? "-"}
+                                    </p>
+                                </div>
+
+                                {/* Monto */}
+                                <div className="text-right">
+                                    <p className="font-semibold">
+                                        {Number(inc.amount).toLocaleString(
+                                            "es-CO",
+                                            {
+                                                style: "currency",
+                                                currency: "COP",
+                                                minimumFractionDigits: 0,
+                                            }
+                                        )}
+                                    </p>
+                                </div>
+
+                                {/* Eliminar */}
+                                <Button
+                                    type="button"
+                                    variant="transparent"
+                                    size="icon"
+                                    className="h-4 w-4 rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                                    title="Eliminar gasto"
+                                    onClick={() => handleDeleteExpense(inc.id)}
+                                >
+                                    <X className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             )}
         </div>

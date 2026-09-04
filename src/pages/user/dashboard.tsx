@@ -3,8 +3,19 @@ import { FormExpensesVariable } from "@/components/form_expenses";
 import { FormPeriodExpenseVariableByUser } from "@/components/form_periodExpenses";
 import { Header } from "@/components/header";
 import { ExpenseCategoryType } from "@/emuns/ExpenseCategoryType";
-import { Eye } from "lucide-react";
+import { Eye, X } from "lucide-react";
 import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 type PeriodRow = {
     id: number,
@@ -358,6 +369,33 @@ export default function Dasboard () {
 
     }
 
+    //Controlador para eliminar un gasto del periodo
+    async function handleDeletePeriodExpense(id: number){
+        setError(null);
+        setLoading(true);
+        try {
+            const res = await fetch("/api/periodExpenses", {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ id }),
+            });
+
+            if (!res.ok) {
+                throw new Error();
+            }
+
+            await handleLoadPeriodExpenses();
+        } catch (err) {
+            setError("!Error al eliminar ingreso¡");
+            console.log(err);
+            setTimeout(() => setError(null), 5000);
+        } finally {
+            setLoading(false);
+        }
+    }
+
 return (
     <div className="min-h-screen bg-background">
         <Header />
@@ -503,10 +541,38 @@ return (
                         {periodExpenses.map((inc) => (
                             <div
                                 key={inc.id}
-                                className="rounded-xl border bg-card p-5 shadow-sm transition-all hover:shadow-md"
+                                className="relative rounded-xl border bg-card p-5 shadow-sm transition-all hover:shadow-md"
                             >
+                                {/* Botón eliminar */}
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button
+                                            type="button"
+                                            variant={"default"}
+                                            size="icon"
+                                            className="absolute right-3 top-3 rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                                            title="Eliminar gasto"
+                                        >
+                                            <X className="h-4 w-4" />
+                                        </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                        <AlertDialogTitle>Estas seguro que deseas eliminar el gasto?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            Esta acción es irreversible. Esto eliminará permanentemente su
+                                            cuenta de nuestros servidores.
+                                        </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleDeletePeriodExpense(inc.id)}>Continuar</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+
                                 {/* Encabezado */}
-                                <div className="flex items-start justify-between gap-4">
+                                <div className="flex items-start justify-between gap-4 pr-8">
                                     <div className="min-w-0">
                                         <h3 className="truncate font-semibold">
                                             {inc.name}

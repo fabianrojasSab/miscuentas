@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { parse } from "cookie";
 import { getUserBySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { get } from "http";
-import { createExpenses, createExpenseVariable, deleteExpense, getAllExpenses, getAllExpensesByUser, getExpensesByUser, updateExpense } from "@/lib/db/queries/expenses";
+import { createExpenses, createExpenseVariable, deleteExpense, getAllExpenses, getAllExpensesByUser, getExpensesByUser, getFixedExpensesByUser, updateExpense } from "@/lib/db/queries/expenses";
 import { getExpenseCateroryById } from "@/lib/db/queries/expense_categories";
 
 type ExpensesForm = {
@@ -73,6 +73,13 @@ export default async function handler(
             if (type === "dashboard") {
 
                 const expenses = await getExpensesByUser(user.id);
+
+                return res.status(200).json({ expenses });
+            }
+
+            if (type === "fixed") {
+
+                const expenses = await getFixedExpensesByUser(user.id);
 
                 return res.status(200).json({ expenses });
             }

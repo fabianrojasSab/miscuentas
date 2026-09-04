@@ -291,6 +291,7 @@ export const FormExpensesFixed = ({ createExpense, expenseToEdit, UpdateExpense 
         }
 
         setExpenses(null);
+        setCategory("");
     }
 
     useEffect(() => {
