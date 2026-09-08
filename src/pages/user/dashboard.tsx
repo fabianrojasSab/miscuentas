@@ -578,23 +578,129 @@ return (
                                             type="button"
                                             variant={"default"}
                                             size="icon"
-                                            className="absolute right-3 top-8 rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                                            title="Eliminar gasto"
-                                            // onClick={() => handleSearchExpenseById(inc.id)}
+                                            className="absolute right-3 top-9 rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                                            title="Ver información del gasto"
                                         >
                                             <Info className="h-4 w-4" />
                                         </Button>
                                     </AlertDialogTrigger>
-                                    <AlertDialogContent>
+
+                                    <AlertDialogContent className="max-w-lg">
                                         <AlertDialogHeader>
-                                        <AlertDialogTitle>Edita el Gasto seleccionado</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                            {/* poner componente formulario para ver y editar gasto del periodo */}
-                                        </AlertDialogDescription>
+                                            <AlertDialogTitle className="text-xl">
+                                                Información del gasto
+                                            </AlertDialogTitle>
+
+                                            <AlertDialogDescription>
+                                                Consulta todos los detalles del gasto seleccionado.
+                                            </AlertDialogDescription>
                                         </AlertDialogHeader>
+
+                                        {/* Información del gasto */}
+                                        <div className="space-y-4">
+                                            {/* Nombre */}
+                                            <div className="rounded-lg border bg-muted/30 p-4">
+                                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                                    Gasto
+                                                </p>
+
+                                                <p className="mt-1 text-lg font-semibold">
+                                                    {inc.name ?? "-"}
+                                                </p>
+                                            </div>
+
+                                            {/* Información principal */}
+                                            <div className="grid gap-3 sm:grid-cols-2">
+                                                {/* Monto */}
+                                                <div className="rounded-lg border p-4">
+                                                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                                        Monto
+                                                    </p>
+
+                                                    <p className="mt-1 text-xl font-bold">
+                                                        {Number(inc.amount).toLocaleString(
+                                                            "es-CO",
+                                                            {
+                                                                style: "currency",
+                                                                currency: "COP",
+                                                                minimumFractionDigits: 0,
+                                                            }
+                                                        )}
+                                                    </p>
+                                                </div>
+
+                                                {/* Estado */}
+                                                <div className="rounded-lg border p-4">
+                                                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                                        Estado
+                                                    </p>
+
+                                                    <div className="mt-2">
+                                                        <span
+                                                            className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${
+                                                                inc.state === "Pendiente"
+                                                                    ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+                                                                    : "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                                                            }`}
+                                                        >
+                                                            {inc.state}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Fecha */}
+                                            <div className="rounded-lg border p-4">
+                                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                                    Fecha del gasto
+                                                </p>
+
+                                                <p className="mt-1 text-sm font-medium">
+                                                    {inc.expense_date
+                                                        ? new Date(
+                                                            inc.expense_date
+                                                        ).toLocaleDateString("es-CO", {
+                                                            day: "2-digit",
+                                                            month: "long",
+                                                            year: "numeric",
+                                                        })
+                                                        : "-"}
+                                                </p>
+                                            </div>
+
+                                            {/* Categoría */}
+                                            <div className="rounded-lg border p-4">
+                                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                                    Categoría
+                                                </p>
+
+                                                <p className="mt-1 text-sm font-medium">
+                                                    {inc.category_name ?? "-"}
+                                                </p>
+                                            </div>
+
+                                            {/* Descripción */}
+                                            <div className="rounded-lg border p-4">
+                                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                                    Descripción
+                                                </p>
+
+                                                <p className="mt-1 text-sm text-muted-foreground">
+                                                    {inc.description || "Sin descripción"}
+                                                </p>
+                                            </div>
+                                        </div>
+
                                         <AlertDialogFooter>
-                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                        <AlertDialogAction>Editar</AlertDialogAction>
+                                            <AlertDialogCancel>
+                                                Cerrar
+                                            </AlertDialogCancel>
+
+                                            <AlertDialogAction
+                                                onClick={() => handleEditExpense(inc)}
+                                            >
+                                                Editar
+                                            </AlertDialogAction>
                                         </AlertDialogFooter>
                                     </AlertDialogContent>
                                 </AlertDialog>
