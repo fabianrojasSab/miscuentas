@@ -266,3 +266,28 @@ export async function getFixedExpensesByUser(id: number): Promise<BdNewExpenseRo
         //db.close();
     }   
 }
+
+
+//Funcion que consulta el gasto por ID
+export async function getExpenseByExpenseId(id: number): Promise<BdNewExpenseRow[]> {
+    const db = getDb();
+
+    try {
+        const allExpensesResult = await allAsync<BdNewExpenseRow>(
+            db,
+            `SELECT
+                *
+            FROM expenses
+            WHERE id = ?`,
+            [id],
+        );
+
+        if(!allExpensesResult){
+            throw new Error("No hay gasto registrado")
+        }
+
+        return allExpensesResult;
+    }finally {
+        //db.close();
+    }   
+}

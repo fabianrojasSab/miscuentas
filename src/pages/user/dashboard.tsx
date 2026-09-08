@@ -3,7 +3,7 @@ import { FormExpensesVariable } from "@/components/form_expenses";
 import { FormPeriodExpenseVariableByUser } from "@/components/form_periodExpenses";
 import { Header } from "@/components/header";
 import { ExpenseCategoryType } from "@/emuns/ExpenseCategoryType";
-import { Eye, X } from "lucide-react";
+import { Eye, Info, X } from "lucide-react";
 import { useState } from "react";
 import {
   AlertDialog,
@@ -568,6 +568,33 @@ return (
                                         <AlertDialogFooter>
                                         <AlertDialogCancel>Cancelar</AlertDialogCancel>
                                         <AlertDialogAction onClick={() => handleDeletePeriodExpense(inc.id)}>Continuar</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button
+                                            type="button"
+                                            variant={"default"}
+                                            size="icon"
+                                            className="absolute right-3 top-8 rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                                            title="Eliminar gasto"
+                                            // onClick={() => handleSearchExpenseById(inc.id)}
+                                        >
+                                            <Info className="h-4 w-4" />
+                                        </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                        <AlertDialogTitle>Edita el Gasto seleccionado</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            {/* poner componente formulario para ver y editar gasto del periodo */}
+                                        </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                        <AlertDialogAction>Editar</AlertDialogAction>
                                         </AlertDialogFooter>
                                     </AlertDialogContent>
                                 </AlertDialog>

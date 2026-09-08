@@ -1,4 +1,4 @@
-import { FormExpensesFixed } from "@/components/form_expenses";
+import { FormExpensesFixedInputDate } from "@/components/form_expenses";
 import { Header } from "@/components/header";
 import { TableExpensesFixedByUser } from "@/components/table_expenses";
 import { getDateParts } from "@/lib/formatDate";
@@ -124,7 +124,7 @@ export default function Expenses(){
     return(
         <div className="h-full mb-4">
             <Header/>
-            <FormExpensesFixed createExpense={handleCreatePeriodExpense} expenseToEdit={expenseToEdit} UpdateExpense={handleUpdateExpense}/>
+            <FormExpensesFixedInputDate createExpense={handleCreatePeriodExpense} expenseToEdit={expenseToEdit} UpdateExpense={handleUpdateExpense}/>
             {/* Mensajes */}
             {error && (
                 <div className="rounded-md border border-red-200 bg-red-50 p-4 text-red-600">
