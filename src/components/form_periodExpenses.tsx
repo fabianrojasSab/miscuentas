@@ -63,6 +63,7 @@ export const FormPeriodExpenseVariableByUser = ({ createPeriodExpense, periodExp
     const [category, setCategory] = useState("");
     const [loading, setLoading] = useState<boolean>(false);
 
+    //funcion para obtener las categorias
     async function handleLoadCategories(){
         setError(null);
         setLoading(true);
@@ -87,6 +88,7 @@ export const FormPeriodExpenseVariableByUser = ({ createPeriodExpense, periodExp
         }
     }
 
+    //funcion para creacion o actualizacion del gasto-
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         setError(null);
@@ -262,11 +264,14 @@ export const FormPeriodExpense = ({
     const [error, setError] = useState<string | null>(null);
     const [month, setMonth] = useState("");
     const [periodYear, setPeriodYear] = useState<PeriodRow[]>([]);
+    const [category, setCategory] = useState("");
     
     const currentYear = new Date().getFullYear();
 
     // Datos disponibles
-    const [expenses, setExpenses] = useState<ExpensesForm[]>([]);
+    const [expense, setExpense] = useState<ExpensesForm>();
+    const [categories, setCategories] = useState<CategoryRow[]>([]);
+
     const [periodsMonthly, setPeriodsMonthly] = useState<PeriodRow[]>([]);
 
     // Selecciones
@@ -324,7 +329,7 @@ export const FormPeriodExpense = ({
                 return;
             }
 
-        setExpenses(data.expenses ?? []);
+        setExpense(data.expenses ?? []);
         } catch (err) {
             setError("!Informacion de gastos vacia¡");
             console.log(err);
@@ -342,7 +347,7 @@ export const FormPeriodExpense = ({
 
         setSelectedExpenseId(expenseId);
 
-        const selectedExpense = expenses.find(
+        const selectedExpense = expense.find(
             (expense) => expense.id === expenseId
         );
 
@@ -459,22 +464,73 @@ export const FormPeriodExpense = ({
 
     return (
         <div className="w-full max-w-md mx-auto bg-card rounded-lg">
-            <form
-                onSubmit={handleSubmit}
-                className="space-y-5 rounded-lg border p-6 shadow-sm"
-            >
-                {/* Título */}
-                <div>
-                    <h2 className="text-xl font-semibold">
-                        Registrar gasto del período
-                    </h2>
-
-                    <p className="text-sm text-muted-foreground">
-                        Selecciona el período y el gasto que deseas registrar.
-                    </p>
+            <form className="space-y-5 rounded-lg border p-6 shadow-sm" onSubmit={handleSubmit}>
+                {/* Categoria */}
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">Categoria</label>
+                    {loading ? (
+                        <p>Cargando...</p>
+                    ) : (
+                        <Select
+                            name="expense_category_id"
+                            value={category}
+                            onValueChange={setCategory}
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="Selecciona una Categoria" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                <SelectLabel>Categoria</SelectLabel>
+                                {categories.map((inc) => (
+                                    <SelectItem
+                                        key={inc.id}
+                                        value={String(inc.id)}
+                                    >
+                                        {inc.name}
+                                    </SelectItem>
+                                ))}
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                    )}
                 </div>
 
-                {/* Período */}
+                {/* Nombre */}
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">Nombre</label>
+                    <Input
+                        className="mb-4"
+                        type="text"
+                        name="name_expense"
+                        value={expense?.name ?? ""}
+                        onChange={(e) =>
+                            setExpense(prev => ({
+                                ...prev!,
+                                name: e.target.value
+                            }))
+                        }
+                    />
+                </div>
+
+                {/* descripcion */}
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">descripcion</label>
+                    <Input
+                        className="mb-4"
+                        type="text"
+                        name="description"
+                        value={expense?.description ?? ""}
+                        onChange={(e) =>
+                            setExpense(prev => ({
+                                ...prev!,
+                                description: e.target.value
+                            }))
+                        }
+                    />
+                </div>
+
+                {/* Fecha gasto */}
                 <div className="space-y-2">
                     <label className="text-sm font-medium">
                         Mes del gasto
@@ -511,100 +567,45 @@ export const FormPeriodExpense = ({
                     )}
                 </div>
 
-                {/* Gasto */}
-                <div className="space-y-2">
-                    <label className="text-sm font-medium">
-                        Gasto
-                    </label>
-
-                    <Select
-                        value={
-                            selectedExpenseId
-                                ? String(selectedExpenseId)
-                                : ""
-                        }
-                        onValueChange={handleExpenseChange}
-                    >
-                        <SelectTrigger>
-                            <SelectValue placeholder="Selecciona un gasto" />
-                        </SelectTrigger>
-
-                        <SelectContent>
-                            {expenses.map((expense) => (
-                                <SelectItem
-                                    key={expense.id}
-                                    value={String(expense.id)}
-                                >
-                                    {expense.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-
-                {/* Fecha */}
-                <div className="space-y-2">
-                    <label className="text-sm font-medium">
-                        Fecha a pagar
-                    </label>
-
-                    <Input
-                        type="date"
-                        value={formData.expense_date}
-                        onChange={(e) =>
-                            setFormData((prev) => ({
-                                ...prev,
-                                expense_date: e.target.value,
-                            }))
-                        }
-                    />
-                </div>
-
                 {/* Valor */}
                 <div className="space-y-2">
-                    <label className="text-sm font-medium">
-                        Valor
-                    </label>
-
+                    <label className="text-sm font-medium">Valor</label>
                     <Input
+                        className="mb-4"
                         type="text"
                         inputMode="numeric"
+                        name="amount"
+                        placeholder="Ej: 1500,000"
                         value={
-                            formData.amount
-                                ? formData.amount.toLocaleString("es-CO")
+                            expense?.amount !== undefined &&
+                            expense?.amount !== null
+                                ? expense.amount.toLocaleString("en-US")
                                 : ""
                         }
                         onChange={(e) => {
-                            const rawValue =
-                                e.target.value.replace(/\D/g, "");
+                            // Elimina las comas antes de convertir el valor a número
+                            const rawValue = e.target.value.replace(/,/g, "");
 
-                            setFormData((prev) => ({
-                                ...prev,
-                                amount:
-                                    rawValue === ""
-                                        ? 0
-                                        : Number(rawValue),
-                            }));
+                            // Solo permite números o un campo vacío
+                            if (rawValue === "" || /^\d+$/.test(rawValue)) {
+                                setExpense((prev) => ({
+                                    ...prev!,
+                                    amount: rawValue === "" ? 0 : Number(rawValue),
+                                }));
+                            }
                         }}
                     />
                 </div>
-
+                
                 {/* Error */}
                 {error && (
                     <p className="rounded-md bg-red-50 p-3 text-sm text-red-600">
                         {error}
                     </p>
                 )}
-
-                {/* Botón */}
-                <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={loading}
-                >
-                    {periodExpenseToEdit
-                        ? "Actualizar gasto"
-                        : "Registrar gasto"}
+        
+                <Button type="submit" disabled={loading}>
+                    {periodExpenseToEdit ? "Actualizar gasto" : "Crear gasto"}
                 </Button>
             </form>
         </div>

@@ -15,12 +15,26 @@ export type ExpensePeriodRow = {
     category_type: number,
 }
 
+type ExpensesRow = {
+    id: number,
+    user_id: number,
+    expense_category_id: number,
+    name: string,
+    description: string,
+    expense_date: string,
+    amount: number,
+    created_at: string,
+    updated_at: string,
+    deleted_at: string,
+    user_name?: string,
+};
+
 export default function ExpensesPeriods() {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const [reloadTable, setReloadTable] = useState(false);
     const [expensePeriod, setExpensePeriod] = useState<ExpensePeriodRow | null>(null);
-    const [periodExpenseToEdit, setPeriodExpenseToEdit] = useState<ExpensePeriodRow | null>(null);
+    const [periodExpenseToEdit, setPeriodExpenseToEdit] = useState<ExpensesRow | null>(null);
     
     async function handleCreatePeriodExpense(expense: ExpensesForm) {
         const res = await fetch("/api/me");
