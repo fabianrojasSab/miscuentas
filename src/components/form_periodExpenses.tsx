@@ -441,6 +441,31 @@ export const FormPeriodExpense = ({
         }
     }
 
+    //funcion para cargar las categorias
+    async function handleLoadCategories(){
+        setError(null);
+        setLoading(true);
+        try {
+            const res = await fetch("/api/categories?type=1", {
+                method: "GET",
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data.error);
+                return;
+            }
+
+            setCategories(data.categories ?? []);
+        } catch (err) {
+            setError("!Informacion de ingresos vacia¡");
+            console.log(err);
+        }finally {
+            setTimeout(() => setError(null), 5000);
+            setLoading(false);
+        }
+    }
+
     /*
      * Cargar información inicial
      */
@@ -450,6 +475,7 @@ export const FormPeriodExpense = ({
             
             try {
                 await Promise.all([
+                    handleLoadCategories(),
                     handleLoadMonthsPeriod(), //consulta los periodos
                     handleGetPeriodsMonthly(),
                     handleLoadExpenses(),

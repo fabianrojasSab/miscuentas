@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export type ExpensePeriodRow = {
     id: number,
@@ -11,6 +12,23 @@ export type ExpensePeriodRow = {
     category_type: number,
 }
 
+type UserRow = {
+    id: number,
+    name: string,
+    email: string,
+    email_verified_at: string,
+    two_factor_secret: string,
+    two_factor_recovery_codes: string,
+    two_factor_confirmed_at: string,
+    remember_token: string,
+    current_team_id: string,
+    profile_photo_path: string,
+    created_at: string,
+    updated_at: string,
+    sw_admin: number,
+    onboarding_completed_at: string
+}
+
 type Props = {
     onEdit: (bank: ExpensePeriodRow) => void;
     reload: boolean;
@@ -20,13 +38,15 @@ export const TableAllPeriodExpenses = ({ onEdit, reload }: Props) =>{
     const [error, setError] = useState<string | null>();
     const [loading, setLoading] = useState<boolean | null>();
     const [expensePeriod, setExpensePeriod] = useState<ExpensePeriodRow[]>([]);
+    const [users, setUsers] = useState<UserRow[]>([]);
+    const [userSelected, setUserSelected] = useState("");
 
     //Funcion para cargar los gastos del periodo
     async function handleLoadPeriodExpenses(){
         setError(null);
         setLoading(true);
         try {
-            const res = await fetch("/api/periodExpenses", {
+            const res = await fetch(`/api/periodExpenses?periodId=${userSelected.id}`, {
                 method: "GET",
             });
             const data = await res.json();
@@ -73,13 +93,51 @@ export const TableAllPeriodExpenses = ({ onEdit, reload }: Props) =>{
         }
     }
 
+    //Funcion para cargar los usuarios
+    async function handleLoadUsers(){
+        setError(null);
+        setLoading(true);
+        try {
+            const res = await fetch("/api/users", {
+                method: "GET",
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data.error);
+                return;
+            }
+
+            setUsers(data.users ?? []);
+        } catch (err) {
+            setError("!Informacion de usuarios vacia¡");
+            console.log(err);
+            setTimeout(() => setError(null), 5000);
+        }finally {
+            setLoading(false);
+        }
+    }
+
     async function handleUpdatePeriodExpense(periodExpense: ExpensePeriodRow){
         onEdit(periodExpense)
     }
 
     useEffect(() => {
-        handleLoadPeriodExpenses();
-    }, [reload]);
+        async function loadData() {
+            setLoading(true);
+            
+            try {
+                await Promise.all([
+                    handleLoadUsers(),
+                    handleLoadPeriodExpenses(),
+                ]);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        loadData();
+    }, []);
 
     return(
         <div>
@@ -87,7 +145,37 @@ export const TableAllPeriodExpenses = ({ onEdit, reload }: Props) =>{
             {loading ? (
                 <p>Cargando...</p>
             ) : expensePeriod.length === 0 ? (
-                <p>No hay ingresos registrados.</p>
+                <div className="w-full max-w-md mx-auto bg-card rounded-lg">
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium">Usuarios</label>
+                        {loading ? (
+                            <p>Cargando...</p>
+                        ) : (
+                            <Select
+                                name="expense_category_id"
+                                value={userSelected}
+                                onValueChange={setUserSelected}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Selecciona un usuario" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectGroup>
+                                    <SelectLabel>Usuario</SelectLabel>
+                                    {users.map((inc) => (
+                                        <SelectItem
+                                            key={inc.id}
+                                            value={String(inc.id)}
+                                        >
+                                            {inc.name}
+                                        </SelectItem>
+                                    ))}
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                        )}
+                    </div>
+                </div>
             ) : (
                 <div className="w-full overflow-x-auto rounded-lg border bg-card shadow-sm">
                     <table className="w-full min-w-[600px]">
