@@ -10,6 +10,7 @@ import BrowseTopics from "@/components/BrowseTopics";
 import Timeline from "@/components/Timeline";
 import FAQ from "@/components/FAQ";
 import Contact from "@/components/Contact";
+import Loader from "@/components/Loader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,9 +25,13 @@ const geistMono = Geist_Mono({
 export default function Home() {
   const [user, setUser] = useState<any>(null);
   const router = useRouter();
+  const [loading, setLoading] = useState<boolean | null>();
 
   useEffect(() => {
-      (async () => {
+    async function loadData() {
+        setLoading(true);
+        
+        try {
           const res = await fetch("/api/me");
           const data = await res.json();
           setUser(data.user);
@@ -37,8 +42,13 @@ export default function Home() {
               router.push("/user/dashboard");
             }
           }
-      })();
-  }, []);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    loadData();
+}, []);
 
   return (
     <main>
@@ -49,6 +59,10 @@ export default function Home() {
       <Timeline />
       <FAQ />
       <Contact />
+      {/* Loader coin */}
+      {loading && (
+          <Loader/>
+      )}
     </main>
   );
 }
