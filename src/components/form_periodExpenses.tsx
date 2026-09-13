@@ -1,8 +1,8 @@
-import { FormExpensesVariable } from "@/components/form_expenses";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/buttons"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ExpenseCategoryType } from "@/emuns/ExpenseCategoryType";
 
 type ExpensesForm = {
     expense_category_id: number;
@@ -10,26 +10,21 @@ type ExpensesForm = {
     description: string;
     expense_date: string;
     amount: number;
+    period_id?:number,
 };
 
-type ExpensesRow = {
+type ExpensePeriodRow = {
     id: number,
-    user_id: number,
-    expense_category_id: number,
+    month_id: number,
+    month_name: string,
     name: string,
     description: string,
+    category_id: number,
+    category_name: string,
+    category_type: number,
     expense_date: string,
     amount: number,
-    created_at: string,
-    updated_at: string,
-    deleted_at: string,
-    user_name?: string,
-};
-
-type Props = {
-    createPeriodExpense: (expense: ExpensesForm) => void;
-    periodExpenseToEdit: ExpensesRow | null;
-    UpdatePeriodExpense: (expense: ExpensesForm) => void;
+    state: string,
 };
 
 type CategoryRow = {
@@ -54,6 +49,12 @@ type PeriodRow = {
     created_at: string,
     updated_at: string,
 }
+
+type Props = {
+    createPeriodExpense: (expense: ExpensesForm) => void;
+    periodExpenseToEdit: ExpensePeriodRow | null;
+    UpdatePeriodExpense: (expense: ExpensesForm) => void;
+};
 
 //Componente para ingresar gastos variables desde el dashboard del usuario
 export const FormPeriodExpenseVariableByUser = ({ createPeriodExpense, periodExpenseToEdit, UpdatePeriodExpense }: Props) => {
@@ -121,7 +122,7 @@ export const FormPeriodExpenseVariableByUser = ({ createPeriodExpense, periodExp
                 amount: periodExpenseToEdit.amount,
                 expense_date: periodExpenseToEdit.expense_date,
                 description: periodExpenseToEdit.description ?? "",
-                expense_category_id: periodExpenseToEdit.expense_category_id,
+                expense_category_id: periodExpenseToEdit.category_id,
             });
         }
     }, [periodExpenseToEdit]);
@@ -269,101 +270,12 @@ export const FormPeriodExpense = ({
     const currentYear = new Date().getFullYear();
 
     // Datos disponibles
-    const [expense, setExpense] = useState<ExpensesForm>();
+    const [expense, setExpense] = useState<ExpensesForm | null>(null);
     const [categories, setCategories] = useState<CategoryRow[]>([]);
-
-    const [periodsMonthly, setPeriodsMonthly] = useState<PeriodRow[]>([]);
-
-    // Selecciones
-    const [selectedExpenseId, setSelectedExpenseId] = useState<number | null>(
-        null
-    );
-
-    const [selectedPeriodId, setSelectedPeriodId] = useState<number | null>(
-        null
-    );
-
-    // Datos del formulario
-    const [formData, setFormData] = useState({
-        amount: 0,
-        expense_date: new Date().toISOString().split("T")[0],
-    });
 
     const [loading, setLoading] = useState(false);
 
-    /*
-     * Obtener períodos mensuales
-     */
-    async function handleGetPeriodsMonthly() {
-        try {
-            const res = await fetch("/api/periods?month=true");
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                setError(data.error);
-                return;
-            }
-
-            setPeriodsMonthly(data.periodBymonth ?? []);
-        } catch (err) {
-            console.error(err);
-            setError("No se pudieron cargar los períodos.");
-        }
-    }
-
-    /*
-     * Obtener gastos configurados
-     */
-    async function handleLoadExpenses() {
-        setError(null);
-        setLoading(true);
-        try {
-            const res = await fetch("/api/expenses", {
-                method: "GET",
-            });
-            const data = await res.json();
-
-            if (!res.ok) {
-                setError(data.error);
-                return;
-            }
-
-        setExpense(data.expenses ?? []);
-        } catch (err) {
-            setError("!Informacion de gastos vacia¡");
-            console.log(err);
-            setTimeout(() => setError(null), 5000);
-        }finally {
-        setLoading(false);
-        }
-    }
-
-    /*
-     * Cuando seleccionamos un gasto
-     */
-    function handleExpenseChange(value: string) {
-        const expenseId = Number(value);
-
-        setSelectedExpenseId(expenseId);
-
-        const selectedExpense = expense.find(
-            (expense) => expense.id === expenseId
-        );
-
-        if (!selectedExpense) return;
-
-        setFormData({
-            amount: Number(selectedExpense.amount),
-            expense_date:
-                selectedExpense.expense_date ??
-                new Date().toISOString().split("T")[0],
-        });
-    }
-
-    /*
-     * Crear gasto del período
-     */
+    // Crear gasto del período
     async function handleSubmit(
         e: React.FormEvent<HTMLFormElement>
     ) {
@@ -371,27 +283,24 @@ export const FormPeriodExpense = ({
 
         setError(null);
 
-        if (!selectedPeriodId) {
-            setError("Debes seleccionar un período.");
-            return;
-        }
+        const formPeriodExpense = e.currentTarget;
 
-        if (!selectedExpenseId) {
-            setError("Debes seleccionar un gasto.");
-            return;
-        }
+        // Convertir el mes seleccionado a una fecha
+        // Ejemplo: month = "8" -> 2026-08-01
+        const expenseDate = `${currentYear}-${String(month).padStart(2, "0")}-01`;
 
-        if (!formData.amount || formData.amount <= 0) {
+        if (!formPeriodExpense.amount || formPeriodExpense.amount <= 0) {
             setError("El valor del gasto debe ser mayor a cero.");
             return;
         }
 
         const body = {
-            period_id: selectedPeriodId,
-            expense_id: selectedExpenseId,
-            expense_date: formData.expense_date,
-            amount: formData.amount,
-            expense_state_id: 1,
+            period_id: Number(month),
+            expense_category_id: Number(category),
+            name: formPeriodExpense.name_expense.value,
+            description: formPeriodExpense.description.value,
+            expense_date: expenseDate,
+            amount: expense?.amount ?? 0,
         };
 
         try {
@@ -401,16 +310,10 @@ export const FormPeriodExpense = ({
                 await createPeriodExpense(body);
             }
 
-            // Limpiar formulario
-            setSelectedExpenseId(null);
-            setSelectedPeriodId(null);
+            setCategory("");
+            setExpense(null);
+            setMonth("");
 
-            setFormData({
-                amount: 0,
-                expense_date: new Date()
-                    .toISOString()
-                    .split("T")[0],
-            });
         } catch (err) {
             console.error(err);
             setError("No se pudo guardar el gasto.");
@@ -418,11 +321,11 @@ export const FormPeriodExpense = ({
     }
 
     //Funcion para cargar al formulario el listado de meses del año actual
-    async function handleLoadMonthsPeriod () {
+    async function handleLoadMonthsPeriods() {
         setLoading(true);
         try {
             //consulta y trae todos los meses del año en curso
-            let res = await fetch(`/api/periods?period_type=monthsByYear&year=${currentYear}`, {
+            const res = await fetch(`/api/periods?period_type=monthsByYear&year=${currentYear}`, {
                 method: "GET",
             });
             const data = await res.json();
@@ -441,12 +344,12 @@ export const FormPeriodExpense = ({
         }
     }
 
-    //funcion para cargar las categorias
+    //funcion para cargar las categorias al formulario
     async function handleLoadCategories(){
         setError(null);
         setLoading(true);
         try {
-            const res = await fetch("/api/categories?type=1", {
+            const res = await fetch("/api/categories", {
                 method: "GET",
             });
             const data = await res.json();
@@ -466,9 +369,40 @@ export const FormPeriodExpense = ({
         }
     }
 
-    /*
-     * Cargar información inicial
-     */
+    //Funcion auxiliar para obtener el tipo de categoria
+    function getCategoryTypeLabel(type: ExpenseCategoryType): string {
+        switch (type) {
+            case ExpenseCategoryType.FIXED:
+                return "Fijo";
+
+            case ExpenseCategoryType.VARIABLE:
+                return "Variable";
+
+            case ExpenseCategoryType.SAVINGS:
+                return "Ahorro";
+
+            default:
+                return "Desconocido";
+        }
+    }
+
+    //Hook al recibir cambios en periodExpenseToEdit y poner la informacion en el formulario
+    useEffect(() => {
+        if (periodExpenseToEdit) {
+            setExpense({
+                name: periodExpenseToEdit.name,
+                amount: periodExpenseToEdit.amount,
+                expense_date: periodExpenseToEdit.expense_date,
+                description: periodExpenseToEdit.description ?? "",
+                expense_category_id: periodExpenseToEdit.category_id,
+                period_id: periodExpenseToEdit.month_id,
+            });
+            setCategory(String(periodExpenseToEdit.category_id));
+            setMonth(String(periodExpenseToEdit.month_id));
+        }
+    }, [periodExpenseToEdit]);
+
+    //Cargar información inicial
     useEffect(() => {
         async function loadData() {
             setLoading(true);
@@ -476,9 +410,7 @@ export const FormPeriodExpense = ({
             try {
                 await Promise.all([
                     handleLoadCategories(),
-                    handleLoadMonthsPeriod(), //consulta los periodos
-                    handleGetPeriodsMonthly(),
-                    handleLoadExpenses(),
+                    handleLoadMonthsPeriods(), //consulta los periodos
                 ]);
             } finally {
                 setLoading(false);
@@ -513,7 +445,7 @@ export const FormPeriodExpense = ({
                                         key={inc.id}
                                         value={String(inc.id)}
                                     >
-                                        {inc.name}
+                                        {inc.name} ({getCategoryTypeLabel(inc.category_type)})
                                     </SelectItem>
                                 ))}
                                 </SelectGroup>
@@ -559,7 +491,7 @@ export const FormPeriodExpense = ({
                 {/* Fecha gasto */}
                 <div className="space-y-2">
                     <label className="text-sm font-medium">
-                        Mes del gasto
+                        Mes
                     </label>
                     {loading ? (
                         <p>Cargando...</p>
@@ -582,7 +514,7 @@ export const FormPeriodExpense = ({
                                     {periodYear.map((item) => (
                                         <SelectItem
                                             key={item.id}
-                                            value={String(item.month)}
+                                            value={String(item.id)}
                                         >
                                             {item.name}
                                         </SelectItem>

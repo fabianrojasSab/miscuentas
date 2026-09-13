@@ -6,13 +6,16 @@ import { useState } from "react";
 
 export type ExpensePeriodRow = {
     id: number,
-    month: number
+    month_id: number,
+    month_name: string,
     name: string,
+    description: string,
+    category_id: number,
     category_name: string,
+    category_type: number,
     expense_date: string,
     amount: number,
     state: string,
-    category_type: number,
 }
 
 type ExpensesRow = {
@@ -29,12 +32,20 @@ type ExpensesRow = {
     user_name?: string,
 };
 
+type ExpensesForm = {
+    expense_category_id: number;
+    name: string;
+    description: string;
+    expense_date: string;
+    amount: number;
+    period_id?: number;
+};
+
 export default function ExpensesPeriods() {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const [reloadTable, setReloadTable] = useState(false);
-    const [expensePeriod, setExpensePeriod] = useState<ExpensePeriodRow | null>(null);
-    const [periodExpenseToEdit, setPeriodExpenseToEdit] = useState<ExpensesRow | null>(null);
+    const [expensePeriodToEdit, setExpensePeriodToEdit] = useState<ExpensePeriodRow | null>(null);
     
     async function handleCreatePeriodExpense(expense: ExpensesForm) {
         const res = await fetch("/api/me");
@@ -44,6 +55,16 @@ export default function ExpensesPeriods() {
         let month = date.getMonth() + 1;
 
         try {
+            //consulta y valida si hay un periodo del mes actual, arreglar para que valide con el mes actual
+            let res = await fetch(`/api/periods?month=${month}&year=${year}`, {
+                method: "GET",
+            });
+            const dataPeriodsMonth = await res.json();
+
+            if (!res.ok) {
+                setError(dataPeriodsMonth.error);
+                return;
+            }
 
             const dataToSend = {
                 id: dataUser.user.id,
@@ -51,7 +72,7 @@ export default function ExpensesPeriods() {
                 idPeriod: dataPeriodsMonth.periodBymonth.id,
             }
     
-            let res = await fetch("/api/periodExpense", {
+            res = await fetch("/api/periodExpenses", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -74,8 +95,35 @@ export default function ExpensesPeriods() {
         }
     }
 
-    async function handleUpdatePeriodExpense(){
+    async function handleUpdatePeriodExpense(periodExpense: ExpensesForm){
+        const body = {
+            id: expensePeriodToEdit?.id,
+            periodExpense: periodExpense,
+        };
 
+        try {
+            const res = await fetch("/api/periodExpenses", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(body),
+            });
+            const data = await res.json();
+
+            setReloadTable(prev => !prev);
+
+            if (!res.ok) {
+                setError(data.error);
+                return;
+            }
+
+            setSuccess(data.id);
+            setTimeout(() => setSuccess(null), 5000);
+        } catch (err) {
+            setError("Error al actualizar el gasto. Por favor, inténtalo de nuevo.");
+            setTimeout(() => setError(null), 5000);
+        }
     }
 
     return(
@@ -83,7 +131,7 @@ export default function ExpensesPeriods() {
             <Header/>
             Administracion de gastos por periodo
             <br />
-            <FormPeriodExpense createPeriodExpense={handleCreatePeriodExpense} periodExpenseToEdit={periodExpenseToEdit} UpdatePeriodExpense={handleUpdatePeriodExpense}/>
+            <FormPeriodExpense createPeriodExpense={handleCreatePeriodExpense} periodExpenseToEdit={expensePeriodToEdit} UpdatePeriodExpense={handleUpdatePeriodExpense}/>
             {error && (
                 <p className="text-red-600 text-center">{error}</p>
             )}
@@ -91,7 +139,7 @@ export default function ExpensesPeriods() {
                 <p className="text-green-600 text-center">Ingreso con ID {success} registrado</p>
             )}
             <br />
-            <TableAllPeriodExpenses onEdit={setExpensePeriod} reload={reloadTable}/>
+            <TableAllPeriodExpenses onEdit={setExpensePeriodToEdit} reload={reloadTable}/>
         </div>
     )
 }

@@ -1,15 +1,19 @@
 import { useEffect, useState } from "react";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ExpenseCategoryType } from "@/emuns/ExpenseCategoryType";
 
 export type ExpensePeriodRow = {
     id: number,
-    month: number
+    month_id: number,
+    month_name: string,
     name: string,
+    description: string,
+    category_id: number,
     category_name: string,
+    category_type: number,
     expense_date: string,
     amount: number,
     state: string,
-    category_type: number,
 }
 
 type UserRow = {
@@ -29,8 +33,22 @@ type UserRow = {
     onboarding_completed_at: string
 }
 
+type PeriodRow = {
+    id: number,
+    name: string,
+    description: string,
+    period_type: number,
+    year: number,
+    month: number,
+    week: number,
+    day: number,
+    parent_id: number,
+    created_at: string,
+    updated_at: string,
+}
+
 type Props = {
-    onEdit: (bank: ExpensePeriodRow) => void;
+    onEdit: (expesePeriod: ExpensePeriodRow) => void;
     reload: boolean;
 };
 
@@ -40,13 +58,16 @@ export const TableAllPeriodExpenses = ({ onEdit, reload }: Props) =>{
     const [expensePeriod, setExpensePeriod] = useState<ExpensePeriodRow[]>([]);
     const [users, setUsers] = useState<UserRow[]>([]);
     const [userSelected, setUserSelected] = useState("");
+    const [month, setMonth] = useState("");
+    const [periodYear, setPeriodYear] = useState<PeriodRow[]>([]);
+    const currentYear = new Date().getFullYear();
 
-    //Funcion para cargar los gastos del periodo
-    async function handleLoadPeriodExpenses(){
+    //Controlador al momento de seleccionar  un usuario se cargar los gastos del periodo
+    async function handleLoadPeriodExpenses(userId: string){
         setError(null);
         setLoading(true);
         try {
-            const res = await fetch(`/api/periodExpenses?periodId=${userSelected.id}`, {
+            const res = await fetch(`/api/periodExpenses?periodId=${month}&userId=${userId}`, {
                 method: "GET",
             });
             const data = await res.json();
@@ -56,7 +77,7 @@ export const TableAllPeriodExpenses = ({ onEdit, reload }: Props) =>{
                 return;
             }
 
-            setExpensePeriod(data.periodEpenses ?? []);
+            setExpensePeriod(data.periodExpenses ?? []);
         } catch (err) {
             setError("!Informacion de gastos vacia¡");
             console.log(err);
@@ -83,7 +104,7 @@ export const TableAllPeriodExpenses = ({ onEdit, reload }: Props) =>{
                 throw new Error();
             }
 
-            await handleLoadPeriodExpenses();
+            await handleLoadPeriodExpenses(userSelected);
         } catch (err) {
             setError("!Error al eliminar el gasto");
             console.log(err);
@@ -122,6 +143,51 @@ export const TableAllPeriodExpenses = ({ onEdit, reload }: Props) =>{
         onEdit(periodExpense)
     }
 
+    //Funcion para cargar al formulario el listado de meses del año actual
+    async function handleLoadMonthsPeriod () {
+        setLoading(true);
+        try {
+            //consulta y trae todos los meses del año en curso
+            const res = await fetch(`/api/periods?period_type=monthsByYear&year=${currentYear}`, {
+                method: "GET",
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data.error);
+                return;
+            }
+
+            setPeriodYear(data.monthsByYear ?? []);
+        } catch (err) {
+            setError("Error al consultar los meses del año en curso. Por favor, inténtalo de nuevo.");
+        }finally {
+            setTimeout(() => setError(null), 5000);
+            setLoading(false);
+        }
+    }
+
+    //Funcion auxiliar para obtener el tipo de categoria
+    function getCategoryTypeLabel(type: ExpenseCategoryType): string {
+        switch (type) {
+            case ExpenseCategoryType.FIXED:
+                return "Fijo";
+
+            case ExpenseCategoryType.VARIABLE:
+                return "Variable";
+
+            case ExpenseCategoryType.SAVINGS:
+                return "Ahorro";
+
+            default:
+                return "Desconocido";
+        }
+    }
+
+    useEffect(() => {
+        handleLoadPeriodExpenses(userSelected);
+    }, [reload]);
+
     useEffect(() => {
         async function loadData() {
             setLoading(true);
@@ -129,7 +195,7 @@ export const TableAllPeriodExpenses = ({ onEdit, reload }: Props) =>{
             try {
                 await Promise.all([
                     handleLoadUsers(),
-                    handleLoadPeriodExpenses(),
+                    handleLoadMonthsPeriod(),
                 ]);
             } finally {
                 setLoading(false);
@@ -146,6 +212,47 @@ export const TableAllPeriodExpenses = ({ onEdit, reload }: Props) =>{
                 <p>Cargando...</p>
             ) : expensePeriod.length === 0 ? (
                 <div className="w-full max-w-md mx-auto bg-card rounded-lg">
+                    {/* Select de periodos */}
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium">
+                            Mes
+                        </label>
+                        {loading ? (
+                            <p>Cargando...</p>
+                        ) : (
+                            <Select
+                                name="expense_month"
+                                value={month}
+                                onValueChange={(value) => {
+                                    setMonth(value)
+                                    setUserSelected("");
+                                    }
+                                }
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Selecciona un mes" />
+                                </SelectTrigger>
+
+                                <SelectContent>
+                                    <SelectGroup>
+                                        <SelectLabel>
+                                            {currentYear}
+                                        </SelectLabel>
+
+                                        {periodYear.map((item) => (
+                                            <SelectItem
+                                                key={item.id}
+                                                value={String(item.id)}
+                                            >
+                                                {item.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                        )}
+                    </div>
+                    {/* Select de usuario */}
                     <div className="space-y-2">
                         <label className="text-sm font-medium">Usuarios</label>
                         {loading ? (
@@ -154,7 +261,13 @@ export const TableAllPeriodExpenses = ({ onEdit, reload }: Props) =>{
                             <Select
                                 name="expense_category_id"
                                 value={userSelected}
-                                onValueChange={setUserSelected}
+                                // onValueChange={setUserSelected}
+                                onValueChange={(value) => {
+                                    setUserSelected(value)
+                                    handleLoadPeriodExpenses(value);
+                                    }
+                                }
+                                disabled={month == "" ? true : false}
                             >
                                 <SelectTrigger>
                                     <SelectValue placeholder="Selecciona un usuario" />
@@ -181,7 +294,6 @@ export const TableAllPeriodExpenses = ({ onEdit, reload }: Props) =>{
                     <table className="w-full min-w-[600px]">
                         <thead className="bg-muted/50">
                             <tr>
-                            <th className="px-4 py-3 text-left text-sm font-semibold">Mes</th>
                             <th className="px-4 py-3 text-left text-sm font-semibold">Nombre</th>
                             <th className="px-4 py-3 text-left text-sm font-semibold">Categoria</th>
                             <th className="px-4 py-3 text-left text-sm font-semibold">Fecha</th>
@@ -194,13 +306,12 @@ export const TableAllPeriodExpenses = ({ onEdit, reload }: Props) =>{
                         <tbody>
                             {expensePeriod.map((inc) => (
                             <tr key={inc.id}>
-                                <td className="border p-2">{inc.month}</td>
                                 <td className="px-4 py-3 text-sm text-muted-foreground">{inc.name}</td>
                                 <td className="border p-2">{inc.category_name}</td>
                                 <td className="border p-2">{inc.expense_date}</td>
                                 <td className="border p-2">{inc.amount}</td>
                                 <td className="border p-2">{inc.state}</td>
-                                <td className="border p-2">{inc.category_type}</td>
+                                <td className="border p-2">{getCategoryTypeLabel(inc.category_type)}</td>
                                 <td className="border p-2">
                                     <button className="bg-blue-500 text-white px-2 py-1 rounded mr-2" onClick={() => handleUpdatePeriodExpense(inc)}>Editar</button>
                                     <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => handleDeletePeriodExpense(inc.id)}>Eliminar</button>

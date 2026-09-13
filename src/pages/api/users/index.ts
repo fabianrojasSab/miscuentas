@@ -1,9 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { parse } from "cookie";
 import { getUserBySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
-import { PeriodType } from "@/emuns/PeriodType";
-import { createPeriod, deletePeriod, getAllPeriods, getMonthsByYear, getPeriodByMonth, getPeriodByYear, getPeriodsYearly, updatePeriod } from "@/lib/db/queries/periods";
-import { getAllUsers } from "@/lib/db/queries/users";
+import { deletePeriod } from "@/lib/db/queries/periods";
+import { createUser, getAllUsers } from "@/lib/db/queries/users";
+import bcrypt from "bcryptjs";
 
 
 export default async function handler(
@@ -21,93 +21,31 @@ export default async function handler(
     try {
         switch (req.method) {
         case "POST": {
-
-            const { period } = req.body as {
-                period: PeriodForm;
+            const { name, email, password, passwordConfirm } = req.body as {
+                name?: string;
+                email?: string;
+                password?: string;
+                passwordConfirm?: string;
             };
 
-            if (!period) {
-                return res.status(400).json({
-                    error: "Faltan campos obligatorios"
-                });
+            if (!name || !email || !password) {
+                return res
+                    .status(400)
+                    .json({ error: "Faltan campos obligatorios (nombre, correo, password)" });
             }
 
-            const periodType = Number(period.period_type);
-
-            if (!Object.values(PeriodType).includes(periodType)) {
-                return res.status(400).json({
-                    error: "Tipo de período inválido"
-                });
+            if (password !== passwordConfirm) {
+                return res
+                    .status(400)
+                    .json({ error: "Las contraseñas no coinciden" });
             }
 
-            let year: number | null = null;
-            let month: number | null = null;
-            let week: number | null = null;
-            let day: number | null = null;
+            const passwordHash = await bcrypt.hash(password, 10);
 
-            switch (periodType) {
-
-                case PeriodType.YEARLY:
-                    if (!period.period_value) {
-                        return res.status(400).json({
-                            error: "El año es obligatorio"
-                        });
-                    }
-
-                    year = period.period_value;
-                    break;
-
-                case PeriodType.MONTHLY:
-                    if (!period.period_value || !period.period_value) {
-                        return res.status(400).json({
-                            error: "El año y el mes son obligatorios"
-                        });
-                    }
-
-                    year = period.year;
-                    month = period.period_value;
-                    break;
-
-                case PeriodType.WEEKLY:
-                    if (!period.period_value || !period.period_value) {
-                        return res.status(400).json({
-                            error: "El año y la semana son obligatorios"
-                        });
-                    }
-
-                    year = period.period_value;
-                    week = period.period_value;
-                    break;
-
-                case PeriodType.DAILY:
-                    if (!period.period_value || !period.period_value || !period.period_value) {
-                        return res.status(400).json({
-                            error: "El año, mes y día son obligatorios"
-                        });
-                    }
-
-                    year = period.period_value;
-                    month = period.period_value;
-                    day = period.period_value;
-                    break;
-            }
-
-            const newData = {
-                name: period.name_period,
-                description: period.description,
-                period_type: periodType,
-                year: year,
-                month: month,
-                week: week,
-                day: day,
-                parent_id: period.parent_id,
-            };
-
-            const periodResult = await createPeriod(newData);
+            await createUser({ name, email, passwordHash });
 
             return res.status(200).json({
                 success: true,
-                id: periodResult.id
             });
         }
         case "GET": {
@@ -128,102 +66,15 @@ export default async function handler(
                 .json({ error: "Faltan campos obligatorios" + id });
             }
 
-            const periodDeleted = await deletePeriod(id);
+            const userDeleted = await deletePeriod(id);
 
             return res.status(200).json({
                 success: true,
-                id: periodDeleted.id
+                id: userDeleted.id
             });
         }
         case "PUT": {
-            const { id, period } = req.body as {
-                id: number,
-                period: PeriodForm
-            };
-
-            if (!id || !period ) {
-                return res
-                .status(400)
-                .json({ error: "Faltan campos obligatorios"});
-            }
-
-            const periodType = Number(period.period_type);
-
-            if (!Object.values(PeriodType).includes(periodType)) {
-                return res.status(400).json({
-                    error: "Tipo de período inválido"
-                });
-            }
-
-            let year: number | null = null;
-            let month: number | null = null;
-            let week: number | null = null;
-            let day: number | null = null;
-
-            switch (periodType) {
-
-                case PeriodType.YEARLY:
-                    if (!period.period_value) {
-                        return res.status(400).json({
-                            error: "El año es obligatorio"
-                        });
-                    }
-
-                    year = period.period_value;
-                    break;
-
-                case PeriodType.MONTHLY:
-                    if (!period.period_value || !period.period_value) {
-                        return res.status(400).json({
-                            error: "El año y el mes son obligatorios"
-                        });
-                    }
-
-                    year = period.period_value;
-                    month = period.period_value;
-                    break;
-
-                case PeriodType.WEEKLY:
-                    if (!period.period_value || !period.period_value) {
-                        return res.status(400).json({
-                            error: "El año y la semana son obligatorios"
-                        });
-                    }
-
-                    year = period.period_value;
-                    week = period.period_value;
-                    break;
-
-                case PeriodType.DAILY:
-                    if (!period.period_value || !period.period_value || !period.period_value) {
-                        return res.status(400).json({
-                            error: "El año, mes y día son obligatorios"
-                        });
-                    }
-
-                    year = period.period_value;
-                    month = period.period_value;
-                    day = period.period_value;
-                    break;
-            }
-
-            const updateData = {
-                name: period.name_period,
-                description: period.description,
-                period_type: periodType,
-                year: year,
-                month: month,
-                week: week,
-                day: day,
-                parent_id: period.parent_id,
-            };
-
-            const periodUpdated = await updatePeriod(id, updateData);
-
-            return res.status(200).json({
-                success: true,
-                id: periodUpdated.id
-            });
+            //editar informacion de usuario falta crear formulario
         }
         default:
             return res.status(405).json({ error: "Método no permitido" });

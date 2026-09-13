@@ -34,26 +34,30 @@ type PeriodRow = {
 
 type ExpenseRow = {
     id: number,
-    user_id: number,
-    expense_category_id: number,
+    month_id: number,
+    month_name: string,
     name: string,
     description: string,
+    category_id: number,
+    category_name: string,
+    category_type: number,
     expense_date: string,
     amount: number,
-    created_at: string,
-    updated_at: string,
-    deleted_at: string,
+    state: string,
 };
 
 export type BdPeriodExpensesRow = {
     id: number,
-    month: number
+    month_id: number,
+    month_name: string,
     name: string,
+    description: string,
+    category_id: number,
     category_name: string,
+    category_type: number,
     expense_date: string,
     amount: number,
     state: string,
-    category_type: number,
 }
 
 type ExpensesForm = {
@@ -119,6 +123,7 @@ export default function Dasboard () {
                 expense_date: expense.expense_date,
                 amount: expense.amount,
                 expense_state_id: 2,
+                period_id: expense.month_id,
             }
 
             const body = {
@@ -140,7 +145,7 @@ export default function Dasboard () {
 
             await handleLoadPeriodExpenses();
         } catch (err) {
-            setError("!Error al eliminar ingreso¡");
+            setError("!Error al pagar gasto¡");
             console.log(err);
         } finally {
             setTimeout(() => setError(null), 5000);
@@ -675,7 +680,7 @@ return (
                                                 </p>
 
                                                 <p className="mt-1 text-sm font-medium">
-                                                    {inc.category_name ?? "-"}
+                                                    {inc.category_name ?? "-"} ({getCategoryTypeLabel(inc.category_type)})
                                                 </p>
                                             </div>
 
@@ -696,11 +701,9 @@ return (
                                                 Cerrar
                                             </AlertDialogCancel>
 
-                                            <AlertDialogAction
-                                                onClick={() => handleEditExpense(inc)}
-                                            >
+                                            {/* <AlertDialogAction>
                                                 Editar
-                                            </AlertDialogAction>
+                                            </AlertDialogAction> */}
                                         </AlertDialogFooter>
                                     </AlertDialogContent>
                                 </AlertDialog>

@@ -9,7 +9,7 @@ type BdNewPeriodExpenseRow = {
 }
 
 export type DbUpdatePeriodExpenseRow = {
-    period_id: number,
+    period_id?: number,
     expense_id: number,
     expense_date: string,
     amount: number,
@@ -18,13 +18,16 @@ export type DbUpdatePeriodExpenseRow = {
 
 export type BdPeriodExpensesRow = {
     id: number,
-    month: number
+    month_id: number,
+    month_name: string,
     name: string,
+    description: string,
+    category_id: number,
     category_name: string,
+    category_type: number,
     expense_date: string,
     amount: number,
     state: string,
-    category_type: number,
 }
 
 export type BdNewExpenseRow = {
@@ -92,13 +95,16 @@ export async function getPeriodExpensesByUser(id: number, periodId: number): Pro
             db,
             `SELECT
                 pe.id,
-                p.month,
+                p.id as month_id,
+                p.name as month_name,
                 e.name,
+                e.description,
+                ec.id as category_id,
                 ec.name as category_name,
+                ec.category_type,
                 pe.expense_date,
                 pe.amount,
-                es.name as state,
-                ec.category_type
+                es.name as state
             FROM period_expenses pe
             INNER JOIN expenses e ON e.id = pe.expense_id
             INNER JOIN periods p ON pe.period_id = p.id
@@ -164,12 +170,13 @@ export async function updatePeriodExpense(id: number, data: DbUpdatePeriodExpens
         const updateResult = await runAsync(
             db,
         `UPDATE period_expenses 
-        SET expense_date = ?,
+        SET period_id = ?,
+            expense_date = ?,
             amount = ?,
             expense_state_id = ?,
             updated_at = ?
         WHERE id = ?`,
-            [data.expense_date, data.amount, data.expense_state_id, isNow(), id],
+            [data.period_id, data.expense_date, data.amount, data.expense_state_id, isNow(), id],
         );
         await runAsync(db, "COMMIT");
 

@@ -1,15 +1,9 @@
-import { createIncomes, getAllIncomes, getAllIncomesByUser, deleteIncomes, updateIncomes } from "@/lib/db/queries/incomes";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { parse } from "cookie";
 import { getUserBySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { get } from "http";
 import { createMasivePeriodExpenses, createPeriodExpenseVariable, deletePeriodExpense, getPeriodExpensesByUser, getPeriodExpensesNoPayed, updatePeriodExpense } from "@/lib/db/queries/period_expenses";
 
-type IncomeForm = {
-    amount: number;
-    income_date: string;
-    description: string;
-}
 
 type BdNewPeriodExpenseRow = {
     id: number,
@@ -20,7 +14,7 @@ type BdNewPeriodExpenseRow = {
 }
 
 export type DbUpdatePeriodExpenseRow = {
-    period_id: number,
+    period_id?: number,
     expense_id: number,
     expense_date: string,
     amount: number,
@@ -108,7 +102,7 @@ export default async function handler(
             }
         }
         case "GET": {
-            const { periodId, noPayed } = req.query;
+            const { periodId, noPayed, userId } = req.query;
 
             if(noPayed === "true"){
                 const periodExpenses =  await getPeriodExpensesNoPayed(user.id, Number(periodId))
@@ -116,9 +110,12 @@ export default async function handler(
                 return res.status(200).json({ periodExpenses });
             }
 
+            if(userId){
+                const periodExpenses =  await getPeriodExpensesByUser(Number(userId), Number(periodId))
+                return res.status(200).json({ periodExpenses });
+            }
+
             const periodExpenses =  await getPeriodExpensesByUser(user.id, Number(periodId))
-
-
             return res.status(200).json({ periodExpenses });
         }
         case "DELETE": {
@@ -151,11 +148,11 @@ export default async function handler(
                 .json({ error: "Faltan campos obligatorios"});
             }
 
-            const incomeUpdated = await updatePeriodExpense(id, periodExpense);
+            const periodExpenseUpdated = await updatePeriodExpense(id, periodExpense);
 
             return res.status(200).json({
                 success: true,
-                id: incomeUpdated.id
+                id: periodExpenseUpdated.id
             });
         }
         default:
