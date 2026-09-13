@@ -457,89 +457,91 @@ return (
                 </Button>
             </section>
 
-            {/* Información del período */}
-            <section className="rounded-xl border bg-card p-6 shadow-sm">
-                <h2 className="text-lg font-semibold">
-                    Mes actual
-                </h2>
-
-                {periodYear && periodMonth ? (
-                    <div className="mt-2">
-                        <p className="text-muted-foreground">
-                            Datos del período:
-                        </p>
-
-                        <p className="text-xl font-medium">
-                            {periodYear.name} {periodMonth.name}
-                        </p>
-                    </div>
-                ) : (
-                    <p className="mt-2 text-muted-foreground">
-                        No hay un período creado para la fecha actual.
-                    </p>
-                )}
-            </section>
-
-            {/* Formulario */}
-            <section className="rounded-xl border bg-card p-6 shadow-sm">
-                <div className="mb-6">
-                    <h2 className="text-xl font-semibold">
-                        {expenseToEdit
-                            ? "Actualizar gasto"
-                            : "Registrar nuevo gasto"}
-                    </h2>
-
-                    <p className="text-sm text-muted-foreground">
-                        Registra tus gastos inesperados.
-                    </p>
-                </div>
-
-                <FormPeriodExpenseVariableByUser
-                    createPeriodExpense={handleCreatePeriodExpenseVariable}
-                    periodExpenseToEdit={expenseToEdit}
-                    UpdatePeriodExpense={handleUpdateExpense}
-                />
-                {/* Mensajes */}
-                {error && (
-                    <div className="rounded-md border border-red-200 bg-red-50 p-4 text-red-600">
-                        {error}
-                    </div>
-                )}
-
-                {success && (
-                    <div className="rounded-md border border-green-200 bg-green-50 p-4 text-green-600">
-                        Ingreso con ID {success} registrado correctamente.
-                    </div>
-                )}
-            </section>
-
             {/* Resumen */}
             <section className="grid gap-4 md:grid-cols-2">
-                <div className="rounded-xl border bg-card p-5 shadow-sm">
-                    <p className="text-sm text-muted-foreground">
-                        Cantidad de gastos
-                    </p>
+                {/* Información del período */}
+                <div className="space-y-4">
+                    <div className="rounded-xl border bg-card p-5 shadow-sm">
+                        <h2 className="text-lg font-semibold">
+                            Mes actual
+                        </h2>
 
-                    <p className="mt-1 text-3xl font-bold">
-                        {periodExpenses.length}
-                    </p>
+                        {periodYear && periodMonth ? (
+                            <div className="mt-2">
+                                <p className="text-muted-foreground">
+                                    Datos del período:
+                                </p>
+
+                                <p className="text-xl font-medium">
+                                    {periodYear.name} {periodMonth.name}
+                                </p>
+                            </div>
+                        ) : (
+                            <p className="mt-2 text-muted-foreground">
+                                No hay un período creado para la fecha actual.
+                            </p>
+                        )}
+                    </div>
+
+                    <div className="rounded-xl border bg-card p-5 shadow-sm">
+                        <p className="text-sm text-muted-foreground">
+                            Cantidad de gastos
+                        </p>
+
+                        <p className="mt-1 text-3xl font-bold">
+                            {periodExpenses.length}
+                        </p>
+                    </div>
+
+                    <div className="rounded-xl border bg-card p-5 shadow-sm">
+                        <p className="text-sm text-muted-foreground">
+                            Total de gastos por pagar
+                        </p>
+
+                        <p className="mt-1 text-3xl font-bold">
+                            {getTotalPeriodExpenses(periodExpenses, periodExpensesNoPayed).toLocaleString(
+                                "es-CO",
+                                {
+                                    style: "currency",
+                                    currency: "COP",
+                                    minimumFractionDigits: 0,
+                                }
+                            )}
+                        </p>
+                    </div>
                 </div>
 
+                {/* Formulario */}
                 <div className="rounded-xl border bg-card p-5 shadow-sm">
-                    <p className="text-sm text-muted-foreground">
-                        Total de gastos por pagar
-                    </p>
+                    <div className="mb-6">
+                        <h2 className="text-xl font-semibold">
+                            {expenseToEdit
+                                ? "Actualizar gasto"
+                                : "Registrar nuevo gasto"}
+                        </h2>
 
-                    <p className="mt-1 text-3xl font-bold">
-                        {getTotalPeriodExpenses(periodExpenses, periodExpensesNoPayed).toLocaleString(
-                            "es-CO",
-                            {
-                                style: "currency",
-                                currency: "COP",
-                                minimumFractionDigits: 0,
-                            }
-                        )}
-                    </p>
+                        <p className="text-sm text-muted-foreground">
+                            Registra tus gastos inesperados.
+                        </p>
+                    </div>
+
+                    <FormPeriodExpenseVariableByUser
+                        createPeriodExpense={handleCreatePeriodExpenseVariable}
+                        periodExpenseToEdit={expenseToEdit}
+                        UpdatePeriodExpense={handleUpdateExpense}
+                    />
+                    {/* Mensajes */}
+                    {error && (
+                        <div className="rounded-md border border-red-200 bg-red-50 p-4 text-red-600">
+                            {error}
+                        </div>
+                    )}
+
+                    {success && (
+                        <div className="rounded-md border border-green-200 bg-green-50 p-4 text-green-600">
+                            Ingreso con ID {success} registrado correctamente.
+                        </div>
+                    )}
                 </div>
             </section>
 
