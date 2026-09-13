@@ -4,7 +4,7 @@ import { FormPeriodExpenseVariableByUser } from "@/components/form_periodExpense
 import { Header } from "@/components/header";
 import { ExpenseCategoryType } from "@/emuns/ExpenseCategoryType";
 import { Eye, Info, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -402,6 +402,23 @@ export default function Dasboard () {
             setLoading(false);
         }
     }
+
+    useEffect(() => {
+        async function loadData() {
+            setLoading(true);
+            
+            try {
+                await Promise.all([
+                    handleSearchPeriod(),
+                ]);
+                
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        loadData();
+    }, []);
 
 return (
     <div className="min-h-screen bg-background">
