@@ -145,6 +145,7 @@ export default function Dasboard () {
             }
 
             await handleLoadPeriodExpenses();
+            await handleLoadPeriodExpensesNoPayed();
         } catch (err) {
             setError("!Error al pagar gasto¡");
             console.log(err);
