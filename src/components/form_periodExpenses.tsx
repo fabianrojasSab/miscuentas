@@ -11,6 +11,7 @@ type ExpensesForm = {
     expense_date: string;
     amount: number;
     period_id?:number,
+    expense_state_id: number,
 };
 
 type ExpensePeriodRow = {
@@ -301,6 +302,7 @@ export const FormPeriodExpense = ({
             description: formPeriodExpense.description.value,
             expense_date: expenseDate,
             amount: expense?.amount ?? 0,
+            expense_state_id: Number(formPeriodExpense.expense_state_id.value),
         };
 
         try {
@@ -396,6 +398,7 @@ export const FormPeriodExpense = ({
                 description: periodExpenseToEdit.description ?? "",
                 expense_category_id: periodExpenseToEdit.category_id,
                 period_id: periodExpenseToEdit.month_id,
+                expense_state_id: periodExpenseToEdit.state === "Pendiente" ? 1 : 2,
             });
             setCategory(String(periodExpenseToEdit.category_id));
             setMonth(String(periodExpenseToEdit.month_id));
@@ -433,6 +436,7 @@ export const FormPeriodExpense = ({
                             name="expense_category_id"
                             value={category}
                             onValueChange={setCategory}
+                            disabled={true}
                         >
                             <SelectTrigger>
                                 <SelectValue placeholder="Selecciona una Categoria" />
@@ -462,6 +466,7 @@ export const FormPeriodExpense = ({
                         type="text"
                         name="name_expense"
                         value={expense?.name ?? ""}
+                        disabled={true}
                         onChange={(e) =>
                             setExpense(prev => ({
                                 ...prev!,
@@ -479,6 +484,7 @@ export const FormPeriodExpense = ({
                         type="text"
                         name="description"
                         value={expense?.description ?? ""}
+                        disabled={true}
                         onChange={(e) =>
                             setExpense(prev => ({
                                 ...prev!,
@@ -500,6 +506,7 @@ export const FormPeriodExpense = ({
                             name="expense_month"
                             value={month}
                             onValueChange={setMonth}
+                            disabled={true}
                         >
                             <SelectTrigger>
                                 <SelectValue placeholder="Selecciona un mes" />
@@ -553,6 +560,40 @@ export const FormPeriodExpense = ({
                             }
                         }}
                     />
+                </div>
+
+                {/* Estado */}
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">Estado</label>
+                    {loading ? (
+                        <p>Cargando...</p>
+                    ) : (
+                        <Select
+                            name="expense_state_id"
+                            value={String(expense?.expense_state_id)}
+                            onValueChange={(e) =>
+                            setExpense(prev => ({
+                                    ...prev!,
+                                    expense_state_id:  Number(e)
+                                }))
+                            }
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="Selecciona un estado" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                <SelectLabel>Categoria</SelectLabel>
+                                    <SelectItem value="2">
+                                        Pagado
+                                    </SelectItem>
+                                    <SelectItem value="1">
+                                        Pendiente
+                                    </SelectItem>
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                    )}
                 </div>
                 
                 {/* Error */}
