@@ -1,9 +1,9 @@
 import { Button } from "@/components/buttons";
 import { FormExpensesVariable } from "@/components/form_expenses";
-import { FormPeriodExpenseVariableByUser } from "@/components/form_periodExpenses";
+import { FormPeriodExpense, FormPeriodExpenseVariableByUser } from "@/components/form_periodExpenses";
 import { Header } from "@/components/header";
 import { ExpenseCategoryType } from "@/emuns/ExpenseCategoryType";
-import { Eye, Info, X } from "lucide-react";
+import { Edit, Eye, Info, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   AlertDialog,
@@ -69,6 +69,20 @@ type ExpensesForm = {
     amount: number;
 };
 
+type ExpensePeriodRow = {
+    id: number,
+    month_id: number,
+    month_name: string,
+    name: string,
+    description: string,
+    category_id: number,
+    category_name: string,
+    category_type: number,
+    expense_date: string,
+    amount: number,
+    state: string,
+};
+
 export default function Dasboard () {
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
@@ -79,6 +93,7 @@ export default function Dasboard () {
     const [periodExpenses, setPeriodExpenses] = useState<BdPeriodExpensesRow[]>([]);
     const [success, setSuccess] = useState<string | null>(null);
     const [periodExpensesNoPayed, setPeriodExpensesNoPayed] = useState<BdPeriodExpensesRow[]>([]);
+    const [expensePeriodToEdit, setExpensePeriodToEdit] = useState<ExpensePeriodRow | null>(null);
 
     //Funcion para calcular el total a pagar de los gastos del mes y los gastos pendientes teniendo el cuenta el estado del gasto
     function getTotalPeriodExpenses(
@@ -404,6 +419,42 @@ export default function Dasboard () {
         }
     }
 
+    //Funcion para actualizar un gasto del periodo
+    async function handleUpdatePeriodExpense(periodExpense: ExpensesForm){
+        const body = {
+            id: expensePeriodToEdit?.id,
+            periodExpense: periodExpense,
+        };
+
+        try {
+            const res = await fetch("/api/periodExpenses", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(body),
+            });
+            const data = await res.json();
+
+            handleLoadPeriodExpenses();
+
+            if (!res.ok) {
+                setError(data.error);
+                return;
+            }
+
+            setSuccess(data.id);
+            setTimeout(() => setSuccess(null), 5000);
+        } catch (err) {
+            setError("Error al actualizar el gasto. Por favor, inténtalo de nuevo.");
+            setTimeout(() => setError(null), 5000);
+        }
+    }
+
+    async function handleCreatePeriodExpense(expense: ExpensesForm) {
+
+    }
+
     useEffect(() => {
         async function loadData() {
             setLoading(true);
@@ -448,13 +499,13 @@ return (
                     Registrar gasto fijo
                 </Button>
 
-                <Button
+                {/* <Button
                     variant="color"
                     onClick={handleSearchPeriod}
                 >
                     <Eye/>  
                     gastos del mes
-                </Button>
+                </Button> */}
             </section>
 
             {/* Resumen */}
@@ -598,6 +649,7 @@ return (
                                     </AlertDialogContent>
                                 </AlertDialog>
 
+                                {/* Botón de informacion */}
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
                                         <Button
@@ -716,6 +768,47 @@ return (
                                                 </p>
                                             </div>
                                         </div>
+
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>
+                                                Cerrar
+                                            </AlertDialogCancel>
+
+                                            {/* <AlertDialogAction>
+                                                Editar
+                                            </AlertDialogAction> */}
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+
+                                {/* Botón editar */}
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button
+                                            type="button"
+                                            variant={"default"}
+                                            size="icon"
+                                            className="absolute right-3 top-15 rounded-full text-muted-foreground hover:bg-chart-2/10 hover:text-chart-2"
+                                            title="Ver información del gasto"
+                                            onClick={() => setExpensePeriodToEdit(inc)}
+                                        >
+                                            <Edit className="h-4 w-4" />
+                                        </Button>
+                                    </AlertDialogTrigger>
+
+                                    <AlertDialogContent className="max-w-lg">
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle className="text-xl">
+                                                Información del gasto
+                                            </AlertDialogTitle>
+
+                                            <AlertDialogDescription>
+                                                Consulta todos los detalles del gasto seleccionado.
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+
+                                        {/* edicion del gasto */}
+                                        <FormPeriodExpense createPeriodExpense={handleCreatePeriodExpense} periodExpenseToEdit={expensePeriodToEdit} UpdatePeriodExpense={handleUpdatePeriodExpense}/>
 
                                         <AlertDialogFooter>
                                             <AlertDialogCancel>
