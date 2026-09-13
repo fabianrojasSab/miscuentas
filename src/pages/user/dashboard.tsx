@@ -17,6 +17,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { formatMoneyCol } from "@/lib/formatMoney";
+import Loader from "@/components/Loader";
 
 type PeriodRow = {
     id: number,
@@ -843,6 +844,11 @@ return (
                 </section>
             )}
         </main>
+
+        {/* Loader coin */}
+        {loading && (
+            <Loader/>
+        )}
     </div>
 );
 }
