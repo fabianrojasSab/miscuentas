@@ -69,6 +69,20 @@ type ExpensesForm = {
     amount: number;
 };
 
+type ExpensePeriodRow = {
+    id: number,
+    month_id: number,
+    month_name: string,
+    name: string,
+    description: string,
+    category_id: number,
+    category_name: string,
+    category_type: number,
+    expense_date: string,
+    amount: number,
+    state: string,
+};
+
 export default function Dasboard () {
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);

@@ -103,6 +103,7 @@ export const FormPeriodExpenseVariableByUser = ({ createPeriodExpense, periodExp
             expense_date: form.date.value,
             description: form.description.value ?? "",
             expense_category_id: Number(form.expense_category_id.value),
+            expense_state_id: Number(form.expense_state_id.value),
         };
 
         if (periodExpenseToEdit) {
@@ -124,6 +125,7 @@ export const FormPeriodExpenseVariableByUser = ({ createPeriodExpense, periodExp
                 expense_date: periodExpenseToEdit.expense_date,
                 description: periodExpenseToEdit.description ?? "",
                 expense_category_id: periodExpenseToEdit.category_id,
+                expense_state_id: periodExpenseToEdit.state === "Pendiente" ? 1 : 2,
             });
         }
     }, [periodExpenseToEdit]);
