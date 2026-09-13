@@ -13,6 +13,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { formatMoneyCol } from "@/lib/formatMoney";
 
 type ExpensesRow = {
     id: number,
@@ -129,11 +130,7 @@ export const TableExpensesByUser = ({ reload }: Props) =>{
                                 <td className="border p-2">{inc.category_name}</td>
                                 <td className="border p-2">{getCategoryTypeLabel(inc.category_type)}</td>
                                 <td className="border p-2">{inc.expense_date}</td>
-                                <td className="border p-2">{Number(inc.amount).toLocaleString("es-CO", {
-                                    style: "currency",
-                                    currency: "COP",
-                                    minimumFractionDigits: 0,
-                                })}</td>
+                                <td className="border p-2">{formatMoneyCol(inc.amount)}</td>
                             </tr>
                             ))}
                         </tbody>
@@ -199,11 +196,7 @@ export const TableAllExpensesByUser = ({ reload }: Props) =>{
                             {expenses.map((inc) => (
                             <tr key={inc.id}>
                                 <td className="p-2">{inc.expense_date}</td>
-                                <td className="px-4 py-3 text-right text-sm font-medium">{Number(inc.amount).toLocaleString("es-CO", {
-                                    style: "currency",
-                                    currency: "COP",
-                                    minimumFractionDigits: 0,
-                                })}</td>
+                                <td className="px-4 py-3 text-right text-sm font-medium">{formatMoneyCol(inc.amount)}</td>
                                 <td className="px-4 py-3 text-sm text-muted-foreground">{inc.description ?? "-"}</td>
                             </tr>
                             ))}
@@ -308,11 +301,7 @@ export const TableAllExpenses = ({ onEdit, reload }: Props) => {
                             {expenses.map((inc) => (
                             <tr key={inc.id}>
                                 <td className="border p-2">{inc.expense_date}</td>
-                                <td className="px-4 py-3 text-right text-sm font-medium">{Number(inc.amount).toLocaleString("es-CO", {
-                                    style: "currency",
-                                    currency: "COP",
-                                    minimumFractionDigits: 0,
-                                })}</td>
+                                <td className="px-4 py-3 text-right text-sm font-medium">{formatMoneyCol(inc.amount)}</td>
                                 <td className="px-4 py-3 text-sm text-muted-foreground">{inc.description ?? "-"}</td>
                                 <td className="border p-2">{inc.created_at}</td>
                                 <td className="border p-2">{inc.updated_at}</td>
@@ -429,14 +418,7 @@ export const TableExpensesFixedByUser = ({ reload }: Props) =>{
                                 {/* Monto */}
                                 <div className="text-right">
                                     <p className="font-semibold">
-                                        {Number(inc.amount).toLocaleString(
-                                            "es-CO",
-                                            {
-                                                style: "currency",
-                                                currency: "COP",
-                                                minimumFractionDigits: 0,
-                                            }
-                                        )}
+                                        {formatMoneyCol(inc.amount)}
                                     </p>
                                 </div>
 

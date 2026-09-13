@@ -80,20 +80,7 @@ export async function getAllUsers(): Promise<DbUserRow[]> {
         began = true;
         const allUsersResult = await allAsync<DbUserRow>(
             db,
-            `SELECT id,
-                name,
-                email,
-                email_verified_at,
-                password,
-                two_factor_secret,
-                two_factor_recovery_codes,
-                two_factor_confirmed_at,
-                remember_token,
-                current_team_id,
-                profile_photo_path,
-                created_at,
-                updated_at,
-                sw_admin
+            `SELECT *
             FROM users`,
         );
 

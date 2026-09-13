@@ -1,6 +1,7 @@
-import { FormExpensesFixed } from "@/components/form_expenses";
+import { FormExpensesFixedInputDate } from "@/components/form_expenses";
 import { Header } from "@/components/header";
 import { TableExpensesFixedByUser } from "@/components/table_expenses";
+import { getDateParts } from "@/lib/formatDate";
 import { useState } from "react";
 
 type ExpensesForm = {
@@ -40,9 +41,10 @@ export default function Expenses(){
     async function handleCreatePeriodExpense(expense: ExpensesForm) {
         const res = await fetch("/api/me");
         const dataUser = await res.json();        
-        let date = new Date();
-        let year = date.getFullYear();
-        let month = date.getMonth() + 1;
+        
+        const { month, year } = getDateParts(
+            expense.expense_date
+        );
 
         try {
             //consulta y valida si hay un periodo del mes actual, arreglar para que valide con el mes actual
@@ -122,7 +124,7 @@ export default function Expenses(){
     return(
         <div className="h-full mb-4">
             <Header/>
-            <FormExpensesFixed createExpense={handleCreatePeriodExpense} expenseToEdit={expenseToEdit} UpdateExpense={handleUpdateExpense}/>
+            <FormExpensesFixedInputDate createExpense={handleCreatePeriodExpense} expenseToEdit={expenseToEdit} UpdateExpense={handleUpdateExpense}/>
             {/* Mensajes */}
             {error && (
                 <div className="rounded-md border border-red-200 bg-red-50 p-4 text-red-600">

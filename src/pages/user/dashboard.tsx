@@ -3,8 +3,8 @@ import { FormExpensesVariable } from "@/components/form_expenses";
 import { FormPeriodExpenseVariableByUser } from "@/components/form_periodExpenses";
 import { Header } from "@/components/header";
 import { ExpenseCategoryType } from "@/emuns/ExpenseCategoryType";
-import { Eye, X } from "lucide-react";
-import { useState } from "react";
+import { Eye, Info, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,6 +16,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { formatMoneyCol } from "@/lib/formatMoney";
+import Loader from "@/components/Loader";
 
 type PeriodRow = {
     id: number,
@@ -33,26 +35,30 @@ type PeriodRow = {
 
 type ExpenseRow = {
     id: number,
-    user_id: number,
-    expense_category_id: number,
+    month_id: number,
+    month_name: string,
     name: string,
     description: string,
+    category_id: number,
+    category_name: string,
+    category_type: number,
     expense_date: string,
     amount: number,
-    created_at: string,
-    updated_at: string,
-    deleted_at: string,
+    state: string,
 };
 
 export type BdPeriodExpensesRow = {
     id: number,
-    month: number
+    month_id: number,
+    month_name: string,
     name: string,
+    description: string,
+    category_id: number,
     category_name: string,
+    category_type: number,
     expense_date: string,
     amount: number,
     state: string,
-    category_type: number,
 }
 
 type ExpensesForm = {
@@ -118,6 +124,7 @@ export default function Dasboard () {
                 expense_date: expense.expense_date,
                 amount: expense.amount,
                 expense_state_id: 2,
+                period_id: expense.month_id,
             }
 
             const body = {
@@ -139,7 +146,7 @@ export default function Dasboard () {
 
             await handleLoadPeriodExpenses();
         } catch (err) {
-            setError("!Error al eliminar ingreso¡");
+            setError("!Error al pagar gasto¡");
             console.log(err);
         } finally {
             setTimeout(() => setError(null), 5000);
@@ -396,6 +403,23 @@ export default function Dasboard () {
         }
     }
 
+    useEffect(() => {
+        async function loadData() {
+            setLoading(true);
+            
+            try {
+                await Promise.all([
+                    handleSearchPeriod(),
+                ]);
+                
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        loadData();
+    }, []);
+
 return (
     <div className="min-h-screen bg-background">
         <Header />
@@ -571,6 +595,137 @@ return (
                                     </AlertDialogContent>
                                 </AlertDialog>
 
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button
+                                            type="button"
+                                            variant={"default"}
+                                            size="icon"
+                                            className="absolute right-3 top-9 rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                                            title="Ver información del gasto"
+                                        >
+                                            <Info className="h-4 w-4" />
+                                        </Button>
+                                    </AlertDialogTrigger>
+
+                                    <AlertDialogContent className="max-w-lg">
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle className="text-xl">
+                                                Información del gasto
+                                            </AlertDialogTitle>
+
+                                            <AlertDialogDescription>
+                                                Consulta todos los detalles del gasto seleccionado.
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+
+                                        {/* Información del gasto */}
+                                        <div className="space-y-4">
+                                            {/* Nombre */}
+                                            <div className="rounded-lg border bg-muted/30 p-4">
+                                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                                    Gasto
+                                                </p>
+
+                                                <p className="mt-1 text-lg font-semibold">
+                                                    {inc.name ?? "-"}
+                                                </p>
+                                            </div>
+
+                                            {/* Información principal */}
+                                            <div className="grid gap-3 sm:grid-cols-2">
+                                                {/* Monto */}
+                                                <div className="rounded-lg border p-4">
+                                                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                                        Monto
+                                                    </p>
+
+                                                    <p className="mt-1 text-xl font-bold">
+                                                        {Number(inc.amount).toLocaleString(
+                                                            "es-CO",
+                                                            {
+                                                                style: "currency",
+                                                                currency: "COP",
+                                                                minimumFractionDigits: 0,
+                                                            }
+                                                        )}
+                                                    </p>
+                                                </div>
+
+                                                {/* Estado */}
+                                                <div className="rounded-lg border p-4">
+                                                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                                        Estado
+                                                    </p>
+
+                                                    <div className="mt-2">
+                                                        <span
+                                                            className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${
+                                                                inc.state === "Pendiente"
+                                                                    ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+                                                                    : "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                                                            }`}
+                                                        >
+                                                            {inc.state}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Fecha */}
+                                            <div className="rounded-lg border p-4">
+                                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                                    Fecha del gasto
+                                                </p>
+
+                                                <p className="mt-1 text-sm font-medium">
+                                                    {inc.expense_date
+                                                        ? new Date(
+                                                            inc.expense_date
+                                                        ).toLocaleDateString("es-CO", {
+                                                            day: "2-digit",
+                                                            month: "long",
+                                                            year: "numeric",
+                                                        })
+                                                        : "-"}
+                                                </p>
+                                            </div>
+
+                                            {/* Categoría */}
+                                            <div className="rounded-lg border p-4">
+                                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                                    Categoría
+                                                </p>
+
+                                                <p className="mt-1 text-sm font-medium">
+                                                    {inc.category_name ?? "-"} ({getCategoryTypeLabel(inc.category_type)})
+                                                </p>
+                                            </div>
+
+                                            {/* Descripción */}
+                                            <div className="rounded-lg border p-4">
+                                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                                    Descripción
+                                                </p>
+
+                                                <p className="mt-1 text-sm text-muted-foreground">
+                                                    {inc.description || "Sin descripción"}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>
+                                                Cerrar
+                                            </AlertDialogCancel>
+
+                                            {/* <AlertDialogAction>
+                                                Editar
+                                            </AlertDialogAction> */}
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+
                                 {/* Encabezado */}
                                 <div className="flex items-start justify-between gap-4 pr-8">
                                     <div className="min-w-0">
@@ -579,7 +734,7 @@ return (
                                         </h3>
 
                                         <p className="mt-1 text-sm text-muted-foreground">
-                                            Gasto del período
+                                            {inc.category_name}
                                         </p>
                                     </div>
 
@@ -602,14 +757,7 @@ return (
                                     </p>
 
                                     <p className="mt-1 text-2xl font-bold">
-                                        {Number(inc.amount).toLocaleString(
-                                            "es-CO",
-                                            {
-                                                style: "currency",
-                                                currency: "COP",
-                                                minimumFractionDigits: 0,
-                                            }
-                                        )}
+                                        {formatMoneyCol(inc.amount)}
                                     </p>
                                 </div>
 
@@ -683,14 +831,7 @@ return (
                                     </p>
 
                                     <p className="mt-1 text-2xl font-bold text-destructive">
-                                        {Number(inc.amount).toLocaleString(
-                                            "es-CO",
-                                            {
-                                                style: "currency",
-                                                currency: "COP",
-                                                minimumFractionDigits: 0,
-                                            }
-                                        )}
+                                        {formatMoneyCol(inc.amount)}
                                     </p>
                                 </div>
 
@@ -720,6 +861,11 @@ return (
                 </section>
             )}
         </main>
+
+        {/* Loader coin */}
+        {loading && (
+            <Loader/>
+        )}
     </div>
 );
 }

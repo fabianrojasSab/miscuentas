@@ -1,8 +1,8 @@
-import { FormExpensesVariable } from "@/components/form_expenses";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/buttons"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ExpenseCategoryType } from "@/emuns/ExpenseCategoryType";
 
 type ExpensesForm = {
     expense_category_id: number;
@@ -10,26 +10,21 @@ type ExpensesForm = {
     description: string;
     expense_date: string;
     amount: number;
+    period_id?:number,
 };
 
-type ExpensesRow = {
+type ExpensePeriodRow = {
     id: number,
-    user_id: number,
-    expense_category_id: number,
+    month_id: number,
+    month_name: string,
     name: string,
     description: string,
+    category_id: number,
+    category_name: string,
+    category_type: number,
     expense_date: string,
     amount: number,
-    created_at: string,
-    updated_at: string,
-    deleted_at: string,
-    user_name?: string,
-};
-
-type Props = {
-    createPeriodExpense: (expense: ExpensesForm) => void;
-    periodExpenseToEdit: ExpensesRow | null;
-    UpdatePeriodExpense: (expense: ExpensesForm) => void;
+    state: string,
 };
 
 type CategoryRow = {
@@ -55,6 +50,12 @@ type PeriodRow = {
     updated_at: string,
 }
 
+type Props = {
+    createPeriodExpense: (expense: ExpensesForm) => void;
+    periodExpenseToEdit: ExpensePeriodRow | null;
+    UpdatePeriodExpense: (expense: ExpensesForm) => void;
+};
+
 //Componente para ingresar gastos variables desde el dashboard del usuario
 export const FormPeriodExpenseVariableByUser = ({ createPeriodExpense, periodExpenseToEdit, UpdatePeriodExpense }: Props) => {
     const [error, setError] = useState<string | null>(null);
@@ -63,6 +64,7 @@ export const FormPeriodExpenseVariableByUser = ({ createPeriodExpense, periodExp
     const [category, setCategory] = useState("");
     const [loading, setLoading] = useState<boolean>(false);
 
+    //funcion para obtener las categorias
     async function handleLoadCategories(){
         setError(null);
         setLoading(true);
@@ -87,6 +89,7 @@ export const FormPeriodExpenseVariableByUser = ({ createPeriodExpense, periodExp
         }
     }
 
+    //funcion para creacion o actualizacion del gasto-
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         setError(null);
@@ -119,7 +122,7 @@ export const FormPeriodExpenseVariableByUser = ({ createPeriodExpense, periodExp
                 amount: periodExpenseToEdit.amount,
                 expense_date: periodExpenseToEdit.expense_date,
                 description: periodExpenseToEdit.description ?? "",
-                expense_category_id: periodExpenseToEdit.expense_category_id,
+                expense_category_id: periodExpenseToEdit.category_id,
             });
         }
     }, [periodExpenseToEdit]);
@@ -254,325 +257,315 @@ export const FormPeriodExpenseVariableByUser = ({ createPeriodExpense, periodExp
 }
 
 //Componente para la vista del administrador
-// export const FormPeriodExpense = ({
-//     createPeriodExpense,
-//     periodExpenseToEdit,
-//     UpdatePeriodExpense,
-// }: Props) => {
-//     const [error, setError] = useState<string | null>(null);
+export const FormPeriodExpense = ({
+    createPeriodExpense,
+    periodExpenseToEdit,
+    UpdatePeriodExpense,
+}: Props) => {
+    const [error, setError] = useState<string | null>(null);
+    const [month, setMonth] = useState("");
+    const [periodYear, setPeriodYear] = useState<PeriodRow[]>([]);
+    const [category, setCategory] = useState("");
+    
+    const currentYear = new Date().getFullYear();
 
-//     // Datos disponibles
-//     const [expenses, setExpenses] = useState<ExpensesForm[]>([]);
-//     const [periodsMonthly, setPeriodsMonthly] = useState<PeriodRow[]>([]);
+    // Datos disponibles
+    const [expense, setExpense] = useState<ExpensesForm | null>(null);
+    const [categories, setCategories] = useState<CategoryRow[]>([]);
 
-//     // Selecciones
-//     const [selectedExpenseId, setSelectedExpenseId] = useState<number | null>(
-//         null
-//     );
+    const [loading, setLoading] = useState(false);
 
-//     const [selectedPeriodId, setSelectedPeriodId] = useState<number | null>(
-//         null
-//     );
+    // Crear gasto del período
+    async function handleSubmit(
+        e: React.FormEvent<HTMLFormElement>
+    ) {
+        e.preventDefault();
 
-//     // Datos del formulario
-//     const [formData, setFormData] = useState({
-//         amount: 0,
-//         expense_date: new Date().toISOString().split("T")[0],
-//     });
+        setError(null);
 
-//     const [loading, setLoading] = useState(false);
+        const formPeriodExpense = e.currentTarget;
 
-//     /*
-//      * Obtener períodos mensuales
-//      */
-//     async function handleGetPeriodsMonthly() {
-//         try {
-//             const res = await fetch("/api/periods?month=true");
+        // Convertir el mes seleccionado a una fecha
+        // Ejemplo: month = "8" -> 2026-08-01
+        const expenseDate = `${currentYear}-${String(month).padStart(2, "0")}-01`;
 
-//             const data = await res.json();
+        if (!formPeriodExpense.amount || formPeriodExpense.amount <= 0) {
+            setError("El valor del gasto debe ser mayor a cero.");
+            return;
+        }
 
-//             if (!res.ok) {
-//                 setError(data.error);
-//                 return;
-//             }
+        const body = {
+            period_id: Number(month),
+            expense_category_id: Number(category),
+            name: formPeriodExpense.name_expense.value,
+            description: formPeriodExpense.description.value,
+            expense_date: expenseDate,
+            amount: expense?.amount ?? 0,
+        };
 
-//             setPeriodsMonthly(data.periodBymonth ?? []);
-//         } catch (err) {
-//             console.error(err);
-//             setError("No se pudieron cargar los períodos.");
-//         }
-//     }
+        try {
+            if (periodExpenseToEdit) {
+                await UpdatePeriodExpense(body);
+            } else {
+                await createPeriodExpense(body);
+            }
 
-//     /*
-//      * Obtener gastos configurados
-//      */
-//     async function handleLoadExpenses() {
-//         try {
-//             const res = await fetch("/api/expenses");
+            setCategory("");
+            setExpense(null);
+            setMonth("");
 
-//             const data = await res.json();
+        } catch (err) {
+            console.error(err);
+            setError("No se pudo guardar el gasto.");
+        }
+    }
 
-//             if (!res.ok) {
-//                 setError(data.error);
-//                 return;
-//             }
+    //Funcion para cargar al formulario el listado de meses del año actual
+    async function handleLoadMonthsPeriods() {
+        setLoading(true);
+        try {
+            //consulta y trae todos los meses del año en curso
+            const res = await fetch(`/api/periods?period_type=monthsByYear&year=${currentYear}`, {
+                method: "GET",
+            });
+            const data = await res.json();
 
-//             setExpenses(data.expenses ?? []);
-//         } catch (err) {
-//             console.error(err);
-//             setError("No se pudieron cargar los gastos.");
-//         }
-//     }
+            if (!res.ok) {
+                setError(data.error);
+                return;
+            }
 
-//     /*
-//      * Cuando seleccionamos un gasto
-//      */
-//     function handleExpenseChange(value: string) {
-//         const expenseId = Number(value);
+            setPeriodYear(data.monthsByYear ?? []);
+        } catch (err) {
+            setError("Error al consultar los meses del año en curso. Por favor, inténtalo de nuevo.");
+        }finally {
+            setTimeout(() => setError(null), 5000);
+            setLoading(false);
+        }
+    }
 
-//         setSelectedExpenseId(expenseId);
+    //funcion para cargar las categorias al formulario
+    async function handleLoadCategories(){
+        setError(null);
+        setLoading(true);
+        try {
+            const res = await fetch("/api/categories", {
+                method: "GET",
+            });
+            const data = await res.json();
 
-//         const selectedExpense = expenses.find(
-//             (expense) => expense.id === expenseId
-//         );
+            if (!res.ok) {
+                setError(data.error);
+                return;
+            }
 
-//         if (!selectedExpense) return;
+            setCategories(data.categories ?? []);
+        } catch (err) {
+            setError("!Informacion de ingresos vacia¡");
+            console.log(err);
+        }finally {
+            setTimeout(() => setError(null), 5000);
+            setLoading(false);
+        }
+    }
 
-//         setFormData({
-//             amount: Number(selectedExpense.amount),
-//             expense_date:
-//                 selectedExpense.expense_date ??
-//                 new Date().toISOString().split("T")[0],
-//         });
-//     }
+    //Funcion auxiliar para obtener el tipo de categoria
+    function getCategoryTypeLabel(type: ExpenseCategoryType): string {
+        switch (type) {
+            case ExpenseCategoryType.FIXED:
+                return "Fijo";
 
-//     /*
-//      * Cuando seleccionamos un período
-//      */
-//     function handlePeriodChange(value: string) {
-//         setSelectedPeriodId(Number(value));
-//     }
+            case ExpenseCategoryType.VARIABLE:
+                return "Variable";
 
-//     /*
-//      * Crear gasto del período
-//      */
-//     async function handleSubmit(
-//         e: React.FormEvent<HTMLFormElement>
-//     ) {
-//         e.preventDefault();
+            case ExpenseCategoryType.SAVINGS:
+                return "Ahorro";
 
-//         setError(null);
+            default:
+                return "Desconocido";
+        }
+    }
 
-//         if (!selectedPeriodId) {
-//             setError("Debes seleccionar un período.");
-//             return;
-//         }
+    //Hook al recibir cambios en periodExpenseToEdit y poner la informacion en el formulario
+    useEffect(() => {
+        if (periodExpenseToEdit) {
+            setExpense({
+                name: periodExpenseToEdit.name,
+                amount: periodExpenseToEdit.amount,
+                expense_date: periodExpenseToEdit.expense_date,
+                description: periodExpenseToEdit.description ?? "",
+                expense_category_id: periodExpenseToEdit.category_id,
+                period_id: periodExpenseToEdit.month_id,
+            });
+            setCategory(String(periodExpenseToEdit.category_id));
+            setMonth(String(periodExpenseToEdit.month_id));
+        }
+    }, [periodExpenseToEdit]);
 
-//         if (!selectedExpenseId) {
-//             setError("Debes seleccionar un gasto.");
-//             return;
-//         }
+    //Cargar información inicial
+    useEffect(() => {
+        async function loadData() {
+            setLoading(true);
+            
+            try {
+                await Promise.all([
+                    handleLoadCategories(),
+                    handleLoadMonthsPeriods(), //consulta los periodos
+                ]);
+            } finally {
+                setLoading(false);
+            }
+        }
 
-//         if (!formData.amount || formData.amount <= 0) {
-//             setError("El valor del gasto debe ser mayor a cero.");
-//             return;
-//         }
+        loadData();
+    }, []);
 
-//         const body = {
-//             period_id: selectedPeriodId,
-//             expense_id: selectedExpenseId,
-//             expense_date: formData.expense_date,
-//             amount: formData.amount,
-//             expense_state_id: 1,
-//         };
+    return (
+        <div className="w-full max-w-md mx-auto bg-card rounded-lg">
+            <form className="space-y-5 rounded-lg border p-6 shadow-sm" onSubmit={handleSubmit}>
+                {/* Categoria */}
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">Categoria</label>
+                    {loading ? (
+                        <p>Cargando...</p>
+                    ) : (
+                        <Select
+                            name="expense_category_id"
+                            value={category}
+                            onValueChange={setCategory}
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="Selecciona una Categoria" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                <SelectLabel>Categoria</SelectLabel>
+                                {categories.map((inc) => (
+                                    <SelectItem
+                                        key={inc.id}
+                                        value={String(inc.id)}
+                                    >
+                                        {inc.name} ({getCategoryTypeLabel(inc.category_type)})
+                                    </SelectItem>
+                                ))}
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                    )}
+                </div>
 
-//         try {
-//             if (periodExpenseToEdit) {
-//                 await UpdatePeriodExpense(body);
-//             } else {
-//                 await createPeriodExpense(body);
-//             }
+                {/* Nombre */}
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">Nombre</label>
+                    <Input
+                        className="mb-4"
+                        type="text"
+                        name="name_expense"
+                        value={expense?.name ?? ""}
+                        onChange={(e) =>
+                            setExpense(prev => ({
+                                ...prev!,
+                                name: e.target.value
+                            }))
+                        }
+                    />
+                </div>
 
-//             // Limpiar formulario
-//             setSelectedExpenseId(null);
-//             setSelectedPeriodId(null);
+                {/* descripcion */}
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">descripcion</label>
+                    <Input
+                        className="mb-4"
+                        type="text"
+                        name="description"
+                        value={expense?.description ?? ""}
+                        onChange={(e) =>
+                            setExpense(prev => ({
+                                ...prev!,
+                                description: e.target.value
+                            }))
+                        }
+                    />
+                </div>
 
-//             setFormData({
-//                 amount: 0,
-//                 expense_date: new Date()
-//                     .toISOString()
-//                     .split("T")[0],
-//             });
-//         } catch (err) {
-//             console.error(err);
-//             setError("No se pudo guardar el gasto.");
-//         }
-//     }
+                {/* Fecha gasto */}
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                        Mes
+                    </label>
+                    {loading ? (
+                        <p>Cargando...</p>
+                    ) : (
+                        <Select
+                            name="expense_month"
+                            value={month}
+                            onValueChange={setMonth}
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="Selecciona un mes" />
+                            </SelectTrigger>
 
-//     /*
-//      * Cargar información inicial
-//      */
-//     useEffect(() => {
-//         async function loadData() {
-//             setLoading(true);
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectLabel>
+                                        {currentYear}
+                                    </SelectLabel>
 
-//             try {
-//                 await Promise.all([
-//                     handleGetPeriodsMonthly(),
-//                     handleLoadExpenses(),
-//                 ]);
-//             } finally {
-//                 setLoading(false);
-//             }
-//         }
+                                    {periodYear.map((item) => (
+                                        <SelectItem
+                                            key={item.id}
+                                            value={String(item.id)}
+                                        >
+                                            {item.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                    )}
+                </div>
 
-//         loadData();
-//     }, []);
+                {/* Valor */}
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">Valor</label>
+                    <Input
+                        className="mb-4"
+                        type="text"
+                        inputMode="numeric"
+                        name="amount"
+                        placeholder="Ej: 1500,000"
+                        value={
+                            expense?.amount !== undefined &&
+                            expense?.amount !== null
+                                ? expense.amount.toLocaleString("en-US")
+                                : ""
+                        }
+                        onChange={(e) => {
+                            // Elimina las comas antes de convertir el valor a número
+                            const rawValue = e.target.value.replace(/,/g, "");
 
-//     return (
-//         <div className="mx-auto w-full max-w-md">
-//             <form
-//                 onSubmit={handleSubmit}
-//                 className="space-y-5 rounded-xl border bg-card p-6 shadow-sm"
-//             >
-//                 {/* Título */}
-//                 <div>
-//                     <h2 className="text-xl font-semibold">
-//                         Registrar gasto del período
-//                     </h2>
-
-//                     <p className="text-sm text-muted-foreground">
-//                         Selecciona el período y el gasto que deseas registrar.
-//                     </p>
-//                 </div>
-
-//                 {/* Período */}
-//                 <div className="space-y-2">
-//                     <label className="text-sm font-medium">
-//                         Período
-//                     </label>
-
-//                     <Select
-//                         value={
-//                             selectedPeriodId
-//                                 ? String(selectedPeriodId)
-//                                 : ""
-//                         }
-//                         onValueChange={handlePeriodChange}
-//                     >
-//                         <SelectTrigger>
-//                             <SelectValue placeholder="Selecciona un período" />
-//                         </SelectTrigger>
-
-//                         <SelectContent>
-//                             {periodsMonthly.map((period) => (
-//                                 <SelectItem
-//                                     key={period.id}
-//                                     value={String(period.id)}
-//                                 >
-//                                     {period.name}
-//                                 </SelectItem>
-//                             ))}
-//                         </SelectContent>
-//                     </Select>
-//                 </div>
-
-//                 {/* Gasto */}
-//                 <div className="space-y-2">
-//                     <label className="text-sm font-medium">
-//                         Gasto
-//                     </label>
-
-//                     <Select
-//                         value={
-//                             selectedExpenseId
-//                                 ? String(selectedExpenseId)
-//                                 : ""
-//                         }
-//                         onValueChange={handleExpenseChange}
-//                     >
-//                         <SelectTrigger>
-//                             <SelectValue placeholder="Selecciona un gasto" />
-//                         </SelectTrigger>
-
-//                         <SelectContent>
-//                             {expenses.map((expense) => (
-//                                 <SelectItem
-//                                     key={expense.id}
-//                                     value={String(expense.id)}
-//                                 >
-//                                     {expense.name}
-//                                 </SelectItem>
-//                             ))}
-//                         </SelectContent>
-//                     </Select>
-//                 </div>
-
-//                 {/* Fecha */}
-//                 <div className="space-y-2">
-//                     <label className="text-sm font-medium">
-//                         Fecha a pagar
-//                     </label>
-
-//                     <Input
-//                         type="date"
-//                         value={formData.expense_date}
-//                         onChange={(e) =>
-//                             setFormData((prev) => ({
-//                                 ...prev,
-//                                 expense_date: e.target.value,
-//                             }))
-//                         }
-//                     />
-//                 </div>
-
-//                 {/* Valor */}
-//                 <div className="space-y-2">
-//                     <label className="text-sm font-medium">
-//                         Valor
-//                     </label>
-
-//                     <Input
-//                         type="text"
-//                         inputMode="numeric"
-//                         value={
-//                             formData.amount
-//                                 ? formData.amount.toLocaleString("es-CO")
-//                                 : ""
-//                         }
-//                         onChange={(e) => {
-//                             const rawValue =
-//                                 e.target.value.replace(/\D/g, "");
-
-//                             setFormData((prev) => ({
-//                                 ...prev,
-//                                 amount:
-//                                     rawValue === ""
-//                                         ? 0
-//                                         : Number(rawValue),
-//                             }));
-//                         }}
-//                     />
-//                 </div>
-
-//                 {/* Error */}
-//                 {error && (
-//                     <p className="rounded-md bg-red-50 p-3 text-sm text-red-600">
-//                         {error}
-//                     </p>
-//                 )}
-
-//                 {/* Botón */}
-//                 <Button
-//                     type="submit"
-//                     className="w-full"
-//                     disabled={loading}
-//                 >
-//                     {periodExpenseToEdit
-//                         ? "Actualizar gasto"
-//                         : "Registrar gasto"}
-//                 </Button>
-//             </form>
-//         </div>
-//     );
-// };
+                            // Solo permite números o un campo vacío
+                            if (rawValue === "" || /^\d+$/.test(rawValue)) {
+                                setExpense((prev) => ({
+                                    ...prev!,
+                                    amount: rawValue === "" ? 0 : Number(rawValue),
+                                }));
+                            }
+                        }}
+                    />
+                </div>
+                
+                {/* Error */}
+                {error && (
+                    <p className="rounded-md bg-red-50 p-3 text-sm text-red-600">
+                        {error}
+                    </p>
+                )}
+        
+                <Button type="submit" disabled={loading}>
+                    {periodExpenseToEdit ? "Actualizar gasto" : "Crear gasto"}
+                </Button>
+            </form>
+        </div>
+    );
+};

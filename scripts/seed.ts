@@ -107,6 +107,130 @@ async function main() {
             ]
         );
 
+        /*
+        |--------------------------------------------------------------------------
+        | Limpiar categorias de gastos
+        |--------------------------------------------------------------------------
+        */
+
+        await connection.execute(
+            `DELETE FROM expense_categories`
+        );
+
+        console.log("Tabla de categorias limpiada.");
+
+        /*
+        |--------------------------------------------------------------------------
+        | expense_categories
+        |--------------------------------------------------------------------------
+        */
+
+        const categories = [
+            [
+                "Vivienda",
+                1,
+                "Arriendo, cuota del conjunto, seguro del hogar"
+            ],
+            [
+                "Servicios publicos",
+                1,
+                "Energía, agua, internet"
+            ],
+            [
+                "Transporte",
+                2,
+                "Seguro del vehículo, parqueadero, transporte diario"
+            ],
+            [
+                "Educación",
+                1,
+                "Matrícula, pensión, suscripciones educativas"
+            ],
+            [
+                "Seguros",
+                1,
+                "De vida, hogar, vehículo"
+            ],
+            [
+                "Deudas",
+                1,
+                "Créditos, préstamos"
+            ],
+            [
+                "Suscripciones",
+                1,
+                "Membresías, plataformas, software"
+            ],
+            [
+                "Salud",
+                2,
+                "Medicamentos, medicina prepagada, seguro médico"
+            ],
+            [
+                "Alimentación",
+                2,
+                "Snacks, bebidas, domicilios"
+            ],
+            [
+                "Mercado",
+                1,
+                "Dinero destinado mensualmente para la alimentación"
+            ],
+            [
+                "Compras personales",
+                2,
+                "Ropa, calzado, accesorios, cuidado personal"
+            ],
+            [
+                "Entretenimiento",
+                2,
+                "Cine, videojuegos, eventos, salidas"
+            ],
+            [
+                "Hogar",
+                2,
+                "Reparaciones, mantenimiento, muebles"
+            ],
+            [
+                "Familia",
+                2,
+                "Regalos, actividades familiares, gastos imprevistos"
+            ],
+            [
+                "Mascotas",
+                2,
+                "Veterinarios, medicamentos, accesorios"
+            ],
+            [
+                "Viajes",
+                2,
+                "Transporte, hospedaje, alimentación"
+            ],
+            [
+                "Otros variables",
+                2,
+                "Imprevistos, comisiones, multas, gastos varios"
+            ],
+            [
+                "Vehículos",
+                1,
+                "Repuestos, SOAT, gasolina, seguros"
+            ],
+        ];
+
+        await connection.query(
+            `
+            INSERT INTO expense_categories
+                (name, category_type, description)
+            VALUES ?
+            `,
+            [categories]
+        );
+
+        console.log(
+            `${categories.length} categorías de gastos creadas.`
+        );
+
         console.log("Seed completado con éxito ✅");
 
     } catch (err) {
