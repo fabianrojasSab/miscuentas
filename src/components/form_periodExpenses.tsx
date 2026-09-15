@@ -309,9 +309,9 @@ export const FormPeriodExpense = ({
 
         try {
             if (periodExpenseToEdit) {
-                await UpdatePeriodExpense(body);
+                UpdatePeriodExpense(body);
             } else {
-                await createPeriodExpense(body);
+                createPeriodExpense(body);
             }
 
             setCategory("");
