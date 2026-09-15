@@ -11,7 +11,7 @@ type ExpensesForm = {
     expense_date: string;
     amount: number;
     period_id?:number,
-    expense_state_id: number,
+    expense_state_id?: number,
 };
 
 type ExpensePeriodRow = {
@@ -103,7 +103,6 @@ export const FormPeriodExpenseVariableByUser = ({ createPeriodExpense, periodExp
             expense_date: form.date.value,
             description: form.description.value ?? "",
             expense_category_id: Number(form.expense_category_id.value),
-            expense_state_id: Number(form.expense_state_id.value),
         };
 
         if (periodExpenseToEdit) {
@@ -309,9 +308,9 @@ export const FormPeriodExpense = ({
 
         try {
             if (periodExpenseToEdit) {
-                UpdatePeriodExpense(body);
+                await UpdatePeriodExpense(body);
             } else {
-                createPeriodExpense(body);
+                await createPeriodExpense(body);
             }
 
             setCategory("");
